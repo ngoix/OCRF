@@ -101,7 +101,7 @@ class IsolationForest(BaseBagging):
     """
 
     def __init__(self,
-                 n_estimators=100,
+                 n_estimators=1,
                  max_samples="auto",
                  max_features=1.,
                  bootstrap=False,

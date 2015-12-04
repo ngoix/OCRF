@@ -1,0 +1,1605 @@
+
+#include "../include/global.h"
+#include "../include/arff.h"
+//#include "../include/forestri.h"
+#include "../include/outliergenerator.h"
+#include "../include/instance.h"
+#include "../include/ocforest.h"
+
+#include <fstream>
+#include <string>
+#include <math.h>
+#include <sstream>
+#include <iostream>
+#include <cstdlib>
+
+template<typename T> ostream& operator<<(ostream& out, const vector<T>& v);
+vector<int> genPerm(int nb);
+
+/*run ...
+double run(string filename,int ksqrt,int targetClass,int nbO, double taillezone, int nbArbre, int nbBagging, ofstream &fichierRes){
+    char temp[30];
+    sprintf(temp,"./dataTemp/app_%d_%d.arff",targetClass,nbO);
+    string nomficApp = temp;
+    sprintf(temp,"./dataTemp/test_%d_%d.arff",targetClass,nbO);
+    string nomficTest = temp;
+
+    DataHandler * handlerBaseOrig = Arff::load(filename.c_str());
+    OutlierGenerator::genereArffOneClass(handlerBaseOrig,targetClass,nbO,nomficApp,nomficTest,taillezone,66);
+
+    DataHandler * handlerApp = Arff::load(nomficApp.c_str());
+    DataHandler * handlerTest = Arff::load(nomficTest.c_str());
+
+    int k = (int)sqrt(handlerApp->getNbAttributes())+1;
+
+    ForestRI * induct = new ForestRI(nbArbre,k,nbBagging);
+    DForest * forest = induct->growForest(handlerApp);
+    Result * res = forest->test(handlerTest);
+
+    res->affconfmat();
+    u_int ** confmat = res->getconfmat();
+    fichierRes << "matrice de confusion : \n";
+    fichierRes << "target : "<< confmat[0][0] << " bons, " << confmat[0][1] << " mauvais\n";
+    fichierRes << "outliers : "<< confmat[1][1] << " bons, " << confmat[1][0] << " mauvais\n";
+
+    return res->getRecoRate();
+
+}
+*/
+
+/*testFold
+Result * testFold(DataHandler * app, DataHandler * test,int nbArbre, bool amontGen,bool bagging, bool rsm,int nbRFS, int nbBagging, unsigned long int nbOutlier, double tailleZone, int nbRSM) {
+
+    OCForest * OCinduc = new OCForest(nbArbre,nbRFS,nbBagging,nbOutlier,tailleZone,nbRSM,amontGen,bagging,rsm);
+    DForest * foret = OCinduc->growForest(app);
+    Result * resultats;
+
+    if (rsm) {
+        resultats = foret->testOC(test,OCinduc->getlistesubspace(),nbRSM);
+    }
+    else {
+        resultats = foret->test(test);
+    }
+
+    delete OCinduc;
+    delete foret;
+    return resultats;
+}
+*/
+
+/*
+int main2(){
+
+    cout << "bouh\n";
+    int classeT = 1;
+    string * data = new string("./data/iris_arff.arff");
+    DataHandler * handler = Arff::load(data->c_str());
+    cout << handler->toString()<< "\n";
+    ofstream ficapp;
+    ofstream fictest;
+
+    ficapp.open("./data/app.arff");
+    fictest.open("./data/test.arff");
+
+    ficapp << "@relation OCapp\n";
+    fictest << "@relation OCtest\n";
+
+    cout << "nb att : " << handler->dim() << "\n";
+
+    for(int i=0; i<(int)handler->dim()-1; i++) {
+        ficapp << "@attribute " << i << " REAL\n";
+        fictest << "@attribute " << i << " REAL\n";
+    }
+
+    ficapp << "@attribute class {target,outlier}\n";
+    fictest << "@attribute class {target,outlier}\n";
+    ficapp << "@data\n";
+    fictest << "@data\n";
+
+    cout << "nb classe t : " << handler->size() << "\n";
+
+    int alea;
+    for (int i = 0; i < (int)handler->size(); i++) {
+        if ((int)handler->getClass(handler->getInstance(i)) == classeT) {
+            cout<< "target found !\n";
+            alea = Utils::randInt(100);
+            if (alea < 66) {
+                for(int j=0; j<(int)handler->dim()-1; j++) {
+                    ficapp << (handler->getInstance(i))->at(j) <<",";
+                }
+                ficapp << "target\n";
+            }
+            else {
+                for(int j=0; j<(int)handler->dim()-1; j++) {
+                    fictest << (handler->getInstance(i))->at(j) <<",";
+                }
+                fictest << "target\n";
+            }
+        }
+        else {
+            for(int j=0; j<(int)handler->dim()-1; j++) {
+                fictest << (handler->getInstance(i))->at(j) <<",";
+            }
+            fictest << "outlier\n";
+        }
+    }
+    ficapp.close();
+    fictest.close();
+return 0;
+}
+*/
+
+vector<int> getShuffle(int nbTotal,int nb){
+	vector<int> temp;
+
+temp.push_back(Utils::randInt(nb));
+
+while(temp.size()<nb){
+	int n=Utils::randInt(nb);
+
+int trouve=0;
+for(int i=0;i<temp.size();i++){
+	if(temp.at(i)==n) {trouve=1;break;}
+}
+
+if(trouve==0) temp.push_back(n);
+
+}
+
+	return temp;
+}
+
+/*
+dataFold: generate n-folds stratified repeated x times
+@param db: database
+@param nbAtt: data dimension
+@param nbFold
+@param nbIter: seed used for random algorithm (not used in september-2011 implementation)
+*/
+bool dataFold(string db,int nbAtt,int nbFold,int nbIter,int nbStrats){
+
+//int nbFold=10;
+
+//string data_dir="../data/db/"+db;
+string data_dir=(string)DATA_ROOT+"/"+db;
+
+string titreOutlier=data_dir+"/"+db+"_outlier.txt";
+string titreTarget=data_dir+"/"+db+"_target.txt";
+
+ifstream fileOutlier(titreOutlier.c_str(), ios::in);
+ifstream fileTarget(titreTarget.c_str(), ios::in);
+
+int nbTarget=0;
+int nbOutlier=0;
+string lineTemp;
+
+vector<string> vTarget;
+vector<string> vOutlier;
+while(std::getline(fileTarget,lineTemp)){
+	vTarget.push_back(lineTemp);
+}
+nbTarget=vTarget.size();
+
+while(std::getline(fileOutlier,lineTemp)){
+	vOutlier.push_back(lineTemp);
+}
+nbOutlier=vOutlier.size();
+
+//while(std::getline(fileOutlier,lineTemp)) ++nbOutlier;
+
+fileTarget.close();
+fileOutlier.close();
+
+//fileOutlier.clear();
+//fileOutlier.seekg(0, ios::beg);
+
+cout<<"nbTarget:"<<nbTarget<<endl;
+cout<<"nbOutlier:"<<nbOutlier<<endl;
+
+int nbTargetTest=(int)nbTarget/nbFold;//1-Fold
+int nbTargetApp=nbTarget-nbTargetTest;//(n-1)Folds
+int nbOutlierApp=0;//(n-1)Folds
+int nbOutlierTest=(int)nbOutlier/nbFold;//(n-1)Folds
+
+cout<<"nbTargetApp:"<<nbTargetApp<<endl;
+cout<<"nbOutlierApp:"<<nbOutlierApp<<endl;
+cout<<"nbTargetTest:"<<nbTargetTest<<endl;
+cout<<"nbOutlierTest:"<<nbOutlierTest<<endl;
+
+//int nbIter=2;
+for(int ii=0;ii<nbIter;ii++){
+Utils::randInt(nbTarget);
+}
+
+//strats
+	string sTrats=data_dir+"/strats";
+	mkdir(sTrats.c_str(),01777);
+
+for(int iterStrat=0;iterStrat<nbStrats;iterStrat++){
+
+string strat;
+stringstream out;
+out << iterStrat;
+strat = out.str();
+
+	string sFold=sTrats+"/strat_"+strat;
+	mkdir(sFold.c_str(),01777);
+
+
+vector<int> tempTarget=genPerm(nbTarget);//tous les targets melanges
+vector<int> tempOutlier=genPerm(nbOutlier);//tous les outliers melanges
+
+//cout<<"shuffle target:\n"<<tempTarget<<endl;
+//cout<<"shuffle Outlier:\n"<<tempOutlier<<endl;
+
+//cin.get();
+for(int i=0;i<nbFold;i++){
+
+
+vector<int> tempApp;
+vector<int> tempTestTarget;
+vector<int> tempTestOutlier;
+
+
+int valTarget=(i+1)*nbTargetTest;
+if(i==nbFold-1) valTarget=nbTarget;
+
+for(int j=i*nbTargetTest;j<valTarget;j++){
+	tempTestTarget.push_back(tempTarget[j]);
+}
+for(int j=0;j<i*nbTargetTest;j++){
+	tempApp.push_back(tempTarget[j]);
+}
+for(int j=valTarget;j<nbTarget;j++){
+	tempApp.push_back(tempTarget[j]);
+}
+
+int valOutlier=(i+1)*nbOutlierTest;
+if(i==nbFold-1) valOutlier=nbOutlier;
+
+for(int j=i*nbOutlierTest;j<valOutlier;j++){
+	tempTestOutlier.push_back(tempOutlier[j]);
+}
+
+
+
+
+//cout<<"liste App:\n"<<tempApp<<endl;
+//cout<<"liste Test Target:\n"<<tempTestTarget<<endl;
+//cout<<"liste Test Outlier:\n"<<tempTestOutlier<<endl;
+
+string s;
+stringstream out;
+out << i;
+s = out.str();
+
+	string subFold=sFold+"/fold_"+s;
+	mkdir(subFold.c_str(),01777);
+
+string titreApp=subFold+"/app.arff";
+string titreTest=subFold+"/test.arff";
+
+ofstream fileApp(titreApp.c_str(),ios::out);//|ios::app);
+ofstream fileTest(titreTest.c_str(),ios::out);//|ios::app);
+
+string line;
+//en-tete arff
+fileApp<<"@relation "<<db<<endl;
+fileTest<<"@relation "<<db<<endl;
+for(int dim=0;dim<nbAtt;dim++){
+	fileApp<<"@attribute "<<dim+1<<" REAL"<<endl;
+	fileTest<<"@attribute "<<dim+1<<" REAL"<<endl;
+}
+fileApp<<"@attribute class {outlier,target}"<<endl;//a inverser: outlier=0;target=1
+fileTest<<"@attribute class {outlier,target}"<<endl;
+fileApp<<"@data"<<endl;
+fileTest<<"@data"<<endl;
+
+
+for(int i=0;i<tempApp.size();i++){
+	fileApp<<vTarget[tempApp[i]]<<",target"<<endl;
+}
+for(int i=0;i<tempTestTarget.size();i++){
+	fileTest<<vTarget[tempTestTarget[i]]<<",target"<<endl;
+}
+for(int i=0;i<tempTestOutlier.size();i++){
+	fileTest<<vOutlier[tempTestOutlier[i]]<<",outlier"<<endl;
+}
+
+
+
+fileApp.close();
+fileTest.close();
+
+}
+
+}
+
+fileOutlier.close();
+
+return true;
+}
+
+/*
+dataLearningSet: generate a learning set and a test set
+@param db: database
+@param: nbAtt: data dimension
+*/
+bool dataLearningSet(string db,int nbAtt){
+
+//string data_dir="./data/db/"+db;
+string data_dir=(string)DATA_ROOT+"/"+db;
+
+string titreTarget=data_dir+"/"+db+"_target.txt";
+string titreTargetTest=data_dir+"/"+db+"_test_target.txt";
+string titreOutlierTest=data_dir+"/"+db+"_outlier.txt";
+
+ifstream fileOutlierTest(titreOutlierTest.c_str(), ios::in);
+ifstream fileTarget(titreTarget.c_str(), ios::in);
+ifstream fileTargetTest(titreTargetTest.c_str(), ios::in);
+
+int nbTarget=0;
+int nbTargetTest=0;
+int nbOutlierTest=0;
+string lineTemp;
+
+vector<string> vTarget;
+vector<string> vTargetTest;
+vector<string> vOutlierTest;
+
+while(std::getline(fileTarget,lineTemp)){
+	vTarget.push_back(lineTemp);
+}
+nbTarget=vTarget.size();
+
+while(std::getline(fileTargetTest,lineTemp)){
+	vTargetTest.push_back(lineTemp);
+}
+nbTargetTest=vTargetTest.size();
+
+while(std::getline(fileOutlierTest,lineTemp)){
+	vOutlierTest.push_back(lineTemp);
+}
+nbOutlierTest=vOutlierTest.size();
+
+
+
+fileTarget.close();
+fileTargetTest.close();
+fileOutlierTest.close();
+
+cout<<"nbTargetApp:"<<nbTarget<<endl;
+cout<<"nbOutlierApp:"<<0<<endl;
+cout<<"nbTargetTest:"<<nbTargetTest<<endl;
+cout<<"nbOutlierTest:"<<nbOutlierTest<<endl;
+
+
+string subFold=data_dir+"/strats/strat_0/fold_0";
+string temp=data_dir+"/strats";
+mkdir(temp.c_str(),01777);
+temp=data_dir+"/strats/strat_0";
+mkdir(temp.c_str(),01777);
+mkdir(subFold.c_str(),01777);
+
+string titreApp=subFold+"/app.arff";
+string titreTest=subFold+"/test.arff";
+
+ofstream fileApp(titreApp.c_str(),ios::out);//|ios::app);
+ofstream fileTest(titreTest.c_str(),ios::out);//|ios::app);
+
+string line;
+
+//en-tete arff
+fileApp <<"@relation "<<db<<endl;
+fileTest<<"@relation "<<db<<endl;
+
+for(int dim=0;dim<nbAtt;dim++){
+	fileApp<<"@attribute "<<dim+1<<" REAL"<<endl;
+	fileTest<<"@attribute "<<dim+1<<" REAL"<<endl;
+}
+fileApp<<"@attribute class {outlier,target}"<<endl;//a inverser: outlier=0;target=1
+fileTest<<"@attribute class {outlier,target}"<<endl;
+fileApp<<"@data"<<endl;
+fileTest<<"@data"<<endl;
+
+
+for(int i=0;i<nbTarget;i++){
+	fileApp<<vTarget[i]<<",target"<<endl;
+}
+for(int i=0;i<nbTargetTest;i++){
+	fileTest<<vTargetTest[i]<<",target"<<endl;
+}
+for(int i=0;i<nbOutlierTest;i++){
+	fileTest<<vOutlierTest[i]<<",outlier"<<endl;
+}
+
+fileApp.close();
+fileTest.close();
+//arff de target
+//arff de concatenation de outlier et test_target
+
+	return true;
+}
+
+/*
+dataLearningCV: generate p learning/(1-p) test fractions of original set (e.g. 2/3 for learning and 1/3 for test); actual implementation is 0.5/0.5 => to be upgraded)
+
+*/
+bool dataLearningCV(string db,int nbAtt,int nbIterMax){
+
+	string data_dir=(string)DATA_ROOT+"/"+db;
+
+string titreTarget=data_dir+"/"+db+"_target.txt";
+string titreOutlier=data_dir+"/"+db+"_outlier.txt";
+
+cerr<<titreTarget<<endl;
+cerr<<titreOutlier<<endl;
+
+ifstream fileOutlierTemp(titreOutlier.c_str(), ios::in);
+ifstream fileTargetTemp(titreTarget.c_str(), ios::in);
+
+vector<string> vOutlierTemp;
+vector<string> vTargetTemp;
+
+string lineTemp;
+while(std::getline(fileOutlierTemp,lineTemp)){
+	vOutlierTemp.push_back(lineTemp);
+}
+while(std::getline(fileTargetTemp,lineTemp)){
+	vTargetTemp.push_back(lineTemp);
+}
+
+fileTargetTemp.close();
+fileOutlierTemp.close();
+
+int nbTargetTemp=vTargetTemp.size();
+int nbOutlierTemp=vOutlierTemp.size();
+
+
+/*
+//debut generation des sets en validation croisée
+*/
+
+
+for(int nbIter=0;nbIter<nbIterMax;nbIter++){
+
+vector<string> vTarget;
+vector<string> vTargetTest;
+vector<string> vOutlierTest;
+vector<string> vOutlier;
+
+//cerr<<"CV debug 1:"<<nbIter<<endl;
+vector<int> vBoolTarget(nbTargetTemp,0);
+vector<int> randTemp=getShuffle(nbTargetTemp,(int)nbTargetTemp/2.);
+for(int i=0;i<randTemp.size();i++){
+
+	vBoolTarget.at(randTemp.at(i))=1;
+	vTarget.push_back(vTargetTemp.at(randTemp.at(i)));
+
+}
+//cerr<<"CV debug 2:"<<nbIter<<endl;
+for(int i=0;i<vBoolTarget.size();i++){
+
+	if(vBoolTarget.at(i)==0){
+		vTargetTest.push_back(vTargetTemp.at(i));
+	}
+
+}
+//cerr<<"CV debug 3:"<<nbIter<<endl;
+//
+//cout<<"nbTargetApp:"<<vTarget.size()<<endl;
+//cout<<"nbOutlierApp:"<<0<<endl;
+//cout<<"nbTargetTest:"<<vTargetTest.size()<<endl;
+
+
+vector<int> vBoolOutlier(nbOutlierTemp,0);
+randTemp=getShuffle(nbOutlierTemp,(int)nbOutlierTemp/2.);
+
+//cout<<"nbOutlierTemp:"<<nbOutlierTemp<<"/"<<randTemp.size()<<endl;
+
+for(int i=0;i<randTemp.size();i++){
+int truc=randTemp.at(i);
+	vBoolOutlier.at(truc)=1;
+	vOutlierTest.push_back(vOutlierTemp.at(truc));
+//cerr<<"CV debug rand:"<<i<<endl;
+
+}
+
+for(int i=0;i<vBoolOutlier.size();i++){
+
+	if(vBoolOutlier.at(i)==0){
+		vOutlier.push_back(vOutlierTemp.at(i));
+	}
+//cerr<<"CV debug rand:"<<i<<endl;
+
+}
+
+//cerr<<"CV debug 4:"<<nbIter<<endl;
+
+int nbTarget=vTarget.size();
+int nbOutlier=vOutlier.size();
+int nbTargetTest=vTargetTest.size();
+int nbOutlierTest=vOutlierTest.size();
+
+cout<<"nbTargetApp:"<<nbTarget<<endl;
+cout<<"nbOutlierApp:"<<0<<endl;
+cout<<"nbTargetTest:"<<nbTargetTest<<endl;
+cout<<"nbOutlierTest:"<<nbOutlierTest<<endl;
+
+
+
+stringstream out;
+out << nbIter;
+string strat = out.str();
+
+string subFold=data_dir+"/strats/strat_0/fold_"+strat;
+string temp=data_dir+"/strats";
+mkdir(temp.c_str(),01777);
+temp=data_dir+"/strats/strat_0";
+mkdir(temp.c_str(),01777);
+mkdir(subFold.c_str(),01777);
+
+string titreApp=subFold+"/app.arff";
+string titreTest=subFold+"/test.arff";
+string titreAppOutlierBackup=subFold+"/app_outlier_backup.arff";
+
+ofstream fileAppOutlierBackup(titreAppOutlierBackup.c_str(),ios::out);//|ios::app);
+ofstream fileApp(titreApp.c_str(),ios::out);//|ios::app);
+ofstream fileTest(titreTest.c_str(),ios::out);//|ios::app);
+
+string line;
+
+//en-tete arff
+fileAppOutlierBackup <<"@relation "<<db<<endl;
+fileApp <<"@relation "<<db<<endl;
+fileTest<<"@relation "<<db<<endl;
+
+for(int dim=0;dim<nbAtt;dim++){
+	fileAppOutlierBackup<<"@attribute "<<dim+1<<" REAL"<<endl;
+	fileApp<<"@attribute "<<dim+1<<" REAL"<<endl;
+	fileTest<<"@attribute "<<dim+1<<" REAL"<<endl;
+}
+fileAppOutlierBackup<<"@attribute class {outlier,target}"<<endl;
+fileApp<<"@attribute class {outlier,target}"<<endl;
+fileTest<<"@attribute class {outlier,target}"<<endl;
+fileAppOutlierBackup<<"@data"<<endl;
+fileApp<<"@data"<<endl;
+fileTest<<"@data"<<endl;
+
+
+for(int i=0;i<nbOutlier;i++){
+	fileAppOutlierBackup<<vOutlier[i]<<",outlier"<<endl;
+}
+
+for(int i=0;i<nbTarget;i++){
+	fileApp<<vTarget[i]<<",target"<<endl;
+}
+
+for(int i=0;i<nbTargetTest;i++){
+	fileTest<<vTargetTest[i]<<",target"<<endl;
+}
+
+for(int i=0;i<nbOutlierTest;i++){
+	fileTest<<vOutlierTest[i]<<",outlier"<<endl;
+}
+
+fileAppOutlierBackup.close();
+fileApp.close();
+fileTest.close();
+
+}
+
+
+
+	return true;
+}
+
+int main(int argc,char **argv){
+
+//string db="oc_589";//UCI
+
+string db;//=argv[1];//UCI
+int nbAttr;//=atoi(argv[2]);
+//int nbAttr=34;
+int nbFolds=10;//protocole ddTools
+int nbIter=3;//alea randInt =>le changer pour iterations differentes
+int nbStrats=5;//protocole ddTools
+
+bool rejet_nodes=true;//outliers en dehors du domaine (risque cependant
+bool optimize_gen=false;//true:OCRF_GEN RW+ (optimization of outliers generation in each subspace)
+bool optimize_amont=false;//optimization of outliers generation in each subspace
+
+int beta_temp;//=atoi(argv[3]);
+int ref;//=atoi(argv[4]);
+
+int iterMyStrat;//=atoi(argv[5]);
+int iterMyFold;//=atoi(argv[6]);
+
+int taille_dom;//=atoi(argv[7]);
+int rejet_bornes_ok;//=atoi(argv[8]);
+int optimize_ok=-1;
+
+int nbarg=22;//sizeof(argv);
+
+int frac_RSM=0;//index du coeff donnant meme valeur que nbRSM
+int frac_RFS=0;//index du coeff donnant meme valeur que nbRFS
+
+//cerr<<"nb arg:"<<nbarg<<endl;
+
+for(int i=1;i<nbarg;i+=2){
+
+string temp=(string)argv[i];
+
+//cerr<<"param:("<<i<<") nom:"<<argv[i]<<" val="<<argv[i+1]<<endl;
+if(temp.compare("-db")==0) {db=argv[i+1];cerr<<"-db:"<<db<<endl;}
+if(temp.compare("-dimension") ==0) {nbAttr=atoi(argv[i+1]);cerr<<"-nbAttr:"<<nbAttr<<endl;}
+if(temp.compare("-method") ==0) {ref=atoi(argv[i+1]);cerr<<"-ref:"<<ref<<endl;}
+if(temp.compare("-beta") ==0) {beta_temp=atoi(argv[i+1]);cerr<<"-beta_temp:"<<beta_temp<<endl;}
+if(temp.compare("-strat") ==0) {iterMyStrat=atoi(argv[i+1]);cerr<<"-iterMyStrat:"<<iterMyStrat<<endl;}
+if(temp.compare("-fold") ==0) {iterMyFold=atoi(argv[i+1]);cerr<<"-iterMyFold:"<<iterMyFold<<endl;}
+if(temp.compare("-alpha") ==0) {taille_dom=atoi(argv[i+1]);cerr<<"-taille_dom:"<<taille_dom<<endl;}
+if(temp.compare("-rejet_root") ==0) {rejet_bornes_ok=atoi(argv[i+1]);cerr<<"-rejet_bornes_ok:"<<rejet_bornes_ok<<endl;}
+if(temp.compare("-optimize") ==0) {optimize_ok=atoi(argv[i+1]);cerr<<"-optimize_ok:"<<optimize_ok<<endl;}
+if(temp.compare("-krsm") ==0) {frac_RSM=atoi(argv[i+1]);cerr<<"-rsm_ok:"<<frac_RSM<<endl;}
+if(temp.compare("-krfs") ==0) {frac_RFS=atoi(argv[i+1]);cerr<<"-rfs_ok:"<<frac_RFS<<endl;}
+}
+
+
+
+if(rejet_bornes_ok==0) rejet_nodes=false;
+if(optimize_ok==1) optimize_gen=true;//TODO:1=biased roulette-wheel;0:uniform;2=calculate histograms in global LS
+if(optimize_ok==2) optimize_amont=true;
+
+
+cerr<<"data init:\ndb:"<<db<<"\nnbAttr:"<<nbAttr<<"\nbeta:"<<beta_temp<<"\nmeth:"<<ref<<"\nalpha:"<<taille_dom<<"\nrejet_bornes:"<<rejet_bornes_ok<<"\noptimize:"<<optimize_ok<<endl;
+//bool launchFold=true;
+//bool launchClassif=false;
+bool launchFold=false;//n-fold repeated nbStrats fois
+bool launchLearningDir=false;//1 strat:1 fold 0;0;un seul jeu d'apprentissage et un seul jeu de test (utilisé notamment pour les bases artificielles
+bool launchCV=false;//cross validation 50/50 by default (medical datasets)
+
+bool launchClassif=true;
+
+if(launchFold || launchLearningDir || launchCV) launchClassif=false;
+
+//string truc="../data/db/"+db+"/strats";
+string truc=(string)DATA_ROOT+"/"+db+"/strats";
+ifstream fichier(truc.c_str());
+
+bool fichExists=!fichier.fail();
+fichier.close();
+if(fichExists){
+	if(launchFold || launchLearningDir || launchCV){
+		cerr<<"\n<=====||\\_/\\_/\\||=====>Strats exists\n\n"<<endl;exit(0);
+	}
+}
+
+if(launchCV){
+
+
+
+
+int nbIterMax=100;
+	dataLearningCV(db,nbAttr,nbIterMax);
+
+}
+
+if(launchLearningDir){
+	bool temp=dataLearningSet(db,nbAttr);
+}
+
+if(launchFold){
+    bool temp=dataFold(db,nbAttr,nbFolds,nbIter,nbStrats);
+}
+
+if(launchClassif){
+//def des folds
+
+    int nbArbreReglage = 20;
+    int nbArbreOpti = nbArbreReglage;
+
+    int L=nbArbreReglage;
+
+    int nbBagging = 100;//pourcentage du bagging
+
+    //float fracAlpha[]={0.0,0.2};
+    //float fracAlpha[]={0.5,0.6,0.7,0.8,0.9,1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2};
+    float fracAlpha[]={-0.5,-0.4,-0.3,-0.2,-0.1,0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2};//fracAlpha[7]=0.2
+    double taillezone = fracAlpha[taille_dom];//DOM_OUT=DOM_TARGET*(1+taillezone)
+
+    float fracRSM[]={0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1};
+    float fracRFS[]={0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1};
+
+bool amontGen=true;//method ede ref
+bool bagging = true;//true;
+bool rsm = false;
+
+if(ref==0){//bag_rsm
+//	cerr<<"meth:bag rsm"<<endl;cin.get();
+	amontGen=false;//method ede ref
+	bagging = true;//true;
+	rsm = true;
+}
+else{
+//cerr<<"meth:reference"<<endl;cin.get();
+}
+
+//en fonction de db
+    int nbRFS=0;
+    int nbRSM=0;//(int)nbCarac/2;
+
+
+
+unsigned long int outlierMax=1000000;
+
+//float fracBeta[]={1.0/5,1.0/2,1.0,2.0,5.0,10.0,20,50,100,150,300,600,1000,1500,2000,4000,8000};
+//float fracBeta[]={1.0,10.0,50.0,100.0};
+float fracBeta[]={0.01,0.05,0.1,0.2,0.3,0.40,0.5,0.6,0.7,0.8,0.9,1,1.1,1.25,1.5,1.75,2,3,5,10};////beta=1 pour fracBeta[11]
+int nbFrac=20;//sizeof(fracBeta)/sizeof(fracBeta[0]);
+int iterFrac=0;//initi de beta=1
+
+//bool continu = true;
+bool continu = false;
+
+
+//string sFoldRes="./resultats/res/"+db;
+//mkdir("./resultats/res/",01777);
+//mkdir(sFoldRes.c_str(),01777);
+
+string truc=(string)DATA_RESULTS_ROOT;
+	string sFoldRes=truc+"/"+db;
+	mkdir(truc.c_str(),01777);
+mkdir(sFoldRes.c_str(),01777);
+
+
+//string sout="./resultats/res/"+db+"_outlier";
+//	mkdir(sout.c_str(),01777);
+
+//	mkdir("./resultats/res/outlier",01777);
+
+
+stringstream varStream;
+
+string refStr;varStream << ref;refStr = varStream.str();varStream.str("");
+string beta_tempStr;varStream << beta_temp;beta_tempStr = varStream.str();varStream.str("");
+string taille_domStr;varStream << taille_dom;taille_domStr = varStream.str();varStream.str("");
+string rejet_bornes_okStr;varStream << rejet_bornes_ok;rejet_bornes_okStr = varStream.str();varStream.str("");
+string optimize_okStr;varStream << optimize_ok;optimize_okStr = varStream.str();varStream.str("");
+
+//int nbRSM_temp=(int)(fracRSM[frac_RSM]*nbCarac);
+//string krsmStr;varStream << nbRSM_temp;refStr = varStream.str();varStream.str("");
+//
+//string param="_krsm_"+krsmStr;//variables supplementaires K_RFS, K_RSM ...etc
+//string titreResMinMaxOutlier=sFoldRes+"/resultats_"+db+"_methode_"+refStr+param+"_beta_"+beta_tempStr+"_alpha_"+taille_domStr+"_rejetbornes_"+rejet_bornes_okStr+"_minmaxoutlier.txt";
+//string titreResMinMaxTarget=sFoldRes+"/resultats_"+ db+"_methode_"+refStr+param+"_beta_"+beta_tempStr+"_alpha_"+taille_domStr+"_rejetbornes_"+rejet_bornes_okStr+"_minmaxtarget.txt";
+//string titreRes=sFoldRes+"/resultats_"+             db+"_methode_"+refStr+param+"_beta_"+beta_tempStr+"_alpha_"+taille_domStr+"_rejetbornes_"+rejet_bornes_okStr+".txt";
+//string titreResLog=sFoldRes+"/resultats_log_"+      db+"_methode_"+refStr+param+"_beta_"+beta_tempStr+"_alpha_"+taille_domStr+"_rejetbornes_"+rejet_bornes_okStr+".txt";
+//string titreResDecision=sFoldRes+"/resultats_decision_"+      db+"_methode_"+refStr+param+"_beta_"+beta_tempStr+"_alpha_"+taille_domStr+"_rejetbornes_"+rejet_bornes_okStr+".txt";
+//
+//ofstream file_minmaxoutlier(titreResMinMaxOutlier.c_str(),ios::out|ios::app);
+//ofstream file_minmaxtarget(titreResMinMaxTarget.c_str(),ios::out|ios::app);
+//ofstream resultats(titreRes.c_str(),ios::out|ios::app);
+//ofstream resultatsLog(titreResLog.c_str(),ios::out|ios::app);
+////ofstream resultatsDecision(titreResDecision.c_str(),ios::out|ios::app);
+
+
+//test declarations
+
+for(int iterFrac=beta_temp;iterFrac<beta_temp+1;iterFrac++){
+//iteration sur les 10 folds
+//for(int iterStrat=iterMyStrat;iterStrat<iterMyStrat+1;iterStrat++){
+for(int iterStrat=0;iterStrat<nbStrats;iterStrat++){
+//for(int iterFold=iterMyFold;iterFold<iterMyFold+1;iterFold++){
+for(int iterFold=0;iterFold<nbFolds;iterFold++){
+
+string s1;
+string s2;
+stringstream out1;
+stringstream out2;
+out1 << iterStrat;
+out2 << iterFold;
+s1 = out1.str();
+s2 = out2.str();
+
+//cout<<"debug start 1"<<endl;
+//string dataAppPath ="../data/db/"+db+"/strats/strat_"+s1+"/fold_"+s2+"/app.arff";
+//string dataTestPath="../data/db/"+db+"/strats/strat_"+s1+"/fold_"+s2+"/test.arff";
+
+
+string dataAppPath =(string)DATA_ROOT+"/"+db+"/strats/strat_"+s1+"/fold_"+s2+"/app.arff";
+string dataTestPath=(string)DATA_ROOT+"/"+db+"/strats/strat_"+s1+"/fold_"+s2+"/test.arff";
+
+
+
+cout<<"paths\napp:"<<dataAppPath<<endl;
+//cout<<"paths\ntest:"<<dataTestPath<<endl;
+//cout<<"debug2"<<endl;
+    //DataHandler *
+
+
+
+//double **minmaxval;
+
+//cerr<<"debug delete 1"<<endl;
+DataHandler * handlerBaseOrig = Arff::load(dataAppPath.c_str());//base d'apprentissage
+//DataHandler * handlerBaseOrig = new DataHandler(*Arff::load(dataAppPath.c_str()));//base d'apprentissage
+DataHandler * handlerTest = Arff::load(dataTestPath.c_str());//base de test
+//DataHandler * handlerTest = new DataHandler(*Arff::load(dataTestPath.c_str()));//base de test
+
+//cerr<<"debug delete 3"<<endl;
+//cout<<"debug3"<<endl;
+    int nbCarac = handlerBaseOrig->getNbAttributes();
+		int nbTargetApp=handlerBaseOrig->getDistrib(TARGET);//nbTarget disponible en Apprentissage
+		int nbOutlierApp=handlerBaseOrig->getDistrib(OUTLIER);//nbOutlier=0 dans noptre problematique oneclass
+		int nbTargetTest=handlerTest->getDistrib(TARGET);//nbTarget disponible en Apprentissage
+		int nbOutlierTest=handlerTest->getDistrib(OUTLIER);//nbOutlier=0 dans noptre problematique oneclass
+
+
+
+
+
+///optimize gen
+
+
+vector<vector<int> > histoOutlier;
+vector<vector<double> > boundsInterTarget;
+
+//cerr<<optimize_gen<<endl;cin.get();
+if(optimize_gen){
+//cerr<<"meth:optimize activiated"<<endl;cin.get();
+bool alea_biais=true;
+
+//vector<vector<int> > histoOutlier;
+//vector<vector<double> > boundsInterTarget;
+
+if(alea_biais){//roue de la fortune biaisée
+
+
+
+int nb_partition=50;//50;sqrt(nbData);//10;//10:valeur conseillée max par aggarwal et al. ref?;\sqrt{n} a voir
+double largeurborne=0;//mesure de l'intervalle
+
+int nbData=handlerBaseOrig->size();
+int nbCarac=handlerBaseOrig->dim();
+//double taillezone=tailleZ;
+//double **
+double **minmaxval=handlerBaseOrig->computeMinMax();
+vector<Instance>  data=handlerBaseOrig->getDataSet()->getData();
+//int nbCarac=base->dim();
+
+vector<vector<int> > histoTargetTemp(nbCarac,vector<int>(nb_partition,0));
+vector<vector<int> > histoOutlierTemp(nbCarac,vector<int>(nb_partition,0));
+vector<vector<double> > boundsInterTargetTemp(nbCarac,vector<double>(nb_partition+1,0));
+
+//double largeurborne_alpha=largeurborne+taillezone;
+//cerr << "debug genereoutlier 03";
+
+        for (int c=0;c<nbCarac;c++) {
+        	if(c==handlerBaseOrig->getClassInd()) continue;
+            largeurborne = minmaxval[1][c] - minmaxval[0][c];
+double largeurborne_alpha=largeurborne*(1+taillezone);
+int volume_inter=largeurborne_alpha/nb_partition;
+
+//cerr<<"nbcarac:"<<nbCarac<<":largeur:"<<largeurborne<<endl;cin.get();
+//cerr << "\ndebug genereoutlier 030:"<<c<<endl;
+
+for(int k=0;k<nb_partition+1;k++){
+	//curval = ranval*(1+taillezone)*largeurborne + minmaxval[0][c] - taillezone/2*largeurborne;//on genere dans l'enveloppe pour la dimension c une valeur
+
+//cerr << "\ndebug genereoutlier 0301:"<<k<<endl;
+
+	double inter_min=(double)k/(nb_partition)*largeurborne_alpha+minmaxval[0][c]-taillezone/2*largeurborne;
+
+	//inter.at(k)=inter_min;
+boundsInterTargetTemp.at(c).at(k)=inter_min;
+//cerr << "\ndebug genereoutlier 0302:"<<k<<endl;
+//cerr<<"dim:"<<c<<" iter:"<<k<<"/\\:"<<inter_min<<endl;
+}
+
+//cerr << "debug genereoutlier 04:"<<c<<endl;
+
+//    for (int i=0;i<base->size();i++) {
+
+//            cout <<"debug inst "<<c<<"\n";
+
+
+double max_val=0;
+int somme_effectifs=0;
+int somme_effectifs_derivative=0;
+
+//vector<double> temp=Utils::getMatCol(data);
+vector<double> temp;
+	for(int i=0;i<nbData;i++){
+		double val=data.at(i).at(c);
+temp.push_back(val);//vecteur colonne c
+//cerr<<val<<";";
+	}
+//cerr<<endl;
+
+//cerr << "debug genereoutlier 05"<<endl;
+std::sort (temp.begin(), temp.end());
+//cerr << "debug genereoutlier 06"<<endl;
+
+//for(int i=0;i<nbData;i++){
+//	cerr<<temp.at(i)<<";";
+//}
+//cerr<<endl;
+//cin.get();
+
+int k=0;
+for(int j=0;j<nb_partition;j++){
+	int eff=0;
+	int iter_nb=0;
+
+//cerr<<"debug part 1"<<endl;
+	double t=temp.at(0);
+//cerr<<"debug part 2"<<endl;
+	double a1=boundsInterTargetTemp.at(c).at(j);
+//cerr<<"debug part 3"<<endl;
+	double a2=boundsInterTargetTemp.at(c).at(j+1);
+//cerr<<"debug part 4"<<endl;
+	while(t<a1 && k<nbData){
+		iter_nb++;
+		t=temp.at(k);k++;
+	}
+
+//cerr<<"debug part 5"<<endl;
+	while(t<a2 && k<nbData){
+		iter_nb++;
+		t=temp.at(k);k++;eff++;
+	}
+
+
+//cerr << "debug genereoutlier 07:"<<a1<<"\t"<<a2<<"\t"<<eff<<endl;
+//
+//	for(int i=0;i<nbData;i++){
+//		double val=data.at(i).at(c);
+//
+////		cerr<<"val trouvee:"<<val<<endl;
+//		if(val>=inter.at(j) && val<inter.at(j+1)) eff++;
+//	}
+//	effectifs.at(j)=eff;
+	histoTargetTemp.at(c).at(j)=eff;
+	histoOutlierTemp.at(c).at(j)=-eff;
+//somme_effectifs+=eff;
+	if(eff>max_val) max_val=eff;
+//cerr<<"dimension:"<<c<<" eff:"<<eff<<endl;
+
+//cerr << "debug genereoutlier 08:"<<c<<"/"<<j<<"/"<<nb_partition<<endl;
+}
+
+//cerr << "debug genereoutlier 09"<<endl;
+
+for(int j=0;j<nb_partition;j++){
+	histoOutlierTemp.at(c).at(j)+=max_val;
+}
+
+
+
+
+
+//        }
+
+}
+
+
+//histoTarget=histoTargetTemp;
+histoOutlier=histoOutlierTemp;
+boundsInterTarget=boundsInterTargetTemp;
+
+
+histoOutlierTemp.clear();
+histoTargetTemp.clear();
+boundsInterTargetTemp.clear();
+
+delete[] minmaxval[0];
+delete[] minmaxval[1];
+delete[] minmaxval;
+
+}
+
+}//fin optimize_gen
+else{
+//cerr<<"meth:not optimized=>uniform"<<endl;cin.get();
+}
+
+///fin optimize gen
+
+
+
+
+
+
+
+    //u_int nbCarac = handlerBaseOrig->getNbAttributes();
+
+    //double **
+//    minmaxval = new double*[2];
+//
+//    minmaxval[0] = new double [nbCarac];//min max pour chacune des dimensions
+//    minmaxval[1] = new double [nbCarac];
+//
+//cout << "1"<<endl;
+//
+//    for (int c=0;c<nbCarac;c++){
+//        minmaxval[0][c] = (double)handlerBaseOrig->getInstance(0)->at(c);
+//        minmaxval[1][c] = (double)handlerBaseOrig->getInstance(0)->at(c);
+//    }
+//
+//cout << "2"<<endl;
+//
+////remplissage minmax
+//    for (int i=0;i<handlerBaseOrig->size();i++) {
+//        for (int c =0;c<nbCarac;c++) {
+//            if( (double)handlerBaseOrig->getInstance(i)->at(c) < minmaxval[0][c] ) {
+//                minmaxval[0][c] = (double)handlerBaseOrig->getInstance(i)->at(c);
+//            }
+//            if( (double)handlerBaseOrig->getInstance(i)->at(c) > minmaxval[1][c] ) {
+//                minmaxval[1][c] = (double)handlerBaseOrig->getInstance(i)->at(c);
+//            }
+//        }
+//    }
+//
+//vector<double> moyTemp;//=null
+//vector<double> moy=handlerBaseOrig->normalize(minmaxval,moyTemp,true);
+//handlerTest->normalize(minmaxval,moy,false);
+
+
+//    if (nbCarac/2 > 10) {
+//        nbRSM = 10;
+//    }
+//    else {
+//        nbRSM = (int)nbCarac/2;
+//    }
+
+//    if(nbCarac < 10) {
+//			nbRSM = nbCarac;
+//    }
+//    else{
+//			nbRSM = (int)nbCarac/2;
+//    }
+
+nbRSM = (int)nbCarac;//
+
+if(rsm){
+
+		if(nbAttr>10)
+		nbRSM = 10;//(int)nbCarac/2;//
+		else nbRSM=nbAttr;
+
+//nbRSM=frac_RSM;//
+//nbRSM=(int)(fracRSM[frac_RSM]*nbCarac);
+
+}
+		//nbRSM = (int)sqrt(nbCarac);//
+		//nbRSM=(int)nbCarac/2;//standard de la litterature [HoRSM98]
+//nbRSM=4;
+
+    nbRFS =(int)sqrt(nbRSM);
+    //nbRFS =fracRFS[frac_RFS]*nbRSM;//(int)sqrt(nbRSM);
+
+    //unsigned long int nbOutlier = 0;
+//    unsigned long int nbOutlier2;
+
+//cout<<"debug ici iterfrac"<<endl;
+    unsigned long int nbOutlierOpti = (int)nbTargetApp*fracBeta[iterFrac];//beta=1
+//cout<<"debug ici iterfrac ok"<<endl;
+
+//    double meanNode1;
+//    double meanNode2;
+//    double pente;
+    double oldperf=0.0;
+
+int iter=0;
+int a=1;
+float b=0;
+
+
+
+
+
+///temporaire
+
+int nbRSM_temp=nbRSM;//(int)(fracRSM[frac_RSM]*nbCarac);
+string krsmStr;varStream << nbRSM_temp;krsmStr = varStream.str();varStream.str("");
+
+string param="_krsm_"+krsmStr;//variables supplementaires K_RFS, K_RSM ...etc
+
+string titreResMinMaxOutlier=sFoldRes+"/resultats_"+db+"_methode_"+refStr+param+"_beta_"+beta_tempStr+"_alpha_"+taille_domStr+"_rejetbornes_"+rejet_bornes_okStr+"_minmaxoutlier.txt";
+string titreResMinMaxTarget=sFoldRes+"/resultats_"+ db+"_methode_"+refStr+param+"_beta_"+beta_tempStr+"_alpha_"+taille_domStr+"_rejetbornes_"+rejet_bornes_okStr+"_minmaxtarget.txt";
+string titreRes=sFoldRes+"/resultats_"+             db+"_methode_"+refStr+param+"_beta_"+beta_tempStr+"_alpha_"+taille_domStr+"_rejetbornes_"+rejet_bornes_okStr+".txt";
+string titreResLog=sFoldRes+"/resultats_log_"+      db+"_methode_"+refStr+param+"_beta_"+beta_tempStr+"_alpha_"+taille_domStr+"_rejetbornes_"+rejet_bornes_okStr+".txt";
+string titreResDecision=sFoldRes+"/resultats_decision_"+      db+"_methode_"+refStr+param+"_beta_"+beta_tempStr+"_alpha_"+taille_domStr+"_rejetbornes_"+rejet_bornes_okStr+".txt";
+
+ofstream file_minmaxoutlier(titreResMinMaxOutlier.c_str(),ios::out|ios::app);
+ofstream file_minmaxtarget(titreResMinMaxTarget.c_str(),ios::out|ios::app);
+ofstream resultats(titreRes.c_str(),ios::out|ios::app);
+ofstream resultatsLog(titreResLog.c_str(),ios::out|ios::app);
+ofstream resultatsDecision(titreResDecision.c_str(),ios::out|ios::app);
+
+
+//string data_res_path="resultats/res/"+db+"log_res.txt";
+//ofstream fich_res(data_res_path.c_str(),ios::out|ios::app);
+resultatsDecision<<"\nstrat_"+s1+"/fold_"+s2;//<<endl;
+resultatsDecision.close();
+
+//string truc=sFoldRes+"/time_tree.txt";
+//string truc1=sFoldRes+"/time.txt";
+//ofstream time_tree(truc.c_str(),ios::out|ios::app);
+//time_tree<<"\nstrat_"+s1+"/fold_"+s2;//<<endl;
+//time_tree.close();
+//
+//ofstream time_calc(truc1.c_str(),ios::out|ios::app);
+//time_calc<<"\nstrat_"+s1+"/fold_"+s2;//<<endl;
+//time_calc.close();
+
+///fin temporaire
+
+resultatsLog<<"Strats/fold:"<<iterStrat<<","<<iterFold<<endl;
+resultatsLog<<"Parametrage OCRF:"<<endl;
+resultatsLog<<"L:"<<nbArbreReglage << "/optim:"<<nbArbreOpti<<endl;
+resultatsLog<<"Bagging:"<<bagging<<" # "<<nbBagging<<endl;
+resultatsLog<<"RSM:"<<rsm<<" # "<<nbRSM<<endl;
+resultatsLog<<"RFS:"<<nbRFS<<endl;
+resultatsLog<<"alpha:"<<taillezone<<endl;
+resultatsLog<<"nbTargetApp:"<<nbTargetApp<<endl;
+resultatsLog<<"nbOutlierApp:"<<nbOutlierApp<<endl;
+resultatsLog<<"nbTargetTest:"<<nbTargetTest<<endl;
+resultatsLog<<"nbOutlierTest:"<<nbOutlierTest<<endl;
+resultatsLog<<"Parametrage DataBase Orig:"<<endl;
+resultatsLog<<handlerBaseOrig->toString();
+resultatsLog<<"\n\nParametrage DataBase Test:"<<endl;
+resultatsLog<<handlerTest->toString()<<endl;
+
+//cout<<"Strats/fold:"<<iterStrat<<","<<iterFold<<endl;
+//cout<<"Parametrage OCRF:"<<endl;
+//cout<<"Bagging:"<<bagging<<" # "<<nbBagging<<endl;
+//cout<<"RSM:"<<rsm<<" # "<<nbRSM<<endl;
+//cout<<"RFS:"<<nbRFS<<endl;
+//cout<<"alpha:"<<taillezone<<endl;
+//cout<<"nbTargetApp:"<<nbTargetApp<<endl;
+//cout<<"nbOutlierApp:"<<nbOutlierApp<<endl;
+//cout<<"nbTargetTest:"<<nbTargetTest<<endl;
+//cout<<"nbOutlierTest:"<<nbOutlierTest<<endl;
+//cout<<"Parametrage DataBase Orig:"<<endl;
+//cout<<handlerBaseOrig->toString();
+//
+//cout<<"\n\nParametrage DataBase Test:"<<endl;
+//cout<<handlerTest->toString()<<endl;
+
+
+
+
+//    while (continu) {
+//
+//        cout << "-------------------------------------------------------\n";
+//        cout << "nbOutlier 1 : "<< nbOutlier << " iter:"<<iter++<<"/"<<(int)log(outlierMax)/log(10)-1<<"\n";
+//
+//        OCForest * OCinduc1 = new OCForest(nbArbreReglage,nbRFS,nbBagging,nbOutlier,taillezone,nbRSM,bagging,rsm);
+//        DForest * foret1 = OCinduc1->growForest(handlerBaseOrig);
+//
+//        Result * res1;
+//        res1 = foret1->testOC(handlerTest,OCinduc1->getlistesubspace(),nbRSM);
+//
+//        delete(OCinduc1);
+//        delete(foret1);
+//
+//        u_int ** confmat = res1->getconfmat();
+//        double perft = (double)confmat[0][0] / (double)(confmat[0][0]+confmat[0][1]);
+//        double perfo = (double)confmat[1][1] / (double)(confmat[1][0]+confmat[1][1]);
+//        double perf = (double)(perft+perfo)/2.0;
+//        cout << "performance : " << perf << "\n";
+//
+//resultats<<perf<<"\t"<<perft<<"\t"<<perfo<<"\t"<<nbOutlier<<endl;
+//
+//	    nbOutlier2 = nbOutlier;
+//            nbOutlier += a*pow(10,b);////1.5;
+//            if((++a%10)==0) {b=b+0.03;a=1;}
+//            a++;
+//            a=a%10;
+//            cout<<"valeurs increments:"<<a<<"#"<<b<<"#"<<nbOutlier<<endl;
+//	    oldperf = perf;
+//
+//
+//	if (nbOutlier > outlierMax){//75000) {
+//		continu = false;
+//		nbOutlierOpti = nbOutlier2;
+//	}
+//    }
+
+
+
+//    cout << "nbOutlier optim : " << nbOutlierOpti << "\n";
+cout<<"\nM:"<<nbCarac<<"#alpha:"<<1+taillezone<<"#beta:"<<fracBeta[iterFrac]<<"#nbOutlierGen:"<<nbOutlierOpti<<"#nbTargetApp:"<<nbTargetApp<<"#nbOutlierApp:"<<nbOutlierApp<<"#nbTargetTest:"<<nbTargetTest<<"#nbOutlierTest:"<<nbOutlierTest<<"#bagging:"<<bagging<<"#RSM:"<<rsm<<"#K_RSM:"<<nbRSM<<"#K_RFS:"<<nbRFS<<"#strat:"<<iterStrat<<"#fold:"<<iterFold<<"#beta:"<<nbOutlierOpti<<endl;
+
+
+//cerr<<"debug main src 1"<<endl;
+
+//double** minmax_outlier=handlerBaseOrig->computeMinMax();
+//double** minmax_target=handlerTest->computeMinMaxOutlier();
+double** minmax_outlier=handlerTest->computeMinMaxClass(OUTLIER);
+double** minmax_target=handlerTest->computeMinMaxClass(TARGET);
+
+//cerr<<"debug main src 2"<<endl;
+
+bool log_trees=false;
+if(iterStrat==0 && iterFold==0) log_trees=true;
+
+    //OCForest *
+OCForest * OCinducfinal = new OCForest(nbArbreOpti,nbRFS,nbBagging,nbOutlierOpti,taillezone,nbRSM,amontGen,bagging,rsm,rejet_nodes,optimize_gen,db,histoOutlier,boundsInterTarget,log_trees);
+
+//cerr<<"debug main src 3"<<endl;
+
+//   cerr<<"debug rsm main 1"<<endl;
+
+    //DForest *
+//DForest * foretfinale = new DForest(*OCinducfinal->growForest(handlerBaseOrig));
+
+//cout<<"\nnom de la base:"<<db<<endl;
+//vector<vector<int> > histoOutlier;
+//vector<vector<double> > boundsInterTarget;
+DForest * foretfinale = OCinducfinal->growForest(handlerBaseOrig);
+
+//cerr<<"debug rsm main 2"<<endl;
+
+//    Result * res;//TODO
+//cerr<<"debug rsm main 3"<<endl;
+//string nom_foret=sFoldRes+"/forets";
+//mkdir(nom_foret.c_str(),01777);
+//nom_foret=sFoldRes+"/forets/forets_methode_"+argv[4]+"_beta_"+argv[3];
+//mkdir(nom_foret.c_str(),01777);
+//
+//foretfinale->saveFile(nom_foret);
+
+
+/*à decommenter pour avoir le vote de la foret pour chaque exemple
+ofstream resultatsDecision(titreResDecision.c_str(),ios::out|ios::app);
+resultatsDecision<<"\nM:"<<nbCarac<<"#alpha:"<<1+taillezone<<"#fracbeta:"<<fracBeta[iterFrac]<<"#nbOutlierGen:"<<nbOutlierOpti<<"#nbTargetApp:"<<nbTargetApp<<"#nbOutlierApp:"<<nbOutlierApp<<"#nbTargetTest:"<<nbTargetTest<<"#nbOutlierTest:"<<nbOutlierTest<<"#bagging:"<<bagging<<"#RSM:"<<rsm<<"#K_RSM:"<<nbRSM<<"#K_RFS:"<<nbRFS<<"#strat:"<<iterStrat<<"#fold:"<<iterFold<<"#beta:"<<nbOutlierOpti<<endl;
+
+resultatsDecision.close();
+*/
+
+Result * res = foretfinale->testOC(handlerTest,OCinducfinal->getlistesubspace(),rsm,nbRSM,titreResDecision);
+
+
+
+
+//cerr<<"debug rsm main 4"<<endl;
+//res->affconfmat();
+//cout<<"debug rsm main 3"<<endl;
+
+u_int ** confmat = res->getconfmat();
+
+double force=0;
+double correlation=0;
+double borne=0;
+//cerr<<"oob estimates:"<<endl;
+//cerr<<foretfinale->getOOBestimates()->toString()<<endl;
+
+//force=foretfinale->strength(handlerTest);
+//correlation=foretfinale->correlation(handlerTest);
+//borne=correlation*(1-force)/force;
+
+//double oobError=
+//cerr<<"stats foret:"<<endl;
+//cerr<<"force:"<<force<<endl;
+//cerr<<"correlation:"<<correlation<<endl;
+//cerr<<"borne:"<<correlation/force<<endl;
+
+//cerr<<"oobError:"<<endl;
+//cerr<<foretfinale->getOOBOCestimates()->toString()<<endl;
+//cin.get();
+//res->affconfmat();
+
+
+//stats sur la base app et test/outlier
+
+int nbC=nbAttr;//sizeof(minmax_outlier[0])/sizeof(minmax_outlier[0][0]);
+//cerr<<"taille minmax:"<<nbC<<endl;
+for(int i=0;i<nbC;i++){
+	file_minmaxtarget<<minmax_target[0][i]<<"\t";
+	file_minmaxoutlier<<minmax_outlier[0][i]<<"\t";
+}
+for(int i=0;i<nbC;i++){
+	file_minmaxtarget<<minmax_target[1][i]<<"\t";
+	file_minmaxoutlier<<minmax_outlier[1][i]<<"\t";
+}
+
+file_minmaxtarget<<"\n";
+file_minmaxoutlier<<"\n";
+
+
+
+//cerr<<"debug rsm main 5"<<endl;
+//cout<<"\n#nbNodesMean:"<<(double)OCinducfinal->getNbNodes()/L<<"#reco:"<<res->getRecoRate()<<"#TP:"<<confmat[0][0] << "#FA:" << confmat[0][1] <<"#ND:"<< confmat[1][0] << "#TN:" << confmat[1][1] <<"\n"<< endl;
+
+    cout <<"\nM:"<<nbCarac<<"#alpha:"<<1+taillezone<<"#beta:"<<fracBeta[iterFrac]<<"#nbOutlierGen:"<<nbOutlierOpti;
+    cout <<"#nbTargetApp:"<<nbTargetApp<<"#nbOutlierApp:"<<nbOutlierApp<<"#nbTargetTest:"<<nbTargetTest<<"#nbOutlierTest:"<<nbOutlierTest;
+    cout <<"#bagging:"<<bagging<<"#RSM:"<<rsm<<"#K_RSM:"<<nbRSM<<"#K_RFS:"<<nbRFS<<"#strat:"<<iterStrat<<"#fold:"<<iterFold<<"#beta:"<<nbOutlierOpti;
+    cout <<"#nbNodesMean:"<<(double)OCinducfinal->getNbNodes()/L<<"#VarnbNodesMean:"<<(double)OCinducfinal->getVarNbNodes();
+    cout <<"#nbLevelsMean:"<<(double)OCinducfinal->getNbLevels()/L<<"#VarnbLevelsMean:"<<(double)OCinducfinal->getVarNbLevels();
+    cout <<"#nbLeavesMean:"<<(double)OCinducfinal->getNbLeaves()/L<<"#VarnbLeavesMean:"<<(double)OCinducfinal->getVarNbLeaves();
+    cout <<"#nbLeavesTargetMean:"<<(double)OCinducfinal->getNbLeavesTarget()/L<<"#VarnbLeavesTargetMean:"<<(double)OCinducfinal->getVarNbLeavesTarget();
+    cout <<"#nbLeavesOutlierMean:"<<(double)OCinducfinal->getNbLeavesOutlier()/L<<"#VarnbLeavesOutlierMean:"<<(double)OCinducfinal->getVarNbLeavesOutlier();
+    cout <<"#force:"<<force<<"#correlation:"<<correlation;
+
+//    cout <<"#reco:"<<res->getRecoRate()<<"#TP:"<<confmat[0][0] << "#FA:" << confmat[0][1] <<"#ND:"<< confmat[1][0] << "#TN:" << confmat[1][1] << endl;
+    cout <<"#reco_pond:"<<res->getRecoPond()<<"#reco:"<<res->getRecoRate()<<"#TP:"<<confmat[TARGET][TARGET] << "#FN:" << confmat[TARGET][OUTLIER] <<"#FP:"<< confmat[OUTLIER][TARGET] << "#TN:" << confmat[OUTLIER][OUTLIER] << endl;
+//    cout << "matrice de confusion : \n";
+//    cout << "tar : "<< confmat[0][0] << ", " << confmat[0][1] << endl;
+//    cout << "out : "<< confmat[1][0] << ", " << confmat[1][1] << endl;
+//    cout << "-----------------"<<endl;
+//    cout << "Rec : "<<res->getRecoRate()<<"\n";
+//    cout << "Err : "<<res->getErrorRate()<<"\n";
+
+    resultatsLog <<"M:"<<nbCarac<<"#alpha:"<<1+taillezone<<"#beta:"<<fracBeta[iterFrac]<<"#nbOutlierGen:"<<nbOutlierOpti;
+    resultatsLog <<"#nbTargetApp:"<<nbTargetApp<<"#nbOutlierApp:"<<nbOutlierApp<<"#nbTargetTest:"<<nbTargetTest<<"#nbOutlierTest:"<<nbOutlierTest;
+    resultatsLog <<"#bagging:"<<bagging<<"#RSM:"<<rsm<<"#K_RSM:"<<nbRSM<<"#K_RFS:"<<nbRFS<<"#strat:"<<iterStrat<<"#fold:"<<iterFold;
+    resultatsLog <<"#beta:"<<nbOutlierOpti;
+    resultatsLog <<"#rejet_bornes:"<<rejet_nodes;
+    resultatsLog <<"#time_train:"<<(double)foretfinale->stat_getMeanDTTimeTrain();
+    resultatsLog <<"#nbNodesMean:"<<(double)OCinducfinal->getNbNodes()/L<<"#VarnbNodesMean:"<<(double)OCinducfinal->getVarNbNodes();
+    resultatsLog <<"#nbLevelsMean:"<<(double)OCinducfinal->getNbLevels()/L<<"#VarnbLevelsMean:"<<(double)OCinducfinal->getVarNbLevels();
+    resultatsLog <<"#nbLeavesMean:"<<(double)OCinducfinal->getNbLeaves()/L<<"#VarnbLeavesMean:"<<(double)OCinducfinal->getVarNbLeaves();
+    resultatsLog <<"#nbLeavesTargetMean:"<<(double)OCinducfinal->getNbLeavesTarget()/L<<"#VarnbLeavesTargetMean:"<<(double)OCinducfinal->getVarNbLeavesTarget();
+    resultatsLog <<"#nbLeavesOutlierMean:"<<(double)OCinducfinal->getNbLeavesOutlier()/L<<"#VarnbLeavesOutlierMean:"<<(double)OCinducfinal->getVarNbLeavesOutlier();
+    resultatsLog <<"#force:"<<force<<"#correlation:"<<correlation;
+
+    resultatsLog <<"#reco_pond:"<<res->getRecoPond()<<"#reco:"<<res->getRecoRate()<<"#TP:"<<confmat[TARGET][TARGET] << "#FN:" << confmat[TARGET][OUTLIER] <<"#FP:"<< confmat[OUTLIER][TARGET] << "#TN:" << confmat[OUTLIER][OUTLIER] << endl;
+
+
+    resultatsLog << "matrice de confusion : \n";
+    resultatsLog << "tar : "<< confmat[TARGET][TARGET] << ", " << confmat[TARGET][OUTLIER] << endl;
+    resultatsLog << "out : "<< confmat[OUTLIER][TARGET] << ", " << confmat[OUTLIER][OUTLIER] << endl;
+    resultatsLog << "-----------------"<<endl;
+    resultatsLog << "Rec : "<<res->getRecoRate()<<"\n";
+    resultatsLog << "Err : "<<res->getErrorRate()<<"\n";
+    resultatsLog << "#####################################################################"<<"\n";
+
+
+
+//cout<<"Bagging:"<<bagging<<" # "<<nbBagging<<endl;
+//cout<<"RSM:"<<rsm<<" # "<<nbRSM<<endl;
+//cout<<"RFS:"<<nbRFS<<endl;
+//cout<<"alpha:"<<taillezone<<endl;
+//cout<<"nbTargetApp:"<<nbTargetApp<<endl;
+//cout<<"nbOutlierApp:"<<nbOutlierApp<<endl;
+//cout<<"nbTargetTest:"<<nbTargetTest<<endl;
+//cout<<"nbOutlierTest:"<<nbOutlierTest<<endl;
+
+
+
+    resultats <<"M:"<<nbCarac<<"#alpha:"<<1+taillezone<<"#beta:"<<fracBeta[iterFrac]<<"#nbOutlierGen:"<<nbOutlierOpti;
+    resultats <<"#nbTargetApp:"<<nbTargetApp<<"#nbOutlierApp:"<<nbOutlierApp<<"#nbTargetTest:"<<nbTargetTest<<"#nbOutlierTest:"<<nbOutlierTest;
+    resultats <<"#bagging:"<<bagging<<"#RSM:"<<rsm<<"#K_RSM:"<<nbRSM<<"#K_RFS:"<<nbRFS<<"#strat:"<<iterStrat<<"#fold:"<<iterFold;
+    resultats <<"#beta:"<<nbOutlierOpti;
+    resultats <<"#rejet_bornes:"<<rejet_nodes;
+    resultats <<"#time_train:"<<(double)foretfinale->stat_getMeanDTTimeTrain();
+    resultats <<"#nbNodesMean:"<<(double)OCinducfinal->getNbNodes()/L<<"#VarnbNodesMean:"<<(double)OCinducfinal->getVarNbNodes();
+    resultats <<"#nbLevelsMean:"<<(double)OCinducfinal->getNbLevels()/L<<"#VarnbLevelsMean:"<<(double)OCinducfinal->getVarNbLevels();
+    resultats <<"#nbLeavesMean:"<<(double)OCinducfinal->getNbLeaves()/L<<"#VarnbLeavesMean:"<<(double)OCinducfinal->getVarNbLeaves();
+    resultats <<"#nbLeavesTargetMean:"<<(double)OCinducfinal->getNbLeavesTarget()/L<<"#VarnbLeavesTargetMean:"<<(double)OCinducfinal->getVarNbLeavesTarget();
+    resultats <<"#nbLeavesOutlierMean:"<<(double)OCinducfinal->getNbLeavesOutlier()/L<<"#VarnbLeavesOutlierMean:"<<(double)OCinducfinal->getVarNbLeavesOutlier();
+    resultats <<"#force:"<<force<<"#correlation:"<<correlation;
+
+    resultats <<"#reco_pond:"<<res->getRecoPond()<<"#reco:"<<res->getRecoRate()<<"#TP:"<<confmat[TARGET][TARGET] << "#FN:" << confmat[TARGET][OUTLIER] <<"#FP:"<< confmat[OUTLIER][TARGET] << "#TN:" << confmat[OUTLIER][OUTLIER] << endl;
+
+
+
+//delete[] confmat[0];
+//delete[] confmat[1];
+//delete[] confmat;
+
+//cout<<"debug 1"<<endl;
+//    delete[] minmaxval[0];
+////cout<<"debug 2"<<endl;
+//    delete[] minmaxval[1];
+////cout<<"debug 3"<<endl;
+//    delete[] minmaxval;
+//cout<<"debug 4"<<endl;
+
+//    delete confmat[0];
+//cout<<"debug 5"<<endl;
+//    delete confmat[1];
+//cout<<"debug 6"<<endl;
+//    delete[] confmat;
+
+//handlerTest=NULL;
+//handlerBaseOrig=NULL;
+
+//cout<<"debug 7"<<endl;
+//cout<<"debug 11"<<endl;
+//cerr<<"main delete minmax"<<endl;
+delete[] minmax_outlier[0];
+delete[] minmax_outlier[1];
+delete[] minmax_outlier;
+delete[] minmax_target[0];
+delete[] minmax_target[1];
+delete[] minmax_target;
+//cerr<<"fin main delete minmax"<<endl;
+
+//try {
+//
+
+//OCinducfinal=NULL;
+    delete(OCinducfinal);
+//cout<<"debug 8"<<endl;
+    delete(foretfinale);
+//cout<<"debug 9"<<endl;
+    delete(res);
+
+//cout<<"debug 12"<<endl;
+
+//cerr<<"debug: delete handlerTest"<<endl;
+//handlerTest=NULL;
+delete(handlerTest);
+//cerr<<"debug: fin delete hendletest"<<endl;
+//if(handlerTest!=NULL){
+//
+//}
+//cerr<<"debug 11 bis"<<endl;
+//throw bad_alloc();
+//
+//   }
+//   catch( char * str ) {
+//      cout << "Impossible de detruire Handler Test: " << str << '\n';
+//   }
+//cerr<<"debug: delete handlerOrig"<<endl;
+delete(handlerBaseOrig);
+//cerr<<"debug: delete handlerOrig"<<endl;
+//cout<<"debug 10"<<endl;
+
+
+resultats.close();
+resultatsLog.close();
+
+file_minmaxtarget.close();
+file_minmaxoutlier.close();
+
+
+
+}//fin iter_fold
+
+}//fin iterStrat
+
+}//fin iterFrac
+
+
+//resultatsDecision.close();
+///temporaire
+//resultats.close();
+//resultatsLog.close();
+//
+//file_minmaxtarget.close();
+//file_minmaxoutlier.close();
+///fin temporaire
+}
+
+}
+
+void stdversarff() {
+    ofstream fichierarff;
+    fichierarff.open("./data/DigitOutlier_85.arff");
+    ifstream donneeapp;
+    donneeapp.open("./DigitOutlier/digitOutlier-App.vec85");
+    char * ligne;
+    ligne = (char*)malloc(50*sizeof(char));
+    donneeapp.ignore(1,'\n');
+    donneeapp.getline(ligne,50);
+cout << "bouh\n";
+    string * affligne = new string(ligne);
+
+    vector<string> tokens;
+    Utils::tokenize(*affligne, tokens, " ");
+    int nbDonnee = (int)Utils::from_string(tokens[0]);
+    int nbCarac = (int)Utils::from_string(tokens[1]);
+
+    char *lignecur;
+    lignecur = (char*)malloc(50000*sizeof(char));
+
+    fichierarff << "@relation digitoutlier85\n";
+    fichierarff << "%\n";
+    for (int c=0;c<nbCarac;c++) {
+        fichierarff << "@attribute "<<c+1<<" REAL\n";
+    }
+    fichierarff << "@attribute class    {Digit,Outlier}\n";
+    fichierarff << "%\n";
+    fichierarff << "@data\n";
+
+    for (int i=0;i<nbDonnee;i++) {
+        donneeapp.ignore(1,'\n');
+        donneeapp.getline(lignecur,50000);
+        affligne = new string(lignecur);
+//cout << *affligne<<"\n";
+        vector<string> tokens;
+        Utils::tokenize(*affligne, tokens, " ");
+
+        for (int c=0;c<nbCarac;c++){
+            fichierarff<<Utils::from_scientific(&tokens[c+1])<<",";
+        }
+        if (tokens[0].compare("%") == 0) {
+            fichierarff<<"Outlier\n";
+        }
+        else {
+            fichierarff<<"Digit\n";
+        }
+
+    }
+
+
+    ifstream donneetest;
+    donneetest.open("./DigitOutlier/digitOutlier-Test.vec85");
+
+    donneetest.ignore(1,'\n');
+    donneetest.getline(ligne,50);
+    affligne = new string(ligne);
+
+    vector<string> tokens2;
+    Utils::tokenize(*affligne, tokens2, " ");
+    nbDonnee = (int)Utils::from_string(tokens2[0]);
+    nbCarac = (int)Utils::from_string(tokens2[1]);
+
+    lignecur = (char*)malloc(50000*sizeof(char));
+    for (int i=0;i<nbDonnee;i++) {
+        donneetest.ignore(1,'\n');
+        donneetest.getline(lignecur,50000);
+        affligne = new string(lignecur);
+//cout << *affligne<<"\n";
+        vector<string> tokens2;
+        Utils::tokenize(*affligne, tokens2, " ");
+
+        for (int c=0;c<nbCarac;c++){
+            fichierarff<<Utils::from_scientific(&tokens2[c+1])<<",";
+        }
+        if (tokens2[0].compare("%") == 0) {
+            fichierarff<<"Outlier\n";
+        }
+        else {
+            fichierarff<<"Digit\n";
+        }
+
+    }
+}
+
+vector<int> genPerm(int nb){
+
+vector<int> temp;
+
+int iter=Utils::randInt(nb);
+temp.push_back(iter);
+
+int touche=0;
+int trouve=1;
+while(trouve<nb){
+	int n=temp.size();
+	int t=Utils::randInt(nb);
+
+	int truc=0;
+	for(int j=0;j<n;j++){
+		if(temp[j]==t){
+			truc=1;
+			break;
+		}
+	}
+	if(truc==0){
+		temp.push_back(t);
+		trouve++;
+	}
+//cout<<"done gen nb:"<<trouve+1<<"/"<<(nb)<<endl;
+}
+
+	return temp;
+}
+
+template<typename T> ostream& operator<<(ostream& out, const vector<T>& v) {
+
+	int i;
+	for (i = 0; i < (int) v.size(); i++) {
+		if (i < (int) v.size() - 1)
+			out << v.at(i) << "\n";
+		else
+			out << v.at(i) << endl;
+	}
+
+	return out;
+}

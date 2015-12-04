@@ -7,9 +7,13 @@
 *.swp
 *.swo
 .DS_Store
+*.arff
+
 build
 sklearn/datasets/__config__.py
 sklearn/**/*.html
+sklearn/**/*.css
+sklearn/**/*.png
 
 dist/
 MANIFEST
@@ -61,3 +65,4 @@ cythonize.dat
 
 !*/src/*.c
 !*/src/*.cpp
+!sklearn/ensemble/ocrf_open/ocrf_v0.6/src/*

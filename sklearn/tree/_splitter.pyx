@@ -18,6 +18,7 @@
 from ._criterion cimport Criterion
 
 from libc.stdlib cimport free
+from libc.stdlib cimport realloc
 from libc.stdlib cimport qsort
 from libc.string cimport memcpy
 from libc.string cimport memset
@@ -44,6 +45,12 @@ cdef DTYPE_t FEATURE_THRESHOLD = 1e-7
 cdef DTYPE_t EXTRACT_NNZ_SWITCH = 0.1
 
 cdef inline void _init_split(SplitRecord* self, SIZE_t start_pos) nogil:
+    self.volume_left = 2.
+    self.volume_right = 2.
+    self.lim_inf_left = <DTYPE_t*> NULL
+    self.lim_inf_right = <DTYPE_t*> NULL #<DTYPE_t*> -INFINITY * np.ones(n_features)
+    self.lim_sup_left = <DTYPE_t*> NULL #<DTYPE_t*> INFINITY * np.ones(n_features)
+    self.lim_sup_right = <DTYPE_t*> NULL #<DTYPE_t*> INFINITY * np.ones(n_features)
     self.impurity_left = INFINITY
     self.impurity_right = INFINITY
     self.pos = start_pos
@@ -203,12 +210,13 @@ cdef class Splitter:
                             self.sample_weight,
                             self.weighted_n_samples,
                             self.samples,
+                            self.feature_values,
                             start,
                             end)
 
         weighted_n_node_samples[0] = self.criterion.weighted_n_node_samples
 
-    cdef void node_split(self, double impurity, SplitRecord* split,
+    cdef void node_split(self, DTYPE_t* lim_inf, DTYPE_t* lim_sup, double volume, double impurity, SplitRecord* split,
                          SIZE_t* n_constant_features) nogil:
         """Find the best split on node samples[start:end].
 
@@ -295,7 +303,7 @@ cdef class BestSplitter(BaseDenseSplitter):
                                self.random_state,
                                self.presort), self.__getstate__())
 
-    cdef void node_split(self, double impurity, SplitRecord* split,
+    cdef void node_split(self, DTYPE_t* lim_inf, DTYPE_t* lim_sup, double volume, double impurity, SplitRecord* split,
                          SIZE_t* n_constant_features) nogil:
         """Find the best split on node samples[start:end]."""
         # Find the best split
@@ -309,6 +317,7 @@ cdef class BestSplitter(BaseDenseSplitter):
 
         cdef DTYPE_t* X = self.X
         cdef DTYPE_t* Xf = self.feature_values
+        cdef DTYPE_t Xf_pos
         cdef SIZE_t X_sample_stride = self.X_sample_stride
         cdef SIZE_t X_feature_stride = self.X_feature_stride
         cdef SIZE_t max_features = self.max_features
@@ -342,6 +351,10 @@ cdef class BestSplitter(BaseDenseSplitter):
         cdef SIZE_t n_total_constants = n_known_constants
         cdef DTYPE_t current_feature_value
         cdef SIZE_t partition_end
+        cdef void* ptr
+        cdef double volume_left, volume_right 
+        cdef DTYPE_t n_leb_left = 0.
+        cdef DTYPE_t n_leb_right = 0.
 
         _init_split(&best, end)
 
@@ -456,9 +469,11 @@ cdef class BestSplitter(BaseDenseSplitter):
                             if ((self.criterion.weighted_n_left < min_weight_leaf) or
                                     (self.criterion.weighted_n_right < min_weight_leaf)):
                                 continue
-
-                            current_proxy_improvement = self.criterion.proxy_impurity_improvement()
-
+                            ############
+                            volume_right = volume * (lim_sup[current.feature] - (Xf[p - 1] + Xf[p]) / 2.0) / (lim_sup[current.feature] - lim_inf[current.feature])
+                            volume_left = volume * ((Xf[p - 1] + Xf[p]) / 2.0 - lim_inf[current.feature]) / (lim_sup[current.feature] - lim_inf[current.feature])
+                            current_proxy_improvement = self.criterion.proxy_impurity_improvement(volume_left, volume_right)
+                            ############
                             if current_proxy_improvement > best_proxy_improvement:
                                 best_proxy_improvement = current_proxy_improvement
                                 current.threshold = (Xf[p - 1] + Xf[p]) / 2.0
@@ -488,9 +503,50 @@ cdef class BestSplitter(BaseDenseSplitter):
             self.criterion.reset()
             self.criterion.update(best.pos)
             best.improvement = self.criterion.impurity_improvement(impurity)
-            self.criterion.children_impurity(&best.impurity_left,
-                                             &best.impurity_right)
 
+            ###############################################################################
+            Xf_pos = best.threshold #<DTYPE_t> 0.5 * Xf[best.pos-1] + 0.5 * Xf[best.pos] 
+
+            best.volume_right = volume * (lim_sup[best.feature] - Xf_pos) / (lim_sup[best.feature] - lim_inf[best.feature])
+            # ou equivalent mais + couteux: = (lim_sup_right - lim_inf_right).prod()
+            best.volume_left = volume * (Xf_pos - lim_inf[best.feature]) / (lim_sup[best.feature] - lim_inf[best.feature])
+            # ou equivalent mais + couteux: = (lim_sup_left - lim_inf_left).prod()
+
+            # want to do best.lim_inf_left = lim_inf but making copies: (done by memcpy, but need good memory size before)
+            ptr = realloc(best.lim_inf_left, n_features * sizeof(DTYPE_t))
+            best.lim_inf_left = <DTYPE_t*> ptr
+            ptr = realloc(best.lim_inf_right, n_features * sizeof(DTYPE_t))
+            best.lim_inf_right = <DTYPE_t*> ptr
+            ptr = realloc(best.lim_sup_left, n_features * sizeof(DTYPE_t))
+            best.lim_sup_left = <DTYPE_t*> ptr
+            ptr = realloc(best.lim_sup_right, n_features * sizeof(DTYPE_t))
+            best.lim_sup_right = <DTYPE_t*> ptr
+            #free(ptr)
+            
+            memcpy(best.lim_inf_left, lim_inf, sizeof(DTYPE_t) * n_features)
+            memcpy(best.lim_inf_right, lim_inf, sizeof(DTYPE_t) * n_features)
+            memcpy(best.lim_sup_right, lim_sup, sizeof(DTYPE_t) * n_features)
+            memcpy(best.lim_sup_left, lim_sup, sizeof(DTYPE_t) * n_features)
+
+            best.lim_inf_right[best.feature] = Xf_pos #best.threshold
+            best.lim_sup_left[best.feature] = Xf_pos #best.threshold
+
+            # best.volume_right = 1.
+            # best.volume_left = 1.
+            # for j in range(n_features):
+            #     best.volume_right *= best.lim_sup_right[j] - best.lim_inf_right[j]
+            #     best.volume_left *= best.lim_sup_left[j] - best.lim_inf_left[j]
+
+
+            ## best.volume_right = volume * (Xf[end-1] - Xf_pos) / (Xf[end-1] - Xf[start])
+            ## best.volume_left = volume * (Xf_pos - Xf[start]) / (Xf[end-1] - Xf[start])
+            n_leb_right = <DTYPE_t> (end - start) * best.volume_right / (best.volume_right + best.volume_left) 
+            n_leb_left = <DTYPE_t> (end - start) * best.volume_left / (best.volume_right + best.volume_left) 
+            self.criterion.children_impurity(&best.impurity_left,
+                                             &best.impurity_right,
+                                             best.volume_left,
+                                             best.volume_right)
+        ############################################################################
         # Reset sample mask
         if self.presort == 1:
             for p in range(start, end):
@@ -510,7 +566,14 @@ cdef class BestSplitter(BaseDenseSplitter):
         split[0] = best
         n_constant_features[0] = n_total_constants
 
+        # XXXX
+        # free(best.lim_inf_left)
+        # free(best.lim_inf_right)
+        # free(best.lim_sup_left)
+        # free(best.lim_sup_right)
 
+        
+        
 # Sort n-element arrays pointed to by Xf and samples, simultaneously,
 # by the values in Xf. Algorithm: Introsort (Musser, SP&E, 1997).
 cdef inline void sort(DTYPE_t* Xf, SIZE_t* samples, SIZE_t n) nogil:
@@ -620,7 +683,7 @@ cdef void heapsort(DTYPE_t* Xf, SIZE_t* samples, SIZE_t n) nogil:
         sift_down(Xf, samples, 0, end)
         end = end - 1
 
-
+# plus tard faire la même chose sur cette classe:
 cdef class RandomSplitter(BaseDenseSplitter):
     """Splitter for finding the best random split."""
     def __reduce__(self):
@@ -631,7 +694,7 @@ cdef class RandomSplitter(BaseDenseSplitter):
                                  self.random_state,
                                  self.presort), self.__getstate__())
 
-    cdef void node_split(self, double impurity, SplitRecord* split,
+    cdef void node_split(self, DTYPE_t* lim_inf, DTYPE_t* lim_sup, double volume, double impurity, SplitRecord* split,
                          SIZE_t* n_constant_features) nogil:
         """Find the best random split on node samples[start:end]."""
         # Draw random splits and pick the best
@@ -645,6 +708,7 @@ cdef class RandomSplitter(BaseDenseSplitter):
 
         cdef DTYPE_t* X = self.X
         cdef DTYPE_t* Xf = self.feature_values
+        cdef DTYPE_t Xf_pos
         cdef SIZE_t X_sample_stride = self.X_sample_stride
         cdef SIZE_t X_feature_stride = self.X_feature_stride
         cdef SIZE_t max_features = self.max_features
@@ -673,6 +737,10 @@ cdef class RandomSplitter(BaseDenseSplitter):
         cdef DTYPE_t max_feature_value
         cdef DTYPE_t current_feature_value
         cdef SIZE_t partition_end
+        cdef void* ptr
+        cdef double volume_left, volume_right 
+        cdef DTYPE_t n_leb_left = 0.
+        cdef DTYPE_t n_leb_right = 0.
 
         _init_split(&best, end)
 
@@ -788,8 +856,11 @@ cdef class RandomSplitter(BaseDenseSplitter):
                     if ((self.criterion.weighted_n_left < min_weight_leaf) or
                             (self.criterion.weighted_n_right < min_weight_leaf)):
                         continue
-
-                    current_proxy_improvement = self.criterion.proxy_impurity_improvement()
+                    ############
+                    volume_right = volume * (lim_sup[current.feature] - (Xf[p - 1] + Xf[p]) / 2.0) / (lim_sup[current.feature] - lim_inf[current.feature])
+                    volume_left = volume * ((Xf[p - 1] + Xf[p]) / 2.0 - lim_inf[current.feature]) / (lim_sup[current.feature] - lim_inf[current.feature])
+                    current_proxy_improvement = self.criterion.proxy_impurity_improvement(volume_left, volume_right)
+                    ############
 
                     if current_proxy_improvement > best_proxy_improvement:
                         best_proxy_improvement = current_proxy_improvement
@@ -817,8 +888,58 @@ cdef class RandomSplitter(BaseDenseSplitter):
             self.criterion.reset()
             self.criterion.update(best.pos)
             best.improvement = self.criterion.impurity_improvement(impurity)
+            ###############################################################################
+            Xf_pos = best.threshold #<DTYPE_t> 0.5 * Xf[best.pos-1] + 0.5 * Xf[best.pos] 
+
+            best.volume_right = volume * (lim_sup[best.feature] - Xf_pos) / (lim_sup[best.feature] - lim_inf[best.feature])
+            # ou equivalent mais + couteux: = (lim_sup_right - lim_inf_right).prod()
+            best.volume_left = volume * (Xf_pos - lim_inf[best.feature]) / (lim_sup[best.feature] - lim_inf[best.feature])
+            # ou equivalent mais + couteux: = (lim_sup_left - lim_inf_left).prod()
+
+            # want to do best.lim_inf_left = lim_inf but making copies: (done by memcpy, but need good memory size before)
+            ptr = realloc(best.lim_inf_left, n_features * sizeof(DTYPE_t))
+            best.lim_inf_left = <DTYPE_t*> ptr
+            ptr = realloc(best.lim_inf_right, n_features * sizeof(DTYPE_t))
+            best.lim_inf_right = <DTYPE_t*> ptr
+            ptr = realloc(best.lim_sup_left, n_features * sizeof(DTYPE_t))
+            best.lim_sup_left = <DTYPE_t*> ptr
+            ptr = realloc(best.lim_sup_right, n_features * sizeof(DTYPE_t))
+            best.lim_sup_right = <DTYPE_t*> ptr
+            #free(ptr)
+            
+            memcpy(best.lim_inf_left, lim_inf, sizeof(DTYPE_t) * n_features)
+            memcpy(best.lim_inf_right, lim_inf, sizeof(DTYPE_t) * n_features)
+            memcpy(best.lim_sup_right, lim_sup, sizeof(DTYPE_t) * n_features)
+            memcpy(best.lim_sup_left, lim_sup, sizeof(DTYPE_t) * n_features)
+
+            best.lim_inf_right[best.feature] = Xf_pos #best.threshold
+            best.lim_sup_left[best.feature] = Xf_pos #best.threshold
+
+            # best.volume_right = 1.
+            # best.volume_left = 1.
+            # for j in range(n_features):
+            #     best.volume_right *= best.lim_sup_right[j] - best.lim_inf_right[j]
+            #     best.volume_left *= best.lim_sup_left[j] - best.lim_inf_left[j]
+
+
+            ## best.volume_right = volume * (Xf[end-1] - Xf_pos) / (Xf[end-1] - Xf[start])
+            ## best.volume_left = volume * (Xf_pos - Xf[start]) / (Xf[end-1] - Xf[start])
+            n_leb_right = <DTYPE_t> (end - start) * best.volume_right / (best.volume_right + best.volume_left) 
+            n_leb_left = <DTYPE_t> (end - start) * best.volume_left / (best.volume_right + best.volume_left) 
             self.criterion.children_impurity(&best.impurity_left,
-                                             &best.impurity_right)
+                                             &best.impurity_right,
+                                             best.volume_left,
+                                             best.volume_right)
+        ############################################################################
+
+            Xf_pos = <DTYPE_t> 0.9 * Xf[best.pos-1] + 0.1 * Xf[best.pos] #best.threshold
+            #best.lim_inf_right = lim_inf
+            #best.lim_sup_left = lim_sup
+            #best.lim_inf_right[best.feature] = Xf_pos #best.threshold
+            #best.lim_sup_left[best.feature] = Xf_pos #best.threshold
+
+            # best.volume_right = volume * (Xf[end-1] - best.threshold) / (Xf[end-1] - Xf[start])
+            # best.volume_left = volume * (best.threshold - Xf[start]) / (Xf[end-1] - Xf[start])
 
         # Respect invariant for constant features: the original order of
         # element in features[:n_known_constants] must be preserved for sibling
@@ -1166,7 +1287,7 @@ cdef class BestSparseSplitter(BaseSparseSplitter):
                                      self.random_state,
                                      self.presort), self.__getstate__())
 
-    cdef void node_split(self, double impurity, SplitRecord* split,
+    cdef void node_split(self, DTYPE_t* lim_inf, DTYPE_t* lim_sup, double volume, double impurity, SplitRecord* split,
                          SIZE_t* n_constant_features) nogil:
         """Find the best split on node samples[start:end], using sparse
            features.
@@ -1381,7 +1502,6 @@ cdef class BestSparseSplitter(BaseSparseSplitter):
         split[0] = best
         n_constant_features[0] = n_total_constants
 
-
 cdef class RandomSparseSplitter(BaseSparseSplitter):
     """Splitter for finding a random split, using the sparse data."""
 
@@ -1393,7 +1513,7 @@ cdef class RandomSparseSplitter(BaseSparseSplitter):
                                        self.random_state,
                                        self.presort), self.__getstate__())
 
-    cdef void node_split(self, double impurity, SplitRecord* split,
+    cdef void node_split(self, DTYPE_t* lim_inf, DTYPE_t* lim_sup, double volume, double impurity, SplitRecord* split,
                          SIZE_t* n_constant_features) nogil:
         """Find a random split on node samples[start:end], using sparse
            features.
@@ -1594,6 +1714,15 @@ cdef class RandomSparseSplitter(BaseSparseSplitter):
             best.improvement = self.criterion.impurity_improvement(impurity)
             self.criterion.children_impurity(&best.impurity_left,
                                              &best.impurity_right)
+
+            Xf_pos = <DTYPE_t> 0.9 * Xf[best.pos-1] + 0.1 * Xf[best.pos] #best.threshold
+            #best.lim_inf_right = lim_inf
+            #best.lim_sup_left = lim_sup
+            #best.lim_inf_right[best.feature] = Xf_pos #best.threshold #XXX indenter???
+            #best.lim_sup_left[best.feature] = Xf_pos #best.threshold #XXX indenter???
+
+            # best.volume_right = volume * (Xf[end-1] - best.threshold) / (Xf[end-1] - Xf[start])
+            # best.volume_left = volume * (best.threshold - Xf[start]) / (Xf[end-1] - Xf[start])
 
         # Respect invariant for constant features: the original order of
         # element in features[:n_known_constants] must be preserved for sibling

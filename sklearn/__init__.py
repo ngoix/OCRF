@@ -68,7 +68,7 @@ else:
                'preprocessing', 'qda', 'random_projection', 'semi_supervised',
                'svm', 'tree', 'discriminant_analysis',
                # Non-modules:
-               'clone']
+               'clone', 'lsanomaly']
 
 def setup_module(module):
     """Fixture for the tests to assure globally controllable seeding of RNGs"""

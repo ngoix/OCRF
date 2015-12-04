@@ -49,7 +49,7 @@ cdef class Criterion:
         pass
 
     cdef void init(self, DOUBLE_t* y, SIZE_t y_stride, DOUBLE_t* sample_weight,
-                   double weighted_n_samples, SIZE_t* samples, SIZE_t start,
+                   double weighted_n_samples, SIZE_t* samples, DTYPE_t* feature_values, SIZE_t start,
                    SIZE_t end) nogil:
         """Placeholder for a method which will initialize the criterion.
 
@@ -116,8 +116,8 @@ cdef class Criterion:
 
         pass
 
-    cdef void children_impurity(self, double* impurity_left,
-                                double* impurity_right) nogil:
+    cdef void children_impurity(self, double* impurity_left, double* impurity_right,
+                                double volume_left=0., double volume_right=0.) nogil:
         """Placeholder for calculating the impurity of children.
 
         Placeholder for a method which evaluates the impurity in
@@ -150,7 +150,7 @@ cdef class Criterion:
 
         pass
 
-    cdef double proxy_impurity_improvement(self) nogil:
+    cdef double proxy_impurity_improvement(self, double volume_left=0., double volume_right=0.) nogil:
         """Compute a proxy of the impurity reduction
 
         This method is used to speed up the search for the best split.
@@ -161,13 +161,8 @@ cdef class Criterion:
         The absolute impurity improvement is only computed by the
         impurity_improvement method once the best split has been found.
         """
-        cdef double impurity_left
-        cdef double impurity_right
-        self.children_impurity(&impurity_left, &impurity_right)
-
-        return (- self.weighted_n_right * impurity_right
-                - self.weighted_n_left * impurity_left)
-
+        pass
+    
     cdef double impurity_improvement(self, double impurity) nogil:
         """Placeholder for improvement in impurity after a split.
 
@@ -191,19 +186,9 @@ cdef class Criterion:
         ------
         double: improvement in impurity after the split occurs
         """
+        pass
 
-        cdef double impurity_left
-        cdef double impurity_right
-
-        self.children_impurity(&impurity_left, &impurity_right)
-
-        return ((self.weighted_n_node_samples / self.weighted_n_samples) *
-                (impurity - (self.weighted_n_right / 
-                             self.weighted_n_node_samples * impurity_right)
-                          - (self.weighted_n_left / 
-                             self.weighted_n_node_samples * impurity_left)))
-
-
+    
 cdef class ClassificationCriterion(Criterion):
     """Abstract criterion for classification."""
 
@@ -227,6 +212,7 @@ cdef class ClassificationCriterion(Criterion):
         self.sample_weight = NULL
 
         self.samples = NULL
+        self.feature_values = NULL
         self.start = 0
         self.pos = 0
         self.end = 0
@@ -281,7 +267,7 @@ cdef class ClassificationCriterion(Criterion):
 
     cdef void init(self, DOUBLE_t* y, SIZE_t y_stride,
                    DOUBLE_t* sample_weight, double weighted_n_samples,
-                   SIZE_t* samples, SIZE_t start, SIZE_t end) nogil:
+                   SIZE_t* samples,  DTYPE_t* feature_values, SIZE_t start, SIZE_t end) nogil:
         """Initialize the criterion at node samples[start:end] and
         children samples[start:start] and samples[start:end].
 
@@ -307,6 +293,7 @@ cdef class ClassificationCriterion(Criterion):
         self.y = y
         self.y_stride = y_stride
         self.sample_weight = sample_weight
+        self.feature_values = feature_values
         self.samples = samples
         self.start = start
         self.end = end
@@ -472,8 +459,8 @@ cdef class ClassificationCriterion(Criterion):
     cdef double node_impurity(self) nogil:
         pass
 
-    cdef void children_impurity(self, double* impurity_left,
-                                double* impurity_right) nogil:
+    cdef void children_impurity(self, double* impurity_left, double* impurity_right,
+                                double volume_left=0., double volume_right=0.) nogil:
         pass
 
     cdef void node_value(self, double* dest) nogil:
@@ -493,6 +480,45 @@ cdef class ClassificationCriterion(Criterion):
             memcpy(dest, sum_total, n_classes[k] * sizeof(double))
             dest += self.sum_stride
             sum_total += self.sum_stride
+
+    cdef double proxy_impurity_improvement(self, double volume_left=0., double volume_right=0.) nogil:
+        """Compute a proxy of the impurity reduction
+
+        This method is used to speed up the search for the best split.
+        It is a proxy quantity such that the split that maximizes this value
+        also maximizes the impurity improvement. It neglects all constant terms
+        of the impurity decrease for a given split.
+
+        The absolute impurity improvement is only computed by the
+        impurity_improvement method once the best split has been found.
+        """
+        pass
+
+    cdef double impurity_improvement(self, double impurity) nogil:
+        """Placeholder for improvement in impurity after a split.
+
+        Placeholder for a method which computes the improvement
+        in impurity when a split occurs. The weighted impurity improvement
+        equation is the following:
+
+            N_t / N * (impurity - N_t_R / N_t * right_impurity
+                                - N_t_L / N_t * left_impurity)
+
+        where N is the total number of samples, N_t is the number of samples
+        at the current node, N_t_L is the number of samples in the left child,
+        and N_t_R is the number of samples in the right child,
+
+        Parameters
+        ----------
+        impurity: double
+            The initial impurity of the node before the split
+
+        Return
+        ------
+        double: improvement in impurity after the split occurs
+        """
+
+        pass
 
 
 cdef class Entropy(ClassificationCriterion):
@@ -533,8 +559,8 @@ cdef class Entropy(ClassificationCriterion):
 
         return entropy / self.n_outputs
 
-    cdef void children_impurity(self, double* impurity_left,
-                                double* impurity_right) nogil:
+    cdef void children_impurity(self, double* impurity_left, double* impurity_right,
+                                double volume_left=0., double volume_right=0.) nogil:
         """Evaluate the impurity in children nodes
 
         i.e. the impurity of the left child (samples[start:pos]) and the
@@ -574,6 +600,59 @@ cdef class Entropy(ClassificationCriterion):
 
         impurity_left[0] = entropy_left / self.n_outputs
         impurity_right[0] = entropy_right / self.n_outputs
+
+    cdef double proxy_impurity_improvement(self, double volume_left=0., double volume_right=0.) nogil:
+        """Compute a proxy of the impurity reduction
+
+        This method is used to speed up the search for the best split.
+        It is a proxy quantity such that the split that maximizes this value
+        also maximizes the impurity improvement. It neglects all constant terms
+        of the impurity decrease for a given split.
+
+        The absolute impurity improvement is only computed by the
+        impurity_improvement method once the best split has been found.
+        """
+        cdef double impurity_left
+        cdef double impurity_right
+        self.children_impurity(&impurity_left, &impurity_right)
+
+        return (- self.weighted_n_right * impurity_right
+                - self.weighted_n_left * impurity_left)
+
+    cdef double impurity_improvement(self, double impurity) nogil:
+        """Placeholder for improvement in impurity after a split.
+
+        Placeholder for a method which computes the improvement
+        in impurity when a split occurs. The weighted impurity improvement
+        equation is the following:
+
+            N_t / N * (impurity - N_t_R / N_t * right_impurity
+                                - N_t_L / N_t * left_impurity)
+
+        where N is the total number of samples, N_t is the number of samples
+        at the current node, N_t_L is the number of samples in the left child,
+        and N_t_R is the number of samples in the right child,
+
+        Parameters
+        ----------
+        impurity: double
+            The initial impurity of the node before the split
+
+        Return
+        ------
+        double: improvement in impurity after the split occurs
+        """
+
+        cdef double impurity_left
+        cdef double impurity_right
+
+        self.children_impurity(&impurity_left, &impurity_right)
+
+        return ((self.weighted_n_node_samples / self.weighted_n_samples) *
+                (impurity - (self.weighted_n_right / 
+                             self.weighted_n_node_samples * impurity_right)
+                          - (self.weighted_n_left / 
+                             self.weighted_n_node_samples * impurity_left)))
 
 
 cdef class Gini(ClassificationCriterion):
@@ -620,8 +699,8 @@ cdef class Gini(ClassificationCriterion):
 
         return gini / self.n_outputs
 
-    cdef void children_impurity(self, double* impurity_left,
-                                double* impurity_right) nogil:
+    cdef void children_impurity(self, double* impurity_left, double* impurity_right,
+                                double volume_left=0., double volume_right=0.) nogil:
         """Evaluate the impurity in children nodes
 
         i.e. the impurity of the left child (samples[start:pos]) and the
@@ -669,7 +748,225 @@ cdef class Gini(ClassificationCriterion):
         impurity_left[0] = gini_left / self.n_outputs
         impurity_right[0] = gini_right / self.n_outputs
 
+    cdef double proxy_impurity_improvement(self, double volume_left=0., double volume_right=0.) nogil:
+        """Compute a proxy of the impurity reduction
 
+        This method is used to speed up the search for the best split.
+        It is a proxy quantity such that the split that maximizes this value
+        also maximizes the impurity improvement. It neglects all constant terms
+        of the impurity decrease for a given split.
+
+        The absolute impurity improvement is only computed by the
+        impurity_improvement method once the best split has been found.
+        """
+        cdef double impurity_left
+        cdef double impurity_right
+        self.children_impurity(&impurity_left, &impurity_right)
+
+        return (- self.weighted_n_right * impurity_right
+                - self.weighted_n_left * impurity_left)
+
+    cdef double impurity_improvement(self, double impurity) nogil:
+        """Placeholder for improvement in impurity after a split.
+
+        Placeholder for a method which computes the improvement
+        in impurity when a split occurs. The weighted impurity improvement
+        equation is the following:
+
+            N_t / N * (impurity - N_t_R / N_t * right_impurity
+                                - N_t_L / N_t * left_impurity)
+
+        where N is the total number of samples, N_t is the number of samples
+        at the current node, N_t_L is the number of samples in the left child,
+        and N_t_R is the number of samples in the right child,
+
+        Parameters
+        ----------
+        impurity: double
+            The initial impurity of the node before the split
+
+        Return
+        ------
+        double: improvement in impurity after the split occurs
+        """
+
+        cdef double impurity_left
+        cdef double impurity_right
+
+        self.children_impurity(&impurity_left, &impurity_right)
+
+        return ((self.weighted_n_node_samples / self.weighted_n_samples) *
+                (impurity - (self.weighted_n_right / 
+                             self.weighted_n_node_samples * impurity_right)
+                          - (self.weighted_n_left / 
+                             self.weighted_n_node_samples * impurity_left)))
+
+
+cdef class OneClassGini(ClassificationCriterion):
+    """Gini Index impurity criterion.
+
+    This handles cases where the target is a classification taking values
+    0, 1, ... K-2, K-1. If node m represents a region Rm with Nm observations,
+    then let
+
+        count_k = 1/ Nm \sum_{x_i in Rm} I(yi = k)
+
+    be the proportion of class k observations in node m.
+
+    The Gini Index is then defined as:
+
+        index = \sum_{k=0}^{K-1} count_k (1 - count_k)
+              = 1 - \sum_{k=0}^{K-1} count_k ** 2
+    """
+
+    cdef double node_impurity(self) nogil:
+        """Evaluate the impurity of the current node, i.e. the impurity of
+        samples[start:end] using the Gini criterion."""
+
+        return 3
+
+    cdef void children_impurity(self, double* impurity_left, double* impurity_right,
+                                double volume_left=0., double volume_right=0.) nogil:
+        """Evaluate the impurity in children nodes
+
+        i.e. the impurity of the left child (samples[start:pos]) and the
+        impurity the right child (samples[pos:end]) using the Gini index.
+
+        Parameters
+        ----------
+        impurity_left: DTYPE_t
+            The memory address to save the impurity of the left node to
+        impurity_right: DTYPE_t
+            The memory address to save the impurity of the right node to
+        """
+
+        cdef double* sum_total = self.sum_total
+        cdef SIZE_t pos = self.pos
+        cdef SIZE_t start = self.start
+        cdef SIZE_t end = self.end
+
+        cdef DTYPE_t* Xf = <DTYPE_t*> self.feature_values  ###XXX pb: on n'a pas acces à ça ici (plus de problem, feature_values passé en argument de criterion.init _splitter.pyx L.207)
+
+        cdef DTYPE_t Xf_start = <DTYPE_t> Xf[start]
+        cdef DTYPE_t Xf_pos = <DTYPE_t> Xf[pos-1] #(Xf[pos] + Xf[pos-1]) / 2
+        cdef DTYPE_t Xf_end = <DTYPE_t> Xf[end-1]
+
+        cdef DTYPE_t n_leb_right = <DTYPE_t> 1 * (end - start) * volume_right / (volume_right + volume_left)
+        cdef DTYPE_t n_leb_left = <DTYPE_t> 1 * (end - start) * volume_left / (volume_right + volume_left)
+        cdef SIZE_t* n_classes = self.n_classes
+        cdef double* sum_left = self.sum_left
+        cdef double* sum_right = self.sum_right
+        cdef double gini_left = 0.0
+        cdef double gini_right = 0.0
+        cdef double sq_count_left
+        cdef double sq_count_right
+        cdef double count_k
+        cdef SIZE_t k
+        cdef SIZE_t c
+
+        for k in range(self.n_outputs):
+            sq_count_left = 0.0
+            sq_count_right = 0.0
+
+            for c in range(n_classes[k]):
+                count_k = sum_left[c]
+                sq_count_left += count_k * count_k
+
+                count_k = sum_right[c]
+                sq_count_right += count_k * count_k
+
+            gini_left += 1.0 - (sq_count_left + n_leb_left * n_leb_left) / ((self.weighted_n_left + n_leb_left) * (self.weighted_n_left + n_leb_left))
+
+            gini_right += 1.0 - (sq_count_right + n_leb_right * n_leb_right) / ((self.weighted_n_right + n_leb_right) * (self.weighted_n_right + n_leb_right))
+
+            sum_left += self.sum_stride
+            sum_right += self.sum_stride
+
+        impurity_left[0] = gini_left / self.n_outputs
+        impurity_right[0] = gini_right / self.n_outputs
+
+       
+    cdef double proxy_impurity_improvement(self, double volume_left=0., double volume_right=0.) nogil:
+        """Compute a proxy of the impurity reduction
+
+        This method is used to speed up the search for the best split.
+        It is a proxy quantity such that the split that maximizes this value
+        also maximizes the impurity improvement. It neglects all constant terms
+        of the impurity decrease for a given split.
+
+        The absolute impurity improvement is only computed by the
+        impurity_improvement method once the best split has been found.
+        """
+        ####### added for OneClassGini #######
+        cdef SIZE_t pos = self.pos
+        cdef SIZE_t start = self.start
+        cdef SIZE_t end = self.end
+
+        cdef DTYPE_t* Xf = <DTYPE_t*> self.feature_values
+
+        cdef DTYPE_t Xf_start = <DTYPE_t> Xf[start]
+        cdef DTYPE_t Xf_pos = <DTYPE_t> 0.9 * Xf[pos-1] + 0.1 * Xf[pos] #(Xf[pos] + Xf[pos-1]) / 2 
+        cdef DTYPE_t Xf_end = <DTYPE_t> Xf[end-1]
+        cdef DTYPE_t n_leb_right = <DTYPE_t> 1 * (end - start) * volume_right / (volume_right + volume_left)
+        cdef DTYPE_t n_leb_left = <DTYPE_t> 1 * (end - start) * volume_left / (volume_right + volume_left)
+        ######################################################################################
+        cdef double impurity_left
+        cdef double impurity_right
+        self.children_impurity(&impurity_left, &impurity_right, volume_left, volume_right)
+
+        return (- (self.weighted_n_right + n_leb_right) * impurity_right
+                - (self.weighted_n_left + n_leb_left) * impurity_left)
+
+    cdef double impurity_improvement(self, double impurity) nogil:
+        """Placeholder for improvement in impurity after a split.
+
+        Placeholder for a method which computes the improvement
+        in impurity when a split occurs. The weighted impurity improvement
+        equation is the following:
+
+            N_t / N * (impurity - N_t_R / N_t * right_impurity
+                                - N_t_L / N_t * left_impurity)
+
+        where N is the total number of samples, N_t is the number of samples
+        at the current node, N_t_L is the number of samples in the left child,
+        and N_t_R is the number of samples in the right child,
+
+        Parameters
+        ----------
+        impurity: double
+            The initial impurity of the node before the split
+
+        Return
+        ------
+        double: improvement in impurity after the split occurs
+        """
+        ####### added for OneClassGini #######
+        cdef SIZE_t pos = self.pos
+        cdef SIZE_t start = self.start
+        cdef SIZE_t end = self.end
+
+        cdef DTYPE_t* Xf = <DTYPE_t*> self.feature_values
+
+        cdef DTYPE_t Xf_start = <DTYPE_t> Xf[start]
+        cdef DTYPE_t Xf_pos = <DTYPE_t> (Xf[pos] + Xf[pos-1]) / 2
+        cdef DTYPE_t Xf_end = <DTYPE_t> Xf[end-1]
+
+        cdef DTYPE_t n_leb_right = <DTYPE_t> 1 * (end - start) * <DTYPE_t> (<DTYPE_t> Xf_end - <DTYPE_t> Xf_pos) / <DTYPE_t> (<DTYPE_t> Xf_end - <DTYPE_t> Xf_start)
+        cdef DTYPE_t n_leb_left = <DTYPE_t> 1 * (end - start) * <DTYPE_t> (<DTYPE_t> Xf_pos - <DTYPE_t> Xf_start) / <DTYPE_t> (<DTYPE_t> Xf_end - <DTYPE_t> Xf_start)
+        cdef DTYPE_t n_leb = n_leb_right + n_leb_left
+        ######################################################################################
+        cdef double impurity_left
+        cdef double impurity_right
+
+        self.children_impurity(&impurity_left, &impurity_right)
+
+        return ((self.weighted_n_node_samples / self.weighted_n_samples) *
+                (impurity - ((self.weighted_n_right + n_leb_right) / 
+                             (self.weighted_n_node_samples + n_leb) * impurity_right)
+                          - ((self.weighted_n_left + n_leb_left) / 
+                             (self.weighted_n_node_samples + n_leb) * impurity_left)))
+
+    
 cdef class RegressionCriterion(Criterion):
     """Abstract regression criterion.
 
@@ -731,7 +1028,7 @@ cdef class RegressionCriterion(Criterion):
         return (RegressionCriterion, (self.n_outputs,), self.__getstate__())
 
     cdef void init(self, DOUBLE_t* y, SIZE_t y_stride, DOUBLE_t* sample_weight,
-                   double weighted_n_samples, SIZE_t* samples, SIZE_t start,
+                   double weighted_n_samples, SIZE_t* samples, DTYPE_t* feature_values, SIZE_t start,
                    SIZE_t end) nogil:
         """Initialize the criterion at node samples[start:end] and
            children samples[start:start] and samples[start:end]."""
@@ -857,8 +1154,8 @@ cdef class RegressionCriterion(Criterion):
     cdef double node_impurity(self) nogil:
         pass
 
-    cdef void children_impurity(self, double* impurity_left,
-                                double* impurity_right) nogil:
+    cdef void children_impurity(self, double* impurity_left, double* impurity_right,
+                                double volume_left=0., double volume_right=0.) nogil:
         pass
 
     cdef void node_value(self, double* dest) nogil:
@@ -869,7 +1166,45 @@ cdef class RegressionCriterion(Criterion):
         for k in range(self.n_outputs):
             dest[k] = self.sum_total[k] / self.weighted_n_node_samples
 
+    cdef double proxy_impurity_improvement(self, double volume_left=0., double volume_right=0.) nogil:
+        """Compute a proxy of the impurity reduction
 
+        This method is used to speed up the search for the best split.
+        It is a proxy quantity such that the split that maximizes this value
+        also maximizes the impurity improvement. It neglects all constant terms
+        of the impurity decrease for a given split.
+
+        The absolute impurity improvement is only computed by the
+        impurity_improvement method once the best split has been found.
+        """
+        pass
+
+    cdef double impurity_improvement(self, double impurity) nogil:
+        """Placeholder for improvement in impurity after a split.
+
+        Placeholder for a method which computes the improvement
+        in impurity when a split occurs. The weighted impurity improvement
+        equation is the following:
+
+            N_t / N * (impurity - N_t_R / N_t * right_impurity
+                                - N_t_L / N_t * left_impurity)
+
+        where N is the total number of samples, N_t is the number of samples
+        at the current node, N_t_L is the number of samples in the left child,
+        and N_t_R is the number of samples in the right child,
+
+        Parameters
+        ----------
+        impurity: double
+            The initial impurity of the node before the split
+
+        Return
+        ------
+        double: improvement in impurity after the split occurs
+        """
+        pass
+
+    
 cdef class MSE(RegressionCriterion):
     """Mean squared error impurity criterion.
 
@@ -889,7 +1224,7 @@ cdef class MSE(RegressionCriterion):
 
         return impurity / self.n_outputs
 
-    cdef double proxy_impurity_improvement(self) nogil:
+    cdef double proxy_impurity_improvement(self, double volume_left=0., double volume_right=0.) nogil:
         """Compute a proxy of the impurity reduction
 
         This method is used to speed up the search for the best split.
@@ -915,8 +1250,8 @@ cdef class MSE(RegressionCriterion):
         return (proxy_impurity_left / self.weighted_n_left +
                 proxy_impurity_right / self.weighted_n_right)
 
-    cdef void children_impurity(self, double* impurity_left,
-                                double* impurity_right) nogil:
+    cdef void children_impurity(self, double* impurity_left, double* impurity_right,
+                                double volume_left=0., double volume_right=0.) nogil:
         """Evaluate the impurity in children nodes, i.e. the impurity of the
            left child (samples[start:pos]) and the impurity the right child
            (samples[pos:end])."""
@@ -972,7 +1307,7 @@ cdef class FriedmanMSE(MSE):
         improvement = n_left * n_right * diff^2 / (n_left + n_right)
     """
 
-    cdef double proxy_impurity_improvement(self) nogil:
+    cdef double proxy_impurity_improvement(self, double volume_left=0., double volume_right=0.) nogil:
         """Compute a proxy of the impurity reduction
 
         This method is used to speed up the search for the best split.

@@ -1,0 +1,1683 @@
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.DependencyDerivator,de.lmu.ifi.dbs.elki.algorithm.DependencyDerivator)]]
+ By: E. Achtert, C. Böhm, H.-P. Kriegel, P. Kröger, A. Zimek [[br]]
+ '''Deriving Quantitative Dependencies for Correlation Clusters''' [[br]]
+ In: Proc. 12th Int. Conf. on Knowledge Discovery and Data Mining (KDD '06), Philadelphia, PA 2006. [[br]]
+ Online: [http://dx.doi.org/10.1145/1150402.1150408][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.CanopyPreClustering,de.lmu.ifi.dbs.elki.algorithm.clustering.CanopyPreClustering)]]
+ By: A. McCallum, K. Nigam, L.H. Ungar [[br]]
+ '''Efficient Clustering of High Dimensional Data Sets with Application to Reference Matching''' [[br]]
+ In: Proc. 6th ACM SIGKDD international conference on Knowledge discovery and data mining [[br]]
+ Online: [http://dx.doi.org/10.1145%2F347090.347123][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.DBSCAN,de.lmu.ifi.dbs.elki.algorithm.clustering.DBSCAN)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.gdbscan.EpsilonNeighborPredicate,de.lmu.ifi.dbs.elki.algorithm.clustering.gdbscan.EpsilonNeighborPredicate)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.gdbscan.MinPtsCorePredicate,de.lmu.ifi.dbs.elki.algorithm.clustering.gdbscan.MinPtsCorePredicate)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.gdbscan.SimilarityNeighborPredicate,de.lmu.ifi.dbs.elki.algorithm.clustering.gdbscan.SimilarityNeighborPredicate)]]
+ By: M. Ester, H.-P. Kriegel, J. Sander, X. Xu [[br]]
+ '''A Density-Based Algorithm for Discovering Clusters in Large Spatial Databases with Noise''' [[br]]
+ In: Proc. 2nd Int. Conf. on Knowledge Discovery and Data Mining (KDD '96), Portland, OR, 1996 [[br]]
+ Online: [http://www.aaai.org/Papers/KDD/1996/KDD96-037][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.GriDBSCAN,de.lmu.ifi.dbs.elki.algorithm.clustering.GriDBSCAN)]]
+ By: S. Mahran and K. Mahar [[br]]
+ '''Using grid for accelerating density-based clustering''' [[br]]
+ In: 8th IEEE Int. Conf. on Computer and Information Technology [[br]]
+ Online: [http://dx.doi.org/10.1109/CIT.2008.4594646][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.NaiveMeanShiftClustering,de.lmu.ifi.dbs.elki.algorithm.clustering.NaiveMeanShiftClustering)]]
+ By: Y. Cheng [[br]]
+ '''Mean shift, mode seeking, and clustering''' [[br]]
+ In: IEEE Transactions on Pattern Analysis and Machine Intelligence 17-8 [[br]]
+ Online: [http://dx.doi.org/10.1109/34.400568][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.SNNClustering,de.lmu.ifi.dbs.elki.algorithm.clustering.SNNClustering)]]
+ By: L. Ertöz, M. Steinbach, V. Kumar [[br]]
+ '''Finding Clusters of Different Sizes, Shapes, and Densities in Noisy, High Dimensional Data''' [[br]]
+ In: Proc. of SIAM Data Mining (SDM), 2003 [[br]]
+ Online: [http://www.siam.org/meetings/sdm03/proceedings/sdm03_05.pdf][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.affinitypropagation.AffinityPropagationClusteringAlgorithm,de.lmu.ifi.dbs.elki.algorithm.clustering.affinitypropagation.AffinityPropagationClusteringAlgorithm)]]
+ By: B. J. Frey and D. Dueck [[br]]
+ '''Clustering by Passing Messages Between Data Points''' [[br]]
+ In: Science Vol 315 [[br]]
+ Online: [http://dx.doi.org/10.1126/science.1136800][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.biclustering.ChengAndChurch,de.lmu.ifi.dbs.elki.algorithm.clustering.biclustering.ChengAndChurch)]]
+ By: Y. Cheng, G. M. Church [[br]]
+ '''Biclustering of expression data''' [[br]]
+ In: Proc. 8th International Conference on Intelligent Systems for Molecular Biology (ISMB) [[br]]
+ Online: [https://www.ncbi.nlm.nih.gov/pubmed/10977070][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.correlation.CASH,de.lmu.ifi.dbs.elki.algorithm.clustering.correlation.CASH)]]
+ By: E. Achtert, C. Böhm, J. David, P. Kröger, A. Zimek [[br]]
+ '''Robust clustering in arbitraily oriented subspaces''' [[br]]
+ In: Proc. 8th SIAM Int. Conf. on Data Mining (SDM'08), Atlanta, GA, 2008 [[br]]
+ Online: [http://www.siam.org/proceedings/datamining/2008/dm08_69_AchtertBoehmDavidKroegerZimek.pdf][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.correlation.COPAC,de.lmu.ifi.dbs.elki.algorithm.clustering.correlation.COPAC)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.gdbscan.COPACNeighborPredicate,de.lmu.ifi.dbs.elki.algorithm.clustering.gdbscan.COPACNeighborPredicate)]]
+ By: E. Achtert, C. Böhm, H.-P. Kriegel, P. Kröger, A. Zimek [[br]]
+ '''Robust, Complete, and Efficient Correlation Clustering''' [[br]]
+ In: Proc. 7th SIAM International Conference on Data Mining (SDM'07), Minneapolis, MN, 2007 [[br]]
+ Online: [http://www.siam.org/proceedings/datamining/2007/dm07_037achtert.pdf][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.correlation.ERiC,de.lmu.ifi.dbs.elki.algorithm.clustering.correlation.ERiC)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.gdbscan.ERiCNeighborPredicate,de.lmu.ifi.dbs.elki.algorithm.clustering.gdbscan.ERiCNeighborPredicate)]]
+ By: E. Achtert, C. Böhm, H.-P. Kriegel, P. Kröger, and A. Zimek [[br]]
+ '''On Exploring Complex Relationships of Correlation Clusters''' [[br]]
+ In: Proc. 19th International Conference on Scientific and Statistical Database Management (SSDBM 2007), Banff, Canada, 2007 [[br]]
+ Online: [http://dx.doi.org/10.1109/SSDBM.2007.21][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.correlation.FourC,de.lmu.ifi.dbs.elki.algorithm.clustering.correlation.FourC)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.gdbscan.FourCCorePredicate,de.lmu.ifi.dbs.elki.algorithm.clustering.gdbscan.FourCCorePredicate)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.gdbscan.FourCNeighborPredicate,de.lmu.ifi.dbs.elki.algorithm.clustering.gdbscan.FourCNeighborPredicate)]]
+ By: C. Böhm, K. Kailing, P. Kröger, A. Zimek [[br]]
+ '''Computing Clusters of Correlation Connected Objects''' [[br]]
+ In: Proc. ACM SIGMOD Int. Conf. on Management of Data, Paris, France, 2004, 455-466 [[br]]
+ Online: [http://dx.doi.org/10.1145/1007568.1007620][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.correlation.HiCO,de.lmu.ifi.dbs.elki.algorithm.clustering.correlation.HiCO)]]
+ By: E. Achtert, C. Böhm, P. Kröger, A. Zimek [[br]]
+ '''Mining Hierarchies of Correlation Clusters''' [[br]]
+ In: Proc. Int. Conf. on Scientific and Statistical Database Management (SSDBM'06), Vienna, Austria, 2006 [[br]]
+ Online: [http://dx.doi.org/10.1109/SSDBM.2006.35][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.correlation.LMCLUS,de.lmu.ifi.dbs.elki.algorithm.clustering.correlation.LMCLUS)]]
+ By: Robert Haralick, Rave Harpaz [[br]]
+ '''Linear manifold clustering in high dimensional spaces by stochastic search''' [[br]]
+ In: Pattern Recognition volume 40, Issue 10 [[br]]
+ Online: [http://dx.doi.org/10.1016/j.patcog.2007.01.020][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.correlation.ORCLUS,de.lmu.ifi.dbs.elki.algorithm.clustering.correlation.ORCLUS)]]
+ By: C. C. Aggarwal, P. S. Yu [[br]]
+ '''Finding Generalized Projected Clusters in High Dimensional Spaces''' [[br]]
+ In: Proc. ACM SIGMOD Int. Conf. on Management of Data (SIGMOD '00) [[br]]
+ Online: [http://dx.doi.org/10.1145/342009.335383][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.em.EM,de.lmu.ifi.dbs.elki.algorithm.clustering.em.EM)]]
+ By: A. P. Dempster, N. M. Laird, D. B. Rubin [[br]]
+ '''Maximum Likelihood from Incomplete Data via the EM algorithm''' [[br]]
+ In: Journal of the Royal Statistical Society, Series B, 39(1), 1977, pp. 1-31 [[br]]
+ Online: [http://www.jstor.org/stable/2984875][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.gdbscan.GeneralizedDBSCAN,de.lmu.ifi.dbs.elki.algorithm.clustering.gdbscan.GeneralizedDBSCAN)]]
+ By: Jörg Sander, Martin Ester, Hans-Peter Kriegel, Xiaowei Xu [[br]]
+ '''Density-Based Clustering in Spatial Databases: The Algorithm GDBSCAN and Its Applications''' [[br]]
+ In: Data Mining and Knowledge Discovery [[br]]
+ Online: [http://dx.doi.org/10.1023/A:1009745219419][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.gdbscan.LSDBC,de.lmu.ifi.dbs.elki.algorithm.clustering.gdbscan.LSDBC)]]
+ By: E. Biçici and D. Yuret [[br]]
+ '''Locally Scaled Density Based Clustering''' [[br]]
+ In: Adaptive and Natural Computing Algorithms [[br]]
+ Online: [http://dx.doi.org/10.1007/978-3-540-71618-1_82][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.gdbscan.PreDeConCorePredicate,de.lmu.ifi.dbs.elki.algorithm.clustering.gdbscan.PreDeConCorePredicate)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.gdbscan.PreDeConNeighborPredicate,de.lmu.ifi.dbs.elki.algorithm.clustering.gdbscan.PreDeConNeighborPredicate)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.subspace.PreDeCon,de.lmu.ifi.dbs.elki.algorithm.clustering.subspace.PreDeCon)]]
+ By: C. Böhm, K. Kailing, H.-P. Kriegel, P. Kröger [[br]]
+ '''Density Connected Clustering with Local Subspace Preferences''' [[br]]
+ In: Proc. 4th IEEE Int. Conf. on Data Mining (ICDM'04), Brighton, UK, 2004 [[br]]
+ Online: [http://dx.doi.org/10.1109/ICDM.2004.10087][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.gdbscan.parallel.ParallelGeneralizedDBSCAN,de.lmu.ifi.dbs.elki.algorithm.clustering.gdbscan.parallel.ParallelGeneralizedDBSCAN)]]
+ By: M. Patwary, D. Palsetia, A. Agrawal, W. K. Liao, F. Manne, A. Choudhary [[br]]
+ '''A new scalable parallel DBSCAN algorithm using the disjoint-set data structure''' [[br]]
+ In: IEEE Int. Conf. for High Performance Computing, Networking, Storage and Analysis (SC) [[br]]
+ Online: [http://dx.doi.org/10.1109/SC.2012.9][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.hierarchical.AGNES,de.lmu.ifi.dbs.elki.algorithm.clustering.hierarchical.AGNES)]]
+ By: L. Kaufman and P. J. Rousseeuw [[br]]
+ '''Agglomerative Nesting (Program AGNES)''' [[br]]
+ In: Finding Groups in Data: An Introduction to Cluster Analysis [[br]]
+ Online: [http://dx.doi.org/10.1002/9780470316801.ch5][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.hierarchical.AGNES,de.lmu.ifi.dbs.elki.algorithm.clustering.hierarchical.AGNES)]]
+ By: P. H. Sneath [[br]]
+ '''The application of computers to taxonomy''' [[br]]
+ In: Journal of general microbiology, 17(1) [[br]]
+ Online: [http://dx.doi.org/10.1099/00221287-17-1-201][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.hierarchical.AbstractHDBSCAN,de.lmu.ifi.dbs.elki.algorithm.clustering.hierarchical.AbstractHDBSCAN)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.hierarchical.HDBSCANLinearMemory,de.lmu.ifi.dbs.elki.algorithm.clustering.hierarchical.HDBSCANLinearMemory)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.hierarchical.SLINKHDBSCANLinearMemory,de.lmu.ifi.dbs.elki.algorithm.clustering.hierarchical.SLINKHDBSCANLinearMemory)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.hierarchical.extraction.HDBSCANHierarchyExtraction,de.lmu.ifi.dbs.elki.algorithm.clustering.hierarchical.extraction.HDBSCANHierarchyExtraction)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.hierarchical.extraction.SimplifiedHierarchyExtraction,de.lmu.ifi.dbs.elki.algorithm.clustering.hierarchical.extraction.SimplifiedHierarchyExtraction)]]
+ By: R. J. G. B. Campello, D. Moulavi, and J. Sander [[br]]
+ '''Density-Based Clustering Based on Hierarchical Density Estimates''' [[br]]
+ In: Pacific-Asia Conference on Advances in Knowledge Discovery and Data Mining, PAKDD [[br]]
+ Online: [http://dx.doi.org/10.1007/978-3-642-37456-2_14][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.hierarchical.AnderbergHierarchicalClustering,de.lmu.ifi.dbs.elki.algorithm.clustering.hierarchical.AnderbergHierarchicalClustering)]]
+ By: M. R. Anderberg [[br]]
+ '''Hierarchical Clustering Methods''' [[br]]
+ In: Cluster Analysis for Applications [[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.hierarchical.CLINK,de.lmu.ifi.dbs.elki.algorithm.clustering.hierarchical.CLINK)]]
+ By: D. Defays [[br]]
+ '''An Efficient Algorithm for the Complete Link Cluster Method''' [[br]]
+ In: The Computer Journal 20.4 [[br]]
+ Online: [http://dx.doi.org/10.1093/comjnl/20.4.364][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.hierarchical.CentroidLinkageMethod,de.lmu.ifi.dbs.elki.algorithm.clustering.hierarchical.CentroidLinkageMethod)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.hierarchical.GroupAverageLinkageMethod,de.lmu.ifi.dbs.elki.algorithm.clustering.hierarchical.GroupAverageLinkageMethod)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.hierarchical.WeightedAverageLinkageMethod,de.lmu.ifi.dbs.elki.algorithm.clustering.hierarchical.WeightedAverageLinkageMethod)]]
+ By: A. K. Jain and R. C. Dubes [[br]]
+ '''Algorithms for Clustering Data''' [[br]]
+ In: Algorithms for Clustering Data, Prentice-Hall [[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.hierarchical.LinkageMethod,de.lmu.ifi.dbs.elki.algorithm.clustering.hierarchical.LinkageMethod)]]
+ By: G. N. Lance and W. T. Williams [[br]]
+ '''A general theory of classificatory sorting strategies 1. Hierarchical systems''' [[br]]
+ In: The computer journal 9.4 [[br]]
+ Online: [http://dx.doi.org/ 10.1093/comjnl/9.4.373][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.hierarchical.MedianLinkageMethod,de.lmu.ifi.dbs.elki.algorithm.clustering.hierarchical.MedianLinkageMethod)]]
+ By: J. C. Gower [[br]]
+ '''A comparison of some methods of cluster analysis''' [[br]]
+ In: Biometrics (1967) [[br]]
+ Online: [http://www.jstor.org/stable/10.2307/2528417][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.hierarchical.SLINK,de.lmu.ifi.dbs.elki.algorithm.clustering.hierarchical.SLINK)]]
+ By: R. Sibson [[br]]
+ '''SLINK: An optimally efficient algorithm for the single-link cluster method''' [[br]]
+ In: The Computer Journal 16 (1973), No. 1, p. 30-34. [[br]]
+ Online: [http://dx.doi.org/10.1093/comjnl/16.1.30][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.hierarchical.SingleLinkageMethod,de.lmu.ifi.dbs.elki.algorithm.clustering.hierarchical.SingleLinkageMethod)]]
+ By: K. Florek and J. Łukaszewicz and J. Perkal and H. Steinhaus and S. Zubrzycki [[br]]
+ '''Sur la liaison et la division des points d'un ensemble fini''' [[br]]
+ In: Colloquium Mathematicae (Vol. 2, No. 3-4) [[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.hierarchical.WardLinkageMethod,de.lmu.ifi.dbs.elki.algorithm.clustering.hierarchical.WardLinkageMethod)]]
+ By: J. H. Ward Jr [[br]]
+ '''Hierarchical grouping to optimize an objective function''' [[br]]
+ In: Journal of the American statistical association 58.301 [[br]]
+ Online: [http://dx.doi.org/10.1080/01621459.1963.10500845][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.CLARA,de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.CLARA)]]
+ By: L. Kaufman, P. J. Rousseeuw [[br]]
+ '''Clustering Large Applications (Program CLARA)''' [[br]]
+ In: Finding Groups in Data: An Introduction to Cluster Analysis [[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.KMeansBisecting,de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.KMeansBisecting)]]
+ By: M. Steinbach, G. Karypis, V. Kumar [[br]]
+ '''A Comparison of Document Clustering Techniques''' [[br]]
+ In: KDD workshop on text mining. Vol. 400. No. 1 [[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.KMeansCompare,de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.KMeansCompare)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.KMeansSort,de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.KMeansSort)]]
+ By: S. J. Phillips [[br]]
+ '''Acceleration of k-means and related clustering algorithms''' [[br]]
+ In: Proc. 4th Int. Workshop on Algorithm Engineering and Experiments (ALENEX 2002) [[br]]
+ Online: [http://dx.doi.org/10.1007/3-540-45643-0_13][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.KMeansElkan,de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.KMeansElkan)]]
+ By: C. Elkan [[br]]
+ '''Using the triangle inequality to accelerate k-means''' [[br]]
+ In: Proc. 20th International Conference on Machine Learning, ICML 2003 [[br]]
+ Online: [http://www.aaai.org/Library/ICML/2003/icml03-022.php][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.KMeansHamerly,de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.KMeansHamerly)]]
+ By: G. Hamerly [[br]]
+ '''Making k-means even faster''' [[br]]
+ In: Proc. 2010 SIAM International Conference on Data Mining [[br]]
+ Online: [http://dx.doi.org/10.1137/1.9781611972801.12][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.KMeansLloyd,de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.KMeansLloyd)]]
+ By: S. Lloyd [[br]]
+ '''Least squares quantization in PCM''' [[br]]
+ In: IEEE Transactions on Information Theory 28 (2): 129–137. [[br]]
+ Online: [http://dx.doi.org/10.1109/TIT.1982.1056489][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.KMeansMacQueen,de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.KMeansMacQueen)]]
+ By: J. MacQueen [[br]]
+ '''Some Methods for Classification and Analysis of Multivariate Observations''' [[br]]
+ In: 5th Berkeley Symp. Math. Statist. Prob., Vol. 1, 1967, pp 281-297 [[br]]
+ Online: [http://projecteuclid.org/euclid.bsmsp/1200512992][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.KMeansMinusMinus,de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.KMeansMinusMinus)]]
+ By: S. Chawla and A. Gionis [[br]]
+ '''k-means--: A Unified Approach to Clustering and Outlier Detection''' [[br]]
+ In: Proc. 13th SIAM International Conference on Data Mining [[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.KMediansLloyd,de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.KMediansLloyd)]]
+ By: P. S. Bradley, O. L. Mangasarian, W. N. Street [[br]]
+ '''Clustering via Concave Minimization''' [[br]]
+ In: Advances in Neural Information Processing Systems [[br]]
+ Online: [https://papers.nips.cc/paper/1260-clustering-via-concave-minimization.pdf][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.KMedoidsPAM,de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.KMedoidsPAM)]]
+ By: Kaufman, L. and Rousseeuw, P.J. [[br]]
+ '''Clustering by means of Medoids''' [[br]]
+ In: Statistical Data Analysis Based on the L1-Norm and Related Methods [[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.XMeans,de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.XMeans)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.quality.AbstractKMeansQualityMeasure,de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.quality.AbstractKMeansQualityMeasure)]]
+ By: D. Pelleg, A. Moore [[br]]
+ '''X-means: Extending K-means with Efficient Estimation on the Number of Clusters''' [[br]]
+ In: Proceedings of the 17th International Conference on Machine Learning (ICML 2000) [[br]]
+ Online: [http://www.pelleg.org/shared/hp/download/xmeans.ps][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.initialization.KMeansPlusPlusInitialMeans,de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.initialization.KMeansPlusPlusInitialMeans)]]
+ By: D. Arthur, S. Vassilvitskii [[br]]
+ '''k-means++: the advantages of careful seeding''' [[br]]
+ In: Proc. of the Eighteenth Annual ACM-SIAM Symposium on Discrete Algorithms, SODA 2007 [[br]]
+ Online: [http://dx.doi.org/10.1145/1283383.1283494][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.initialization.PAMInitialMeans,de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.initialization.PAMInitialMeans)]]
+ By: Kaufman, L. and Rousseeuw, P.J. [[br]]
+ '''Clustering my means of Medoids''' [[br]]
+ In: Statistical Data Analysis Based on the L_1–Norm and Related Methods [[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.initialization.RandomlyChosenInitialMeans,de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.initialization.RandomlyChosenInitialMeans)]]
+ By: E. W. Forgy [[br]]
+ '''Cluster analysis of multivariate data: efficiency versus interpretability of classifications''' [[br]]
+ In: Biometrics 21(3) [[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.quality.AbstractKMeansQualityMeasure,de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.quality.AbstractKMeansQualityMeasure)]]
+ By: Q. Zhao, M. Xu, P. Fränti [[br]]
+ '''Knee Point Detection on Bayesian Information Criterion''' [[br]]
+ In: 20th IEEE International Conference on Tools with Artificial Intelligence [[br]]
+ Online: [http://dx.doi.org/10.1109/ICTAI.2008.154][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.quality.AbstractKMeansQualityMeasure,de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.quality.AbstractKMeansQualityMeasure)]]
+ By: D. Pelleg, A. Moore [[br]]
+ '''Proceedings of the 17th International Conference on Machine Learning (ICML 2000)''' [[br]]
+ In: X-means: Extending K-means with Efficient Estimation on the Number of Clusters [[br]]
+ Online: [http://www.pelleg.org/shared/hp/download/xmeans.ps][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.quality.AkaikeInformationCriterion,de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.quality.AkaikeInformationCriterion)]]
+ By: H. Akaike [[br]]
+ '''On entropy maximization principle''' [[br]]
+ In: Application of statistics, 1977, North-Holland [[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.quality.BayesianInformationCriterion,de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.quality.BayesianInformationCriterion)]]
+ By: G. Schwarz [[br]]
+ '''Estimating the dimension of a model''' [[br]]
+ In: The annals of statistics 6.2 [[br]]
+ Online: [http://dx.doi.org/10.1214/aos/1176344136][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.quality.BayesianInformationCriterionZhao,de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.quality.BayesianInformationCriterionZhao)]]
+ By: Q. Zhao, M. Xu, P. Fränti [[br]]
+ '''Knee Point Detection on Bayesian Information Criterion''' [[br]]
+ In: 20th IEEE International Conference on Tools with Artificial Intelligence [[br]]
+ Online: [http://dx.doi.org/10.1109/ICTAI.2008.154][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.optics.AbstractOPTICS,de.lmu.ifi.dbs.elki.algorithm.clustering.optics.AbstractOPTICS)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.optics.OPTICSHeap,de.lmu.ifi.dbs.elki.algorithm.clustering.optics.OPTICSHeap)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.optics.OPTICSList,de.lmu.ifi.dbs.elki.algorithm.clustering.optics.OPTICSList)]]
+ By: M. Ankerst, M. Breunig, H.-P. Kriegel, and J. Sander [[br]]
+ '''OPTICS: Ordering Points to Identify the Clustering Structure''' [[br]]
+ In: Proc. ACM SIGMOD Int. Conf. on Management of Data (SIGMOD '99) [[br]]
+ Online: [http://dx.doi.org/10.1145/304181.304187][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.optics.DeLiClu,de.lmu.ifi.dbs.elki.algorithm.clustering.optics.DeLiClu)]]
+ By: E. Achtert, C. Böhm, P. Kröger [[br]]
+ '''DeLiClu: Boosting Robustness, Completeness, Usability, and Efficiency of Hierarchical Clustering by a Closest Pair Ranking''' [[br]]
+ In: Proc. 10th Pacific-Asia Conference on Knowledge Discovery and Data Mining (PAKDD 2006), Singapore, 2006 [[br]]
+ Online: [http://dx.doi.org/10.1007/11731139_16][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.optics.FastOPTICS,de.lmu.ifi.dbs.elki.algorithm.clustering.optics.FastOPTICS)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.index.preprocessed.fastoptics.RandomProjectedNeighborsAndDensities,de.lmu.ifi.dbs.elki.index.preprocessed.fastoptics.RandomProjectedNeighborsAndDensities)]]
+ By: J. Schneider and M. Vlachos [[br]]
+ '''Fast parameterless density-based clustering via random projections''' [[br]]
+ In: Proc. 22nd ACM international conference on Conference on Information & Knowledge Management (CIKM) [[br]]
+ Online: [http://dx.doi.org/10.1145/2505515.2505590][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.subspace.CLIQUE,de.lmu.ifi.dbs.elki.algorithm.clustering.subspace.CLIQUE)]]
+ By: R. Agrawal, J. Gehrke, D. Gunopulos, P. Raghavan [[br]]
+ '''Automatic Subspace Clustering of High Dimensional Data for Data Mining Applications''' [[br]]
+ In: Proc. SIGMOD Conference, Seattle, WA, 1998 [[br]]
+ Online: [http://dx.doi.org/10.1145/276304.276314][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.subspace.DOC,de.lmu.ifi.dbs.elki.algorithm.clustering.subspace.DOC)]]
+ By: C. M. Procopiuc, M. Jones, P. K. Agarwal, T. M. Murali [[br]]
+ '''A Monte Carlo algorithm for fast projective clustering''' [[br]]
+ In: Proc. ACM SIGMOD Int. Conf. on Management of Data (SIGMOD '02) [[br]]
+ Online: [http://dx.doi.org/10.1145/564691.564739][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.subspace.DiSH,de.lmu.ifi.dbs.elki.algorithm.clustering.subspace.DiSH)]]
+ By: E. Achtert, C. Böhm, H.-P. Kriegel, P. Kröger, I. Müller-Gorman, A. Zimek [[br]]
+ '''Detection and Visualization of Subspace Cluster Hierarchies''' [[br]]
+ In: Proc. 12th International Conference on Database Systems for Advanced Applications (DASFAA), Bangkok, Thailand, 2007 [[br]]
+ Online: [http://dx.doi.org/10.1007/978-3-540-71703-4_15][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.subspace.HiSC,de.lmu.ifi.dbs.elki.algorithm.clustering.subspace.HiSC)]]
+ By: E. Achtert, C. Böhm, H.-P. Kriegel, P. Kröger, I. Müller-Gorman, A. Zimek [[br]]
+ '''Finding Hierarchies of Subspace Clusters''' [[br]]
+ In: Proc. 10th Europ. Conf. on Principles and Practice of Knowledge Discovery in Databases (PKDD'06), Berlin, Germany, 2006 [[br]]
+ Online: [http://www.dbs.ifi.lmu.de/Publikationen/Papers/PKDD06-HiSC.pdf][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.subspace.P3C,de.lmu.ifi.dbs.elki.algorithm.clustering.subspace.P3C)]]
+ By: Gabriela Moise, Jörg Sander, Martin Ester [[br]]
+ '''P3C: A Robust Projected Clustering Algorithm''' [[br]]
+ In: Proc. Sixth International Conference on Data Mining (ICDM '06) [[br]]
+ Online: [http://dx.doi.org/10.1109/ICDM.2006.123][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.subspace.PROCLUS,de.lmu.ifi.dbs.elki.algorithm.clustering.subspace.PROCLUS)]]
+ By: C. C. Aggarwal, C. Procopiuc, J. L. Wolf, P. S. Yu, J. S. Park [[br]]
+ '''Fast Algorithms for Projected Clustering''' [[br]]
+ In: Proc. ACM SIGMOD Int. Conf. on Management of Data (SIGMOD '99) [[br]]
+ Online: [http://dx.doi.org/10.1145/304181.304188][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.clustering.subspace.SUBCLU,de.lmu.ifi.dbs.elki.algorithm.clustering.subspace.SUBCLU)]]
+ By: K. Kailing, H.-P. Kriegel, P. Kröger [[br]]
+ '''Density connected Subspace Clustering for High Dimensional Data''' [[br]]
+ In: Proc. SIAM Int. Conf. on Data Mining (SDM'04), Lake Buena Vista, FL, 2004 [[br]]
+ Online: [http://www.siam.org/meetings/sdm04/proceedings/sdm04_023.pdf][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.itemsetmining.APRIORI,de.lmu.ifi.dbs.elki.algorithm.itemsetmining.APRIORI)]]
+ By: R. Agrawal, R. Srikant [[br]]
+ '''Fast Algorithms for Mining Association Rules''' [[br]]
+ In: Proc. 20th Int. Conf. on Very Large Data Bases (VLDB '94), Santiago de Chile, Chile 1994 [[br]]
+ Online: [http://www.vldb.org/conf/1994/P487.PDF][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.itemsetmining.Eclat,de.lmu.ifi.dbs.elki.algorithm.itemsetmining.Eclat)]]
+ By: M.J. Zaki, S. Parthasarathy, M. Ogihara, and W. Li [[br]]
+ '''New Algorithms for Fast Discovery of Association Rules''' [[br]]
+ In: Proc. 3rd ACM SIGKDD '97 Int. Conf. on Knowledge Discovery and Data Mining [[br]]
+ Online: [http://www.aaai.org/Library/KDD/1997/kdd97-060.php][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.itemsetmining.FPGrowth,de.lmu.ifi.dbs.elki.algorithm.itemsetmining.FPGrowth)]]
+ By: J. Han, J. Pei, Y. Yin [[br]]
+ '''Mining frequent patterns without candidate generation''' [[br]]
+ In: Proceedings of the 2000 ACM SIGMOD international conference on Management of data  [[br]]
+ Online: [http://dx.doi.org/10.1145/342009.335372][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.COP,de.lmu.ifi.dbs.elki.algorithm.outlier.COP)]]
+ By: Hans-Peter Kriegel, Peer Kröger, Erich Schubert, Arthur Zimek [[br]]
+ '''Outlier Detection in Arbitrarily Oriented Subspaces''' [[br]]
+ In: Proc. IEEE International Conference on Data Mining (ICDM 2012) [[br]]
+ Online: [http://dx.doi.org/10.1109/ICDM.2012.21][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.DWOF,de.lmu.ifi.dbs.elki.algorithm.outlier.DWOF)]]
+ By: R. Momtaz, N. Mohssen, M. A. Gowayyed [[br]]
+ '''DWOF: A Robust Density-Based Outlier Detection Approach''' [[br]]
+ In: Pattern Recognition and Image Analysis, Proc. 6th Iberian Conference, IbPRIA 2013, Funchal, Madeira, Portugal, 2013. [[br]]
+ Online: [http://dx.doi.org/10.1007%2F978-3-642-38628-2_61][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.GaussianUniformMixture,de.lmu.ifi.dbs.elki.algorithm.outlier.GaussianUniformMixture)]]
+ Generalization using the likelihood gain as outlier score of [[br]]
+ By: E. Eskin [[br]]
+ '''Anomaly detection over noisy data using learned probability distributions''' [[br]]
+ In: Proc. of the Seventeenth International Conference on Machine Learning (ICML-2000) [[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.OPTICSOF,de.lmu.ifi.dbs.elki.algorithm.outlier.OPTICSOF)]]
+ By: M. M. Breunig, H.-P. Kriegel, R. Ng, and J. Sander [[br]]
+ '''OPTICS-OF: Identifying Local Outliers''' [[br]]
+ In: Proc. of the 3rd European Conference on Principles of Knowledge Discovery and Data Mining (PKDD), Prague, Czech Republic [[br]]
+ Online: [http://springerlink.metapress.com/content/76bx6413gqb4tvta/][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.SimpleCOP,de.lmu.ifi.dbs.elki.algorithm.outlier.SimpleCOP)]]
+ By: Arthur Zimek [[br]]
+ '''Correlation Clustering''' [[br]]
+ In: PhD thesis, Chapter 18 [[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.anglebased.ABOD,de.lmu.ifi.dbs.elki.algorithm.outlier.anglebased.ABOD)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.anglebased.FastABOD,de.lmu.ifi.dbs.elki.algorithm.outlier.anglebased.FastABOD)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.anglebased.LBABOD,de.lmu.ifi.dbs.elki.algorithm.outlier.anglebased.LBABOD)]]
+ By: H.-P. Kriegel, M. Schubert, A. Zimek [[br]]
+ '''Angle-Based Outlier Detection in High-dimensional Data''' [[br]]
+ In: Proc. 14th ACM SIGKDD Int. Conf. on Knowledge Discovery and Data Mining (KDD '08), Las Vegas, NV, 2008 [[br]]
+ Online: [http://dx.doi.org/10.1145/1401890.1401946][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.clustering.SilhouetteOutlierDetection,de.lmu.ifi.dbs.elki.algorithm.outlier.clustering.SilhouetteOutlierDetection)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.evaluation.clustering.internal.EvaluateSilhouette,de.lmu.ifi.dbs.elki.evaluation.clustering.internal.EvaluateSilhouette)]]
+ By: P. J. Rousseeuw [[br]]
+ '''Silhouettes: A graphical aid to the interpretation and validation of cluster analysis''' [[br]]
+ In: Journal of Computational and Applied Mathematics, Volume 20 [[br]]
+ Online: [http://dx.doi.org/10.1016%2F0377-0427%2887%2990125-7][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.distance.AbstractDBOutlier,de.lmu.ifi.dbs.elki.algorithm.outlier.distance.AbstractDBOutlier)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.distance.DBOutlierDetection,de.lmu.ifi.dbs.elki.algorithm.outlier.distance.DBOutlierDetection)]]
+ By: E.M. Knorr, R. T. Ng [[br]]
+ '''Algorithms for Mining Distance-Based Outliers in Large Datasets''' [[br]]
+ In: Procs Int. Conf. on Very Large Databases (VLDB'98), New York, USA, 1998 [[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.distance.DBOutlierScore,de.lmu.ifi.dbs.elki.algorithm.outlier.distance.DBOutlierScore)]]
+ Generalization of a method proposed in [[br]]
+ By: E.M. Knorr, R. T. Ng [[br]]
+ '''Algorithms for Mining Distance-Based Outliers in Large Datasets''' [[br]]
+ In: Procs Int. Conf. on Very Large Databases (VLDB'98), New York, USA, 1998 [[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.distance.HilOut,de.lmu.ifi.dbs.elki.algorithm.outlier.distance.HilOut)]]
+ By: F. Angiulli, C. Pizzuti [[br]]
+ '''Fast Outlier Detection in High Dimensional Spaces''' [[br]]
+ In: Proc. European Conference on Principles of Knowledge Discovery and Data Mining (PKDD'02) [[br]]
+ Online: [http://dx.doi.org/10.1145/375663.375668][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.distance.KNNOutlier,de.lmu.ifi.dbs.elki.algorithm.outlier.distance.KNNOutlier)]]
+ By: S. Ramaswamy, and R. Rastogi, and K. Shim [[br]]
+ '''Efficient Algorithms for Mining Outliers from Large Data Sets''' [[br]]
+ In: Proc. Int. Conf. on Management of Data, 2000 [[br]]
+ Online: [http://dx.doi.org/10.1145/342009.335437][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.distance.KNNWeightOutlier,de.lmu.ifi.dbs.elki.algorithm.outlier.distance.KNNWeightOutlier)]]
+ By: F. Angiulli, C. Pizzuti [[br]]
+ '''Fast Outlier Detection in High Dimensional Spaces''' [[br]]
+ In: Proc. European Conference on Principles of Knowledge Discovery and Data Mining (PKDD'02), Helsinki, Finland, 2002 [[br]]
+ Online: [http://dx.doi.org/10.1007/3-540-45681-3_2][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.distance.LocalIsolationCoefficient,de.lmu.ifi.dbs.elki.algorithm.outlier.distance.LocalIsolationCoefficient)]]
+ By: B. Yu, and M. Song, and L. Wang [[br]]
+ '''Local Isolation Coefficient-Based Outlier Mining Algorithm''' [[br]]
+ In: Int. Conf. on Information Technology and Computer Science (ITCS) 2009 [[br]]
+ Online: [http://dx.doi.org/10.1109/ITCS.2009.230][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.distance.ODIN,de.lmu.ifi.dbs.elki.algorithm.outlier.distance.ODIN)]]
+ By: V. Hautamäki and I. Kärkkäinen and P. Fränti [[br]]
+ '''Outlier detection using k-nearest neighbour graph''' [[br]]
+ In: Proc. 17th Int. Conf. Pattern Recognition, ICPR 2004 [[br]]
+ Online: [http://dx.doi.org/10.1109/ICPR.2004.1334558][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.distance.ReferenceBasedOutlierDetection,de.lmu.ifi.dbs.elki.algorithm.outlier.distance.ReferenceBasedOutlierDetection)]]
+ By: Y. Pei, O.R. Zaiane, Y. Gao [[br]]
+ '''An Efficient Reference-based Approach to Outlier Detection in Large Datasets''' [[br]]
+ In: Proc. 6th IEEE Int. Conf. on Data Mining (ICDM '06) [[br]]
+ Online: [http://dx.doi.org/10.1109/ICDM.2006.17][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.distance.parallel.ParallelKNNOutlier,de.lmu.ifi.dbs.elki.algorithm.outlier.distance.parallel.ParallelKNNOutlier)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.distance.parallel.ParallelKNNWeightOutlier,de.lmu.ifi.dbs.elki.algorithm.outlier.distance.parallel.ParallelKNNWeightOutlier)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.lof.SimplifiedLOF,de.lmu.ifi.dbs.elki.algorithm.outlier.lof.SimplifiedLOF)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.lof.parallel,de.lmu.ifi.dbs.elki.algorithm.outlier.lof.parallel)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.lof.parallel.ParallelLOF,de.lmu.ifi.dbs.elki.algorithm.outlier.lof.parallel.ParallelLOF)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.lof.parallel.ParallelSimplifiedLOF,de.lmu.ifi.dbs.elki.algorithm.outlier.lof.parallel.ParallelSimplifiedLOF)]]
+ By: E. Schubert, A. Zimek, H.-P. Kriegel [[br]]
+ '''Local Outlier Detection Reconsidered: a Generalized View on Locality with Applications to Spatial, Video, and Network Outlier Detection''' [[br]]
+ In: Data Mining and Knowledge Discovery, 28(1): 190–237, 2014. [[br]]
+ Online: [http://dx.doi.org/10.1007/s10618-012-0300-z][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.intrinsic.IDOS,de.lmu.ifi.dbs.elki.algorithm.outlier.intrinsic.IDOS)]]
+ By: Jonathan von Brünken, Michael E. Houle, Arthur Zimek [[br]]
+ '''Intrinsic Dimensional Outlier Detection in High-Dimensional Data''' [[br]]
+ In: NII Technical Report (NII-2015-003E) [[br]]
+ Online: [http://www.nii.ac.jp/TechReports/15-003E.html][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.lof.ALOCI,de.lmu.ifi.dbs.elki.algorithm.outlier.lof.ALOCI)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.lof.LOCI,de.lmu.ifi.dbs.elki.algorithm.outlier.lof.LOCI)]]
+ By: S. Papadimitriou, H. Kitagawa, P. B. Gibbons, C. Faloutsos [[br]]
+ '''LOCI: Fast Outlier Detection Using the Local Correlation Integral''' [[br]]
+ In: Proc. 19th IEEE Int. Conf. on Data Engineering (ICDE '03) [[br]]
+ Online: [http://dx.doi.org/10.1109/ICDE.2003.1260802][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.lof.COF,de.lmu.ifi.dbs.elki.algorithm.outlier.lof.COF)]]
+ By: J. Tang, Z. Chen, A. W. C. Fu, D. W. Cheung [[br]]
+ '''Enhancing effectiveness of outlier detections for low density patterns''' [[br]]
+ In: In Advances in Knowledge Discovery and Data Mining [[br]]
+ Online: [http://dx.doi.org/10.1007/3-540-47887-6_53][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.lof.FlexibleLOF,de.lmu.ifi.dbs.elki.algorithm.outlier.lof.FlexibleLOF)]]
+ By: M. M. Breunig, H.-P. Kriegel, R. Ng, J. Sander [[br]]
+ '''LOF: Identifying Density-Based Local Outliers''' [[br]]
+ In: Proc. 2nd ACM SIGMOD Int. Conf. on Management of Data (SIGMOD '00), Dallas, TX, 2000 [[br]]
+ Online: [http://dx.doi.org/10.1145/342009.335388][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.lof.INFLO,de.lmu.ifi.dbs.elki.algorithm.outlier.lof.INFLO)]]
+ By: W. Jin, A. Tung, J. Han, and W. Wang [[br]]
+ '''Ranking outliers using symmetric neighborhood relationship''' [[br]]
+ In: Proc. 10th Pacific-Asia conference on Advances in Knowledge Discovery and Data Mining [[br]]
+ Online: [http://dx.doi.org/10.1007/11731139_68][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.lof.KDEOS,de.lmu.ifi.dbs.elki.algorithm.outlier.lof.KDEOS)]]
+ By: Erich Schubert, Arthur Zimek, Hans-Peter Kriegel [[br]]
+ '''Generalized Outlier Detection with Flexible Kernel Density Estimates''' [[br]]
+ In: Proc. 14th SIAM International Conference on Data Mining (SDM), Philadelphia, PA, 2014 [[br]]
+ Online: [http://dx.doi.org/10.1137/1.9781611973440.63][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.lof.LDF,de.lmu.ifi.dbs.elki.algorithm.outlier.lof.LDF)]]
+ By: L. J. Latecki, A. Lazarevic, D. Pokrajac [[br]]
+ '''Outlier Detection with Kernel Density Functions''' [[br]]
+ In: Machine Learning and Data Mining in Pattern Recognition [[br]]
+ Online: [http://dx.doi.org/10.1007/978-3-540-73499-4_6][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.lof.LDOF,de.lmu.ifi.dbs.elki.algorithm.outlier.lof.LDOF)]]
+ By: K. Zhang, M. Hutter, H. Jin [[br]]
+ '''A New Local Distance-Based Outlier Detection Approach for Scattered Real-World Data''' [[br]]
+ In: Proc. 13th Pacific-Asia Conference on Advances in Knowledge Discovery and Data Mining (PAKDD 2009) [[br]]
+ Online: [http://dx.doi.org/10.1007/978-3-642-01307-2_84][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.lof.LOF,de.lmu.ifi.dbs.elki.algorithm.outlier.lof.LOF)]]
+ By: M. M. Breunig, H.-P. Kriegel, R. Ng, and J. Sander [[br]]
+ '''LOF: Identifying Density-Based Local Outliers''' [[br]]
+ In: Proc. 2nd ACM SIGMOD Int. Conf. on Management of Data (SIGMOD '00), Dallas, TX, 2000 [[br]]
+ Online: [http://dx.doi.org/10.1145/342009.335388][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.lof.LoOP,de.lmu.ifi.dbs.elki.algorithm.outlier.lof.LoOP)]]
+ By: H.-P. Kriegel, P. Kröger, E. Schubert, A. Zimek [[br]]
+ '''LoOP: Local Outlier Probabilities''' [[br]]
+ In: Proceedings of the 18th International Conference on Information and Knowledge Management (CIKM), Hong Kong, China, 2009 [[br]]
+ Online: [http://dx.doi.org/10.1145/1645953.1646195][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.lof.VarianceOfVolume,de.lmu.ifi.dbs.elki.algorithm.outlier.lof.VarianceOfVolume)]]
+ By: T. Hu, and S. Y. Sung [[br]]
+ '''Detecting pattern-based outliers''' [[br]]
+ In: Pattern Recognition Letters 24(16) [[br]]
+ Online: [http://dx.doi.org/10.1016/S0167-8655(03)00165-X][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.meta.FeatureBagging,de.lmu.ifi.dbs.elki.algorithm.outlier.meta.FeatureBagging)]]
+ By: A. Lazarevic, V. Kumar [[br]]
+ '''Feature Bagging for Outlier Detection''' [[br]]
+ In: Proc. of the 11th ACM SIGKDD international conference on Knowledge discovery in data mining [[br]]
+ Online: [http://dx.doi.org/10.1145/1081870.1081891][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.meta.HiCS,de.lmu.ifi.dbs.elki.algorithm.outlier.meta.HiCS)]]
+ By: Fabian Keller, Emmanuel Müller, Klemens Böhm [[br]]
+ '''HiCS: High Contrast Subspaces for Density-Based Outlier Ranking''' [[br]]
+ In: Proc. IEEE 28th International Conference on Data Engineering (ICDE 2012) [[br]]
+ Online: [http://dx.doi.org/10.1109/ICDE.2012.88][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.spatial.CTLuGLSBackwardSearchAlgorithm,de.lmu.ifi.dbs.elki.algorithm.outlier.spatial.CTLuGLSBackwardSearchAlgorithm)]]
+ By: F. Chen and C.-T. Lu and A. P. Boedihardjo [[br]]
+ '''GLS-SOD: A Generalized Local Statistical Approach for Spatial Outlier Detection''' [[br]]
+ In: Proc. 16th ACM SIGKDD international conference on Knowledge discovery and data mining [[br]]
+ Online: [http://dx.doi.org/10.1145/1835804.1835939][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.spatial.CTLuMeanMultipleAttributes,de.lmu.ifi.dbs.elki.algorithm.outlier.spatial.CTLuMeanMultipleAttributes)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.spatial.CTLuMedianMultipleAttributes,de.lmu.ifi.dbs.elki.algorithm.outlier.spatial.CTLuMedianMultipleAttributes)]]
+ By: Chang-Tien Lu and Dechang Chen and Yufeng Kou [[br]]
+ '''Detecting Spatial Outliers with Multiple Attributes''' [[br]]
+ In: Proc. 15th IEEE International Conference on Tools with Artificial Intelligence, 2003 [[br]]
+ Online: [http://dx.doi.org/10.1109/TAI.2003.1250179][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.spatial.CTLuMedianAlgorithm,de.lmu.ifi.dbs.elki.algorithm.outlier.spatial.CTLuMedianAlgorithm)]]
+ By: C.-T. Lu and D. Chen and Y. Kou [[br]]
+ '''Algorithms for Spatial Outlier Detection''' [[br]]
+ In: Proc. 3rd IEEE International Conference on Data Mining [[br]]
+ Online: [http://dx.doi.org/10.1109/ICDM.2003.1250986][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.spatial.CTLuMoranScatterplotOutlier,de.lmu.ifi.dbs.elki.algorithm.outlier.spatial.CTLuMoranScatterplotOutlier)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.spatial.CTLuScatterplotOutlier,de.lmu.ifi.dbs.elki.algorithm.outlier.spatial.CTLuScatterplotOutlier)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.spatial.CTLuZTestOutlier,de.lmu.ifi.dbs.elki.algorithm.outlier.spatial.CTLuZTestOutlier)]]
+ By: S. Shekhar and C.-T. Lu and P. Zhang [[br]]
+ '''A Unified Approach to Detecting Spatial Outliers''' [[br]]
+ In: GeoInformatica 7-2, 2003 [[br]]
+ Online: [http://dx.doi.org/10.1023/A:1023455925009][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.spatial.CTLuRandomWalkEC,de.lmu.ifi.dbs.elki.algorithm.outlier.spatial.CTLuRandomWalkEC)]]
+ By: X. Liu and C.-T. Lu and F. Chen [[br]]
+ '''Spatial outlier detection: random walk based approaches''' [[br]]
+ In: Proc. 18th SIGSPATIAL International Conference on Advances in Geographic Information Systems, 2010 [[br]]
+ Online: [http://dx.doi.org/10.1145/1869790.1869841][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.spatial.SLOM,de.lmu.ifi.dbs.elki.algorithm.outlier.spatial.SLOM)]]
+ By: Sanjay Chawla and Pei Sun [[br]]
+ '''SLOM: a new measure for local spatial outliers''' [[br]]
+ In: Knowledge and Information Systems 9(4), 412-429, 2006 [[br]]
+ Online: [http://dx.doi.org/10.1007/s10115-005-0200-2][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.spatial.SOF,de.lmu.ifi.dbs.elki.algorithm.outlier.spatial.SOF)]]
+ By: Huang, T., Qin, X. [[br]]
+ '''Detecting outliers in spatial database''' [[br]]
+ In: Proc. 3rd International Conference on Image and Graphics [[br]]
+ Online: [http://dx.doi.org/10.1109/ICIG.2004.53][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.spatial.TrimmedMeanApproach,de.lmu.ifi.dbs.elki.algorithm.outlier.spatial.TrimmedMeanApproach)]]
+ By: Tianming Hu and Sam Yuan Sung [[br]]
+ '''A trimmed mean approach to finding spatial outliers''' [[br]]
+ In: Intelligent Data Analysis, Volume 8, 2004 [[br]]
+ Online: [http://iospress.metapress.com/content/PLVLT6431DVNJXNK][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.subspace.AbstractAggarwalYuOutlier,de.lmu.ifi.dbs.elki.algorithm.outlier.subspace.AbstractAggarwalYuOutlier)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.subspace.AggarwalYuEvolutionary,de.lmu.ifi.dbs.elki.algorithm.outlier.subspace.AggarwalYuEvolutionary)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.subspace.AggarwalYuNaive,de.lmu.ifi.dbs.elki.algorithm.outlier.subspace.AggarwalYuNaive)]]
+ By: C.C. Aggarwal, P. S. Yu [[br]]
+ '''Outlier detection for high dimensional data''' [[br]]
+ In: Proc. ACM SIGMOD Int. Conf. on Management of Data (SIGMOD 2001), Santa Barbara, CA, 2001 [[br]]
+ Online: [http://dx.doi.org/10.1145/375663.375668][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.subspace.OUTRES,de.lmu.ifi.dbs.elki.algorithm.outlier.subspace.OUTRES)]]
+ By: E. Müller, M. Schiffer, T. Seidl [[br]]
+ '''Adaptive outlierness for subspace outlier ranking''' [[br]]
+ In: Proc. 19th ACM International Conference on Information and knowledge management [[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.subspace.OutRankS1,de.lmu.ifi.dbs.elki.algorithm.outlier.subspace.OutRankS1)]]
+ By: Emmanuel Müller, Ira Assent, Uwe Steinhausen, Thomas Seidl [[br]]
+ '''OutRank: ranking outliers in high dimensional data''' [[br]]
+ In: Proc. 24th Int. Conf. on Data Engineering (ICDE) Workshop on Ranking in Databases (DBRank), Cancun, Mexico [[br]]
+ Online: [http://dx.doi.org/10.1109/ICDEW.2008.4498387][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.outlier.subspace.SOD,de.lmu.ifi.dbs.elki.algorithm.outlier.subspace.SOD)]]
+ By: H.-P. Kriegel, P. Kröger, E. Schubert, A. Zimek [[br]]
+ '''Outlier Detection in Axis-Parallel Subspaces of High Dimensional Data''' [[br]]
+ In: Proceedings of the 13th Pacific-Asia Conference on Knowledge Discovery and Data Mining (PAKDD), Bangkok, Thailand, 2009 [[br]]
+ Online: [http://dx.doi.org/10.1007/978-3-642-01307-2][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.algorithm.statistics.HopkinsStatisticClusteringTendency,de.lmu.ifi.dbs.elki.algorithm.statistics.HopkinsStatisticClusteringTendency)]]
+ By: B. Hopkins and J. G. Skellam [[br]]
+ '''A new method for determining the type of distribution of plant individuals''' [[br]]
+ In: Annals of Botany, 18(2), 213-227 [[br]]
+ Online: [http://aob.oxfordjournals.org/content/18/2/213.short][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.application.AbstractApplication,de.lmu.ifi.dbs.elki.application.AbstractApplication)]]
+ By: Erich Schubert, Alexander Koos, Tobias Emrich, Andreas Züfle, Klaus Arthur Schmid, Arthur Zimek [[br]]
+ '''A Framework for Clustering Uncertain Data''' [[br]]
+ In: Proceedings of the VLDB Endowment, 8(12) [[br]]
+ Online: [http://www.vldb.org/pvldb/vol8/p1976-schubert.pdf][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.application.greedyensemble.ComputeKNNOutlierScores,de.lmu.ifi.dbs.elki.application.greedyensemble.ComputeKNNOutlierScores)]]
+ By: E. Schubert, R. Wojdanowski, A. Zimek, H.-P. Kriegel [[br]]
+ '''On Evaluation of Outlier Rankings and Outlier Scores''' [[br]]
+ In: Proc. 12th SIAM International Conference on Data Mining (SDM), Anaheim, CA, 2012. [[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.application.greedyensemble.GreedyEnsembleExperiment,de.lmu.ifi.dbs.elki.application.greedyensemble.GreedyEnsembleExperiment)]]
+ By: E. Schubert, R. Wojdanowski, A. Zimek, H.-P. Kriegel [[br]]
+ '''On Evaluation of Outlier Rankings and Outlier Scores''' [[br]]
+ In: Proc. 12th SIAM International Conference on Data Mining (SDM), Anaheim, CA, 2012. [[br]]
+ Online: [http://dx.doi.org/10.1137/1.9781611972825.90][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.datasource.filter.transform.LinearDiscriminantAnalysisFilter,de.lmu.ifi.dbs.elki.datasource.filter.transform.LinearDiscriminantAnalysisFilter)]]
+ By: R. A. Fisher [[br]]
+ '''The use of multiple measurements in taxonomic problems''' [[br]]
+ In: Annals of eugenics 7.2 (1936) [[br]]
+ Online: [http://dx.doi.org/10.1111/j.1469-1809.1936.tb02137.x][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.datasource.filter.transform.PerturbationFilter,de.lmu.ifi.dbs.elki.datasource.filter.transform.PerturbationFilter)]]
+ By: A. Zimek, R. J. G. B. Campello, J. Sander [[br]]
+ '''Data Perturbation for Outlier Detection Ensembles''' [[br]]
+ In: Proc. 26th International Conference on Scientific and Statistical Database Management (SSDBM), Aalborg, Denmark, 2014 [[br]]
+ Online: [http://dx.doi.org/10.1145/2618243.2618257][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.distance.distancefunction.BrayCurtisDistanceFunction,de.lmu.ifi.dbs.elki.distance.distancefunction.BrayCurtisDistanceFunction)]]
+ By: T. Sørensen [[br]]
+ '''A method of establishing groups of equal amplitude in plant sociology based on similarity of species and its application to analyses of the vegetation on Danish commons''' [[br]]
+ In: Kongelige Danske Videnskabernes Selskab 5 (4) [[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.distance.distancefunction.BrayCurtisDistanceFunction,de.lmu.ifi.dbs.elki.distance.distancefunction.BrayCurtisDistanceFunction)]]
+ By: J. R. Bray and J. T. Curtis [[br]]
+ '''An ordination of the upland forest communities of southern Wisconsin''' [[br]]
+ In: Ecological monographs 27.4 [[br]]
+ Online: [http://dx.doi.org/10.2307/1942268][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.distance.distancefunction.BrayCurtisDistanceFunction,de.lmu.ifi.dbs.elki.distance.distancefunction.BrayCurtisDistanceFunction)]]
+ By: L. R. Dice [[br]]
+ '''Measures of the Amount of Ecologic Association Between Species''' [[br]]
+ In: Ecology 26 (3) [[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.distance.distancefunction.CanberraDistanceFunction,de.lmu.ifi.dbs.elki.distance.distancefunction.CanberraDistanceFunction)]]
+ By: G. N. Lance, W. T. Williams [[br]]
+ '''Computer programs for hierarchical polythetic classification (similarity analyses)''' [[br]]
+ In: Computer Journal, Volume 9, Issue 1 [[br]]
+ Online: [http://comjnl.oxfordjournals.org/content/9/1/60.short][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.distance.distancefunction.ClarkDistanceFunction,de.lmu.ifi.dbs.elki.distance.distancefunction.ClarkDistanceFunction)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.distance.distancefunction.Kulczynski1DistanceFunction,de.lmu.ifi.dbs.elki.distance.distancefunction.Kulczynski1DistanceFunction)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.distance.distancefunction.LorentzianDistanceFunction,de.lmu.ifi.dbs.elki.distance.distancefunction.LorentzianDistanceFunction)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.distance.similarityfunction.Kulczynski1SimilarityFunction,de.lmu.ifi.dbs.elki.distance.similarityfunction.Kulczynski1SimilarityFunction)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.distance.similarityfunction.Kulczynski2SimilarityFunction,de.lmu.ifi.dbs.elki.distance.similarityfunction.Kulczynski2SimilarityFunction)]]
+ By: M.-M. Deza and E. Deza [[br]]
+ '''Dictionary of distances''' [[br]]
+ In: Dictionary of distances [[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.distance.distancefunction.colorhistogram.HSBHistogramQuadraticDistanceFunction,de.lmu.ifi.dbs.elki.distance.distancefunction.colorhistogram.HSBHistogramQuadraticDistanceFunction)]]
+ By: J. R. Smith, S. F. Chang [[br]]
+ '''VisualSEEk: a fully automated content-based image query system''' [[br]]
+ In: Proceedings of the fourth ACM international conference on Multimedia 1997 [[br]]
+ Online: [http://dx.doi.org/10.1145/244130.244151][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.distance.distancefunction.colorhistogram.HistogramIntersectionDistanceFunction,de.lmu.ifi.dbs.elki.distance.distancefunction.colorhistogram.HistogramIntersectionDistanceFunction)]]
+ By: M. J. Swain, D. H. Ballard [[br]]
+ '''Color Indexing''' [[br]]
+ In: International Journal of Computer Vision, 7(1), 32, 1991 [[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.distance.distancefunction.colorhistogram.RGBHistogramQuadraticDistanceFunction,de.lmu.ifi.dbs.elki.distance.distancefunction.colorhistogram.RGBHistogramQuadraticDistanceFunction)]]
+ By: J. Hafner, H. S.Sawhney, W. Equits, M. Flickner, W. Niblack [[br]]
+ '''Efficient Color Histogram Indexing for Quadratic Form Distance Functions''' [[br]]
+ In: IEEE Trans. on Pattern Analysis and Machine Intelligence, Vol. 17, No. 7, July 1995 [[br]]
+ Online: [http://dx.doi.org/10.1109/34.391417][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.distance.distancefunction.geo.DimensionSelectingLatLngDistanceFunction,de.lmu.ifi.dbs.elki.distance.distancefunction.geo.DimensionSelectingLatLngDistanceFunction)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.distance.distancefunction.geo.LatLngDistanceFunction,de.lmu.ifi.dbs.elki.distance.distancefunction.geo.LatLngDistanceFunction)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.distance.distancefunction.geo.LngLatDistanceFunction,de.lmu.ifi.dbs.elki.distance.distancefunction.geo.LngLatDistanceFunction)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.math.geodesy.SphereUtil,de.lmu.ifi.dbs.elki.math.geodesy.SphereUtil)]]
+ By: Erich Schubert, Arthur Zimek and Hans-Peter Kriegel [[br]]
+ '''Geodetic Distance Queries on R-Trees for Indexing Geographic Data''' [[br]]
+ In: 13th Int. Symposium on Advances in Spatial and Temporal Databases [[br]]
+ Online: [http://dx.doi.org/10.1007/978-3-642-40235-7_9][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.distance.distancefunction.histogram.HistogramMatchDistanceFunction,de.lmu.ifi.dbs.elki.distance.distancefunction.histogram.HistogramMatchDistanceFunction)]]
+ By: L.N. Vaserstein [[br]]
+ '''Markov processes over denumerable products of spaces describing large systems of automata''' [[br]]
+ In: Problemy Peredachi Informatsii 5.3 / Problems of Information Transmission, 5:3 [[br]]
+ Online: [http://mi.mathnet.ru/eng/ppi1811][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.distance.distancefunction.probabilistic.ChiSquaredDistanceFunction,de.lmu.ifi.dbs.elki.distance.distancefunction.probabilistic.ChiSquaredDistanceFunction)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.distance.distancefunction.probabilistic.JeffreyDivergenceDistanceFunction,de.lmu.ifi.dbs.elki.distance.distancefunction.probabilistic.JeffreyDivergenceDistanceFunction)]]
+ By: J. Puzicha, J.M. Buhmann, Y. Rubner, C. Tomasi [[br]]
+ '''Empirical evaluation of dissimilarity measures for color and texture''' [[br]]
+ In: Proc. 7th IEEE International Conference on Computer Vision [[br]]
+ Online: [http://dx.doi.org/10.1109/ICCV.1999.790412][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.distance.distancefunction.probabilistic.HellingerDistanceFunction,de.lmu.ifi.dbs.elki.distance.distancefunction.probabilistic.HellingerDistanceFunction)]]
+ By: E. Hellinger [[br]]
+ '''Neue Begründung der Theorie quadratischer Formen von unendlichvielen Veränderlichen''' [[br]]
+ In: Journal für die reine und angewandte Mathematik  [[br]]
+ Online: [http://resolver.sub.uni-goettingen.de/purl?GDZPPN002166941][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.distance.distancefunction.probabilistic.KullbackLeiblerDivergenceAsymmetricDistanceFunction,de.lmu.ifi.dbs.elki.distance.distancefunction.probabilistic.KullbackLeiblerDivergenceAsymmetricDistanceFunction)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.distance.distancefunction.probabilistic.KullbackLeiblerDivergenceReverseAsymmetricDistanceFunction,de.lmu.ifi.dbs.elki.distance.distancefunction.probabilistic.KullbackLeiblerDivergenceReverseAsymmetricDistanceFunction)]]
+ By: S. Kullback [[br]]
+ '''Information theory and statistics''' [[br]]
+ In: Information theory and statistics, Courier Dover Publications, 1997. [[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.distance.distancefunction.probabilistic.SqrtJensenShannonDivergenceDistanceFunction,de.lmu.ifi.dbs.elki.distance.distancefunction.probabilistic.SqrtJensenShannonDivergenceDistanceFunction)]]
+ By: D. M. Endres, J. E. Schindelin [[br]]
+ '''A new metric for probability distributions''' [[br]]
+ In: IEEE Transactions on Information Theory, 49(7) [[br]]
+ Online: [http://dx.doi.org/10.1109/TIT.2003.813506][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.distance.distancefunction.set.HammingDistanceFunction,de.lmu.ifi.dbs.elki.distance.distancefunction.set.HammingDistanceFunction)]]
+ By: R. W. Hamming [[br]]
+ '''Error detecting and error correcting codes''' [[br]]
+ In: Bell System technical journal, 29(2) [[br]]
+ Online: [http://dx.doi.org/10.1002/j.1538-7305.1950.tb00463.x][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.distance.distancefunction.set.JaccardSimilarityDistanceFunction,de.lmu.ifi.dbs.elki.distance.distancefunction.set.JaccardSimilarityDistanceFunction)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.distance.similarityfunction.cluster.ClusterJaccardSimilarityFunction,de.lmu.ifi.dbs.elki.distance.similarityfunction.cluster.ClusterJaccardSimilarityFunction)]]
+ By: P. Jaccard [[br]]
+ '''Distribution de la florine alpine dans la Bassin de Dranses et dans quelques regiones voisines''' [[br]]
+ In: Bulletin del la Société Vaudoise des Sciences Naturelles [[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.distance.distancefunction.strings.LevenshteinDistanceFunction,de.lmu.ifi.dbs.elki.distance.distancefunction.strings.LevenshteinDistanceFunction)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.distance.distancefunction.strings.NormalizedLevenshteinDistanceFunction,de.lmu.ifi.dbs.elki.distance.distancefunction.strings.NormalizedLevenshteinDistanceFunction)]]
+ By: V. I. Levenshtein [[br]]
+ '''Binary codes capable of correcting deletions, insertions and reversals.''' [[br]]
+ In: Soviet physics doklady. Vol. 10. 1966. [[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.distance.distancefunction.timeseries.DTWDistanceFunction,de.lmu.ifi.dbs.elki.distance.distancefunction.timeseries.DTWDistanceFunction)]]
+ By: Berndt, D. and Clifford, J. [[br]]
+ '''Using dynamic time warping to find patterns in time series''' [[br]]
+ In: AAAI-94 Workshop on Knowledge Discovery in Databases, 1994 [[br]]
+ Online: [http://www.aaai.org/Papers/Workshops/1994/WS-94-03/WS94-03-031.pdf][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.distance.distancefunction.timeseries.DerivativeDTWDistanceFunction,de.lmu.ifi.dbs.elki.distance.distancefunction.timeseries.DerivativeDTWDistanceFunction)]]
+ By: E. J. Keogh and M. J. Pazzani [[br]]
+ '''Derivative dynamic time warping''' [[br]]
+ In: 1st SIAM International Conference on Data Mining (SDM-2001) [[br]]
+ Online: [https://siam.org/proceedings/datamining/2001/dm01_01KeoghE.pdf][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.distance.distancefunction.timeseries.EDRDistanceFunction,de.lmu.ifi.dbs.elki.distance.distancefunction.timeseries.EDRDistanceFunction)]]
+ By: L. Chen and M. T. Özsu and V. Oria [[br]]
+ '''Robust and fast similarity search for moving object trajectories''' [[br]]
+ In: SIGMOD '05: Proceedings of the 2005 ACM SIGMOD international conference on Management of data [[br]]
+ Online: [http://dx.doi.org/10.1145/1066157.1066213][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.distance.distancefunction.timeseries.ERPDistanceFunction,de.lmu.ifi.dbs.elki.distance.distancefunction.timeseries.ERPDistanceFunction)]]
+ By: L. Chen and R. Ng [[br]]
+ '''On the marriage of Lp-norms and edit distance''' [[br]]
+ In: VLDB '04: Proceedings of the Thirtieth international conference on Very large data bases [[br]]
+ Online: [http://www.vldb.org/conf/2004/RS21P2.PDF][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.distance.distancefunction.timeseries.LCSSDistanceFunction,de.lmu.ifi.dbs.elki.distance.distancefunction.timeseries.LCSSDistanceFunction)]]
+ By: M. Vlachos, M. Hadjieleftheriou, D. Gunopulos, E. Keogh [[br]]
+ '''Indexing Multi-Dimensional Time-Series with Support for Multiple Distance Measures''' [[br]]
+ In: Proceedings of the ninth ACM SIGKDD international conference on Knowledge discovery and data mining [[br]]
+ Online: [http://dx.doi.org/10.1145/956750.956777][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.distance.similarityfunction.cluster.ClusteringAdjustedRandIndexSimilarityFunction,de.lmu.ifi.dbs.elki.distance.similarityfunction.cluster.ClusteringAdjustedRandIndexSimilarityFunction)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.distance.similarityfunction.cluster.ClusteringRandIndexSimilarityFunction,de.lmu.ifi.dbs.elki.distance.similarityfunction.cluster.ClusteringRandIndexSimilarityFunction)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.evaluation.clustering.PairCounting,de.lmu.ifi.dbs.elki.evaluation.clustering.PairCounting)]]
+ By: Rand, W. M. [[br]]
+ '''Objective Criteria for the Evaluation of Clustering Methods''' [[br]]
+ In: Journal of the American Statistical Association, Vol. 66 Issue 336 [[br]]
+ Online: [http://www.jstor.org/stable/10.2307/2284239][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.distance.similarityfunction.cluster.ClusteringBCubedF1SimilarityFunction,de.lmu.ifi.dbs.elki.distance.similarityfunction.cluster.ClusteringBCubedF1SimilarityFunction)]]
+ By: Bagga, A. and Baldwin, B. [[br]]
+ '''Entity-based cross-document coreferencing using the Vector Space Model''' [[br]]
+ In: Proc. COLING '98 Proceedings of the 17th international conference on Computational linguistics [[br]]
+ Online: [http://dx.doi.org/10.3115/980451.980859][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.distance.similarityfunction.cluster.ClusteringFowlkesMallowsSimilarityFunction,de.lmu.ifi.dbs.elki.distance.similarityfunction.cluster.ClusteringFowlkesMallowsSimilarityFunction)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.evaluation.clustering.PairCounting,de.lmu.ifi.dbs.elki.evaluation.clustering.PairCounting)]]
+ By: Fowlkes, E.B. and Mallows, C.L. [[br]]
+ '''A method for comparing two hierarchical clusterings''' [[br]]
+ In: Journal of the American Statistical Association, Vol. 78 Issue 383 [[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.evaluation.clustering.BCubed,de.lmu.ifi.dbs.elki.evaluation.clustering.BCubed)]]
+ By: A. Bagga and B. Baldwin [[br]]
+ '''Entity-based cross-document coreferencing using the Vector Space Model''' [[br]]
+ In: Proc. COLING '98 Proceedings of the 17th international conference on Computational linguistics [[br]]
+ Online: [http://dx.doi.org/10.3115/980451.980859][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.evaluation.clustering.EditDistance,de.lmu.ifi.dbs.elki.evaluation.clustering.EditDistance)]]
+ By: Pantel, P. and Lin, D. [[br]]
+ '''Document clustering with committees''' [[br]]
+ In: Proc. 25th ACM SIGIR conference on Research and development in information retrieval [[br]]
+ Online: [http://dx.doi.org/10.1145/564376.564412][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.evaluation.clustering.Entropy,de.lmu.ifi.dbs.elki.evaluation.clustering.Entropy)]]
+ By: Meilă, M. [[br]]
+ '''Comparing clusterings by the variation of information''' [[br]]
+ In: Learning theory and kernel machines [[br]]
+ Online: [http://dx.doi.org/10.1007/978-3-540-45167-9_14][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.evaluation.clustering.Entropy,de.lmu.ifi.dbs.elki.evaluation.clustering.Entropy)]]
+ By: Nguyen, X. V. and Epps, J. and Bailey, J. [[br]]
+ '''Information theoretic measures for clusterings comparison: is a correction for chance necessary?''' [[br]]
+ In: Proc. ICML '09 Proceedings of the 26th Annual International Conference on Machine Learning [[br]]
+ Online: [http://dx.doi.org/10.1145/1553374.1553511][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.evaluation.clustering.SetMatchingPurity,de.lmu.ifi.dbs.elki.evaluation.clustering.SetMatchingPurity)]]
+ By: Steinbach, M. and Karypis, G. and Kumar, V. [[br]]
+ '''A comparison of document clustering techniques''' [[br]]
+ In: KDD workshop on text mining, 2000 [[br]]
+ Online: [http://www-users.itlabs.umn.edu/~karypis/publications/Papers/PDF/doccluster.pdf][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.evaluation.clustering.SetMatchingPurity,de.lmu.ifi.dbs.elki.evaluation.clustering.SetMatchingPurity)]]
+ By: E. Amigó, J. Gonzalo, J. Artiles, and F. Verdejo [[br]]
+ '''A comparison of extrinsic clustering evaluation metrics based on formal constraints''' [[br]]
+ In: Inf. Retrieval, vol. 12, no. 5 [[br]]
+ Online: [http://dx.doi.org/10.1007/s10791-009-9106-z][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.evaluation.clustering.SetMatchingPurity,de.lmu.ifi.dbs.elki.evaluation.clustering.SetMatchingPurity)]]
+ By: Meilă, M [[br]]
+ '''Comparing clusterings''' [[br]]
+ In: University of Washington, Seattle, Technical Report 418, 2002 [[br]]
+ Online: [http://www.stat.washington.edu/mmp/Papers/compare-colt.pdf][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.evaluation.clustering.SetMatchingPurity,de.lmu.ifi.dbs.elki.evaluation.clustering.SetMatchingPurity)]]
+ By: Zhao, Y. and Karypis, G. [[br]]
+ '''Criterion functions for document clustering: Experiments and analysis''' [[br]]
+ In: University of Minnesota, Department of Computer Science, Technical Report 01-40, 2001 [[br]]
+ Online: [http://www-users.cs.umn.edu/~karypis/publications/Papers/PDF/vscluster.pdf][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.evaluation.clustering.internal.EvaluateCIndex,de.lmu.ifi.dbs.elki.evaluation.clustering.internal.EvaluateCIndex)]]
+ By: L. J. Hubert and J. R. Levin [[br]]
+ '''A general statistical framework for assessing categorical clustering in free recall.''' [[br]]
+ In: Psychological Bulletin, Vol. 83(6) [[br]]
+ Online: [http://dx.doi.org/10.1037/0033-2909.83.6.1072][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.evaluation.clustering.internal.EvaluateConcordantPairs,de.lmu.ifi.dbs.elki.evaluation.clustering.internal.EvaluateConcordantPairs)]]
+ By: F. B. Baker, and L. J. Hubert [[br]]
+ '''Measuring the Power of Hierarchical Cluster Analysis''' [[br]]
+ In: Journal of the American Statistical Association, 70(349) [[br]]
+ Online: [http://dx.doi.org/10.1080/01621459.1975.10480256][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.evaluation.clustering.internal.EvaluateConcordantPairs,de.lmu.ifi.dbs.elki.evaluation.clustering.internal.EvaluateConcordantPairs)]]
+ By: F. J. Rohlf [[br]]
+ '''Methods of comparing classifications''' [[br]]
+ In: Annual Review of Ecology and Systematics [[br]]
+ Online: [http://dx.doi.org/10.1146/annurev.es.05.110174.000533][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.evaluation.clustering.internal.EvaluateDaviesBouldin,de.lmu.ifi.dbs.elki.evaluation.clustering.internal.EvaluateDaviesBouldin)]]
+ By: D. L. Davies and D. W. Bouldin [[br]]
+ '''A Cluster Separation Measure''' [[br]]
+ In: IEEE Transactions Pattern Analysis and Machine Intelligence PAMI-1(2) [[br]]
+ Online: [http://dx.doi.org/10.1109/TPAMI.1979.4766909][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.evaluation.clustering.internal.EvaluatePBMIndex,de.lmu.ifi.dbs.elki.evaluation.clustering.internal.EvaluatePBMIndex)]]
+ By: M. K. Pakhira, and S. Bandyopadhyay, and U. Maulik [[br]]
+ '''Validity index for crisp and fuzzy clusters''' [[br]]
+ In: Pattern recognition, 37(3) [[br]]
+ Online: [http://dx.doi.org/10.1016/j.patcog.2003.06.005][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.evaluation.clustering.internal.EvaluateVarianceRatioCriteria,de.lmu.ifi.dbs.elki.evaluation.clustering.internal.EvaluateVarianceRatioCriteria)]]
+ By: R. B. Calinski and J. Harabasz [[br]]
+ '''A dendrite method for cluster analysis''' [[br]]
+ In: Communications in Statistics-theory and Methods, 3(1) [[br]]
+ Online: [http://dx.doi.org/10.1080/03610927408827101][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.evaluation.clustering.pairsegments.ClusterPairSegmentAnalysis,de.lmu.ifi.dbs.elki.evaluation.clustering.pairsegments.ClusterPairSegmentAnalysis)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.evaluation.clustering.pairsegments.Segments,de.lmu.ifi.dbs.elki.evaluation.clustering.pairsegments.Segments)]]
+ By: Elke Achtert, Sascha Goldhofer, Hans-Peter Kriegel, Erich Schubert, Arthur Zimek [[br]]
+ '''Evaluation of Clusterings – Metrics and Visual Support''' [[br]]
+ In: Proc. 28th International Conference on Data Engineering (ICDE) 2012 [[br]]
+ Online: [http://dx.doi.org/10.1109/ICDE.2012.128][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.evaluation.outlier.OutlierSmROCCurve,de.lmu.ifi.dbs.elki.evaluation.outlier.OutlierSmROCCurve)]]
+ By: W. Klement, P. A. Flach, N. Japkowicz, S. Matwin [[br]]
+ '''Smooth Receiver Operating Characteristics (smROC) Curves''' [[br]]
+ In: In: European Conference on Machine Learning and Principles and Practice of Knowledge Discovery in Databases (ECML-PKDD'11) [[br]]
+ Online: [http://dx.doi.org/10.1007/978-3-642-23783-6_13][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.index.idistance.InMemoryIDistanceIndex,de.lmu.ifi.dbs.elki.index.idistance.InMemoryIDistanceIndex)]]
+ By: C. Yu, B. C. Ooi, K. L. Tan, H. V. Jagadish [[br]]
+ '''Indexing the distance: An efficient method to knn processing''' [[br]]
+ In: In Proceedings of the 27th International Conference on Very Large Data Bases [[br]]
+ Online: [http://www.vldb.org/conf/2001/P421.pdf][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.index.idistance.InMemoryIDistanceIndex,de.lmu.ifi.dbs.elki.index.idistance.InMemoryIDistanceIndex)]]
+ By: H. V. Jagadish, B. C. Ooi, K. L. Tan, C. Yu, R. Zhang [[br]]
+ '''iDistance: An adaptive B+-tree based indexing method for nearest neighbor search''' [[br]]
+ In: ACM Transactions on Database Systems (TODS), 30(2), 364-397 [[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.index.lsh.hashfamilies.CosineHashFunctionFamily,de.lmu.ifi.dbs.elki.index.lsh.hashfamilies.CosineHashFunctionFamily)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.index.lsh.hashfunctions.CosineLocalitySensitiveHashFunction,de.lmu.ifi.dbs.elki.index.lsh.hashfunctions.CosineLocalitySensitiveHashFunction)]]
+ By: M.S. Charikar [[br]]
+ '''Similarity estimation techniques from rounding algorithms''' [[br]]
+ In: Proc. 34th ACM Symposium on Theory of computing, STOC'02 [[br]]
+ Online: [https://dx.doi.org/10.1145/509907.509965][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.index.lsh.hashfamilies.EuclideanHashFunctionFamily,de.lmu.ifi.dbs.elki.index.lsh.hashfamilies.EuclideanHashFunctionFamily)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.index.lsh.hashfamilies.ManhattanHashFunctionFamily,de.lmu.ifi.dbs.elki.index.lsh.hashfamilies.ManhattanHashFunctionFamily)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.index.lsh.hashfunctions.MultipleProjectionsLocalitySensitiveHashFunction,de.lmu.ifi.dbs.elki.index.lsh.hashfunctions.MultipleProjectionsLocalitySensitiveHashFunction)]]
+ By: M. Datar and N. Immorlica and P. Indyk and V. S. Mirrokni [[br]]
+ '''Locality-sensitive hashing scheme based on p-stable distributions''' [[br]]
+ In: Proc. 20th annual symposium on Computational geometry [[br]]
+ Online: [http://dx.doi.org/10.1145/997817.997857][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.index.preprocessed.knn.NaiveProjectedKNNPreprocessor,de.lmu.ifi.dbs.elki.index.preprocessed.knn.NaiveProjectedKNNPreprocessor)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.index.preprocessed.knn.SpacefillingKNNPreprocessor,de.lmu.ifi.dbs.elki.index.preprocessed.knn.SpacefillingKNNPreprocessor)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.index.preprocessed.knn.SpacefillingMaterializeKNNPreprocessor,de.lmu.ifi.dbs.elki.index.preprocessed.knn.SpacefillingMaterializeKNNPreprocessor)]]
+ By: E. Schubert, A. Zimek, H.-P. Kriegel [[br]]
+ '''Fast and Scalable Outlier Detection with Approximate Nearest Neighbor Ensembles''' [[br]]
+ In: Proc. 20th International Conference on Database Systems for Advanced Applications (DASFAA) [[br]]
+ Online: [http://dx.doi.org/10.1007/978-3-319-18123-3_2][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.index.preprocessed.knn.RandomSampleKNNPreprocessor,de.lmu.ifi.dbs.elki.index.preprocessed.knn.RandomSampleKNNPreprocessor)]]
+ By: A. Zimek and M. Gaudet and R. J. G. B. Campello and J. Sander [[br]]
+ '''Subsampling for Efficient and Effective Unsupervised Outlier Detection Ensembles''' [[br]]
+ In: Proc. 19th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining, KDD '13 [[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.index.projected.PINN,de.lmu.ifi.dbs.elki.index.projected.PINN)]]
+ By: T. de Vries, S. Chawla, M. E. Houle [[br]]
+ '''Finding local anomalies in very high dimensional space''' [[br]]
+ In: Proc. IEEE 10th International Conference on Data Mining (ICDM) [[br]]
+ Online: [http://dx.doi.org/10.1109/ICDM.2010.151][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.index.tree.metrical.covertree.CoverTree,de.lmu.ifi.dbs.elki.index.tree.metrical.covertree.CoverTree)]]
+ By: A. Beygelzimer, S. Kakade, J. Langford [[br]]
+ '''Cover trees for nearest neighbor''' [[br]]
+ In: In Proc. 23rd International Conference on Machine Learning (ICML) [[br]]
+ Online: [http://dx.doi.org/10.1145/1143844.1143857][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.index.tree.metrical.mtreevariants.mtree.MTree,de.lmu.ifi.dbs.elki.index.tree.metrical.mtreevariants.mtree.MTree)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.index.tree.metrical.mtreevariants.strategies.insert.MinimumEnlargementInsert,de.lmu.ifi.dbs.elki.index.tree.metrical.mtreevariants.strategies.insert.MinimumEnlargementInsert)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.index.tree.metrical.mtreevariants.strategies.split.MLBDistSplit,de.lmu.ifi.dbs.elki.index.tree.metrical.mtreevariants.strategies.split.MLBDistSplit)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.index.tree.metrical.mtreevariants.strategies.split.MMRadSplit,de.lmu.ifi.dbs.elki.index.tree.metrical.mtreevariants.strategies.split.MMRadSplit)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.index.tree.metrical.mtreevariants.strategies.split.MRadSplit,de.lmu.ifi.dbs.elki.index.tree.metrical.mtreevariants.strategies.split.MRadSplit)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.index.tree.metrical.mtreevariants.strategies.split.RandomSplit,de.lmu.ifi.dbs.elki.index.tree.metrical.mtreevariants.strategies.split.RandomSplit)]]
+ By: P. Ciaccia, M. Patella, P. Zezula [[br]]
+ '''M-tree: An Efficient Access Method for Similarity Search in Metric Spaces''' [[br]]
+ In: VLDB'97, Proceedings of 23rd International Conference on Very Large Data Bases, August 25-29, 1997, Athens, Greece [[br]]
+ Online: [http://www.vldb.org/conf/1997/P426.PDF][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.index.tree.spatial.kd.MinimalisticMemoryKDTree,de.lmu.ifi.dbs.elki.index.tree.spatial.kd.MinimalisticMemoryKDTree)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.index.tree.spatial.kd.SmallMemoryKDTree,de.lmu.ifi.dbs.elki.index.tree.spatial.kd.SmallMemoryKDTree)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.math.spacefillingcurves.BinarySplitSpatialSorter,de.lmu.ifi.dbs.elki.math.spacefillingcurves.BinarySplitSpatialSorter)]]
+ By: J. L. Bentley [[br]]
+ '''Multidimensional binary search trees used for associative searching''' [[br]]
+ In: Communications of the ACM, Vol. 18 Issue 9, Sept. 1975 [[br]]
+ Online: [http://dx.doi.org/10.1145/361002.361007][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.index.tree.spatial.rstarvariants.query.EuclideanRStarTreeKNNQuery,de.lmu.ifi.dbs.elki.index.tree.spatial.rstarvariants.query.EuclideanRStarTreeKNNQuery)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.index.tree.spatial.rstarvariants.query.RStarTreeKNNQuery,de.lmu.ifi.dbs.elki.index.tree.spatial.rstarvariants.query.RStarTreeKNNQuery)]]
+ By: G. R. Hjaltason, H. Samet [[br]]
+ '''Ranking in spatial databases''' [[br]]
+ In: Advances in Spatial Databases - 4th Symposium, SSD'95 [[br]]
+ Online: [http://dx.doi.org/10.1007/3-540-60159-7_6][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.index.tree.spatial.rstarvariants.query.EuclideanRStarTreeRangeQuery,de.lmu.ifi.dbs.elki.index.tree.spatial.rstarvariants.query.EuclideanRStarTreeRangeQuery)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.index.tree.spatial.rstarvariants.query.RStarTreeRangeQuery,de.lmu.ifi.dbs.elki.index.tree.spatial.rstarvariants.query.RStarTreeRangeQuery)]]
+ By: J. Kuan, P. Lewis [[br]]
+ '''Fast k nearest neighbour search for R-tree family''' [[br]]
+ In: Proc. Int. Conf Information, Communications and Signal Processing, ICICS 1997 [[br]]
+ Online: [http://dx.doi.org/10.1109/ICICS.1997.652114][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.index.tree.spatial.rstarvariants.rstar.RStarTree,de.lmu.ifi.dbs.elki.index.tree.spatial.rstarvariants.rstar.RStarTree)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.index.tree.spatial.rstarvariants.strategies.insert.ApproximativeLeastOverlapInsertionStrategy,de.lmu.ifi.dbs.elki.index.tree.spatial.rstarvariants.strategies.insert.ApproximativeLeastOverlapInsertionStrategy)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.index.tree.spatial.rstarvariants.strategies.insert.CombinedInsertionStrategy,de.lmu.ifi.dbs.elki.index.tree.spatial.rstarvariants.strategies.insert.CombinedInsertionStrategy)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.index.tree.spatial.rstarvariants.strategies.insert.LeastEnlargementWithAreaInsertionStrategy,de.lmu.ifi.dbs.elki.index.tree.spatial.rstarvariants.strategies.insert.LeastEnlargementWithAreaInsertionStrategy)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.index.tree.spatial.rstarvariants.strategies.insert.LeastOverlapInsertionStrategy,de.lmu.ifi.dbs.elki.index.tree.spatial.rstarvariants.strategies.insert.LeastOverlapInsertionStrategy)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.index.tree.spatial.rstarvariants.strategies.overflow.LimitedReinsertOverflowTreatment,de.lmu.ifi.dbs.elki.index.tree.spatial.rstarvariants.strategies.overflow.LimitedReinsertOverflowTreatment)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.index.tree.spatial.rstarvariants.strategies.reinsert.CloseReinsert,de.lmu.ifi.dbs.elki.index.tree.spatial.rstarvariants.strategies.reinsert.CloseReinsert)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.index.tree.spatial.rstarvariants.strategies.reinsert.FarReinsert,de.lmu.ifi.dbs.elki.index.tree.spatial.rstarvariants.strategies.reinsert.FarReinsert)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.index.tree.spatial.rstarvariants.strategies.split.TopologicalSplitter,de.lmu.ifi.dbs.elki.index.tree.spatial.rstarvariants.strategies.split.TopologicalSplitter)]]
+ By: N. Beckmann, H.-P. Kriegel, R. Schneider, B. Seeger [[br]]
+ '''The R*-tree: an efficient and robust access method for points and rectangles''' [[br]]
+ In: Proceedings of the 1990 ACM SIGMOD International Conference on Management of Data, Atlantic City, NJ, May 23-25, 1990 [[br]]
+ Online: [http://dx.doi.org/10.1145/93597.98741][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.index.tree.spatial.rstarvariants.strategies.bulk.OneDimSortBulkSplit,de.lmu.ifi.dbs.elki.index.tree.spatial.rstarvariants.strategies.bulk.OneDimSortBulkSplit)]]
+ By: Roussopoulos, N. and Leifker, D. [[br]]
+ '''Direct spatial search on pictorial databases using packed R-trees''' [[br]]
+ In: ACM SIGMOD Record 14-4 [[br]]
+ Online: [http://dx.doi.org/10.1145/971699.318900][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.index.tree.spatial.rstarvariants.strategies.bulk.SortTileRecursiveBulkSplit,de.lmu.ifi.dbs.elki.index.tree.spatial.rstarvariants.strategies.bulk.SortTileRecursiveBulkSplit)]]
+ By: Leutenegger, S.T. and Lopez, M.A. and Edgington, J. [[br]]
+ '''STR: A simple and efficient algorithm for R-tree packing''' [[br]]
+ In: Proc. 13th International Conference on Data Engineering, 1997 [[br]]
+ Online: [http://dx.doi.org/10.1109/ICDE.1997.582015][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.index.tree.spatial.rstarvariants.strategies.bulk.SpatialSortBulkSplit,de.lmu.ifi.dbs.elki.index.tree.spatial.rstarvariants.strategies.bulk.SpatialSortBulkSplit)]]
+ By: Kamel, I. and Faloutsos, C. [[br]]
+ '''On packing R-trees''' [[br]]
+ In: Proc. of the second international conference on Information and knowledge management [[br]]
+ Online: [http://dx.doi.org/10.1145/170088.170403][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.index.tree.spatial.rstarvariants.strategies.insert.LeastEnlargementInsertionStrategy,de.lmu.ifi.dbs.elki.index.tree.spatial.rstarvariants.strategies.insert.LeastEnlargementInsertionStrategy)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.index.tree.spatial.rstarvariants.strategies.split.RTreeLinearSplit,de.lmu.ifi.dbs.elki.index.tree.spatial.rstarvariants.strategies.split.RTreeLinearSplit)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.index.tree.spatial.rstarvariants.strategies.split.RTreeQuadraticSplit,de.lmu.ifi.dbs.elki.index.tree.spatial.rstarvariants.strategies.split.RTreeQuadraticSplit)]]
+ By: Antonin Guttman [[br]]
+ '''R-Trees: A Dynamic Index Structure For Spatial Searching''' [[br]]
+ In: Proceedings of the 1984 ACM SIGMOD international conference on Management of data [[br]]
+ Online: [http://dx.doi.org/10.1145/971697.602266][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.index.tree.spatial.rstarvariants.strategies.split.AngTanLinearSplit,de.lmu.ifi.dbs.elki.index.tree.spatial.rstarvariants.strategies.split.AngTanLinearSplit)]]
+ By: C. H. Ang and T. C. Tan [[br]]
+ '''New linear node splitting algorithm for R-trees''' [[br]]
+ In: Proceedings of the 5th International Symposium on Advances in Spatial Databases [[br]]
+ Online: [http://dx.doi.org/10.1007/3-540-63238-7_38][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.index.tree.spatial.rstarvariants.strategies.split.GreeneSplit,de.lmu.ifi.dbs.elki.index.tree.spatial.rstarvariants.strategies.split.GreeneSplit)]]
+ By: Diane Greene [[br]]
+ '''An implementation and performance analysis of spatial data access methods''' [[br]]
+ In: Proceedings of the Fifth International Conference on Data Engineering [[br]]
+ Online: [http://dx.doi.org/10.1109/ICDE.1989.47268][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.index.vafile.DAFile,de.lmu.ifi.dbs.elki.index.vafile.DAFile)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.index.vafile.PartialVAFile,de.lmu.ifi.dbs.elki.index.vafile.PartialVAFile)]]
+ By: Hans-Peter Kriegel, Peer Kröger, Matthias Schubert, Ziyue Zhu [[br]]
+ '''Efficient Query Processing in Arbitrary Subspaces Using Vector Approximations''' [[br]]
+ In: Proc. 18th Int. Conf. on Scientific and Statistical Database Management (SSDBM 06), Wien, Austria, 2006 [[br]]
+ Online: [http://dx.doi.org/10.1109/SSDBM.2006.23][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.index.vafile.VAFile,de.lmu.ifi.dbs.elki.index.vafile.VAFile)]]
+ By: Weber, R. and Blott, S. [[br]]
+ '''An approximation based data structure for similarity search''' [[br]]
+ In: Report TR1997b, ETH Zentrum, Zurich, Switzerland [[br]]
+ Online: [http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.40.480&rep=rep1&type=pdf][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.Mean,de.lmu.ifi.dbs.elki.math.Mean)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.math.MeanVariance,de.lmu.ifi.dbs.elki.math.MeanVariance)]]
+ By: B. P. Welford [[br]]
+ '''Note on a method for calculating corrected sums of squares and products''' [[br]]
+ In: Technometrics 4(3) [[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.MeanVariance,de.lmu.ifi.dbs.elki.math.MeanVariance)]]
+ By: D.H.D. West [[br]]
+ '''Updating Mean and Variance Estimates: An Improved Method''' [[br]]
+ In: Communications of the ACM, Volume 22 Issue 9 [[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.StatisticalMoments,de.lmu.ifi.dbs.elki.math.StatisticalMoments)]]
+ By: T. B. Terriberry [[br]]
+ '''Computing Higher-Order Moments Online''' [[br]]
+ In: Online - Technical Note [[br]]
+ Online: [http://people.xiph.org/~tterribe/notes/homs.html][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.dimensionsimilarity.HSMDimensionSimilarity,de.lmu.ifi.dbs.elki.math.dimensionsimilarity.HSMDimensionSimilarity)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.dependence.HSMDependenceMeasure,de.lmu.ifi.dbs.elki.math.statistics.dependence.HSMDependenceMeasure)]]
+ By: A. Tatu, G. Albuquerque, M. Eisemann, P. Bak, H. Theisel, M. A. Magnor, and D. A. Keim [[br]]
+ '''Automated Analytical Methods to Support Visual Exploration of High-Dimensional Data''' [[br]]
+ In: IEEE Trans. Visualization and Computer Graphics, 2011 [[br]]
+ Online: [http://dx.doi.org/10.1109/TVCG.2010.242][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.dimensionsimilarity.HiCSDimensionSimilarity,de.lmu.ifi.dbs.elki.math.dimensionsimilarity.HiCSDimensionSimilarity)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.math.dimensionsimilarity.SURFINGDimensionSimilarity,de.lmu.ifi.dbs.elki.math.dimensionsimilarity.SURFINGDimensionSimilarity)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.math.dimensionsimilarity.SlopeDimensionSimilarity,de.lmu.ifi.dbs.elki.math.dimensionsimilarity.SlopeDimensionSimilarity)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.math.dimensionsimilarity.SlopeInversionDimensionSimilarity,de.lmu.ifi.dbs.elki.math.dimensionsimilarity.SlopeInversionDimensionSimilarity)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.dependence.HiCSDependenceMeasure,de.lmu.ifi.dbs.elki.math.statistics.dependence.HiCSDependenceMeasure)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.dependence.SURFINGDependenceMeasure,de.lmu.ifi.dbs.elki.math.statistics.dependence.SURFINGDependenceMeasure)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.dependence.SlopeDependenceMeasure,de.lmu.ifi.dbs.elki.math.statistics.dependence.SlopeDependenceMeasure)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.dependence.SlopeInversionDependenceMeasure,de.lmu.ifi.dbs.elki.math.statistics.dependence.SlopeInversionDependenceMeasure)]]
+ By: Elke Achtert, Hans-Peter Kriegel, Erich Schubert, Arthur Zimek [[br]]
+ '''Interactive Data Mining with 3D-Parallel-Coordinate-Trees''' [[br]]
+ In: Proc. of the 2013 ACM International Conference on Management of Data (SIGMOD) [[br]]
+ Online: [http://dx.doi.org/10.1145/2463676.2463696][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.dimensionsimilarity.MCEDimensionSimilarity,de.lmu.ifi.dbs.elki.math.dimensionsimilarity.MCEDimensionSimilarity)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.dependence.MCEDependenceMeasure,de.lmu.ifi.dbs.elki.math.statistics.dependence.MCEDependenceMeasure)]]
+ By: D. Guo [[br]]
+ '''Coordinating computational and visual approaches for interactive feature selection and multivariate clustering''' [[br]]
+ In: Information Visualization, 2(4) [[br]]
+ Online: [http://dx.doi.org/10.1057/palgrave.ivs.9500053][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.dimensionsimilarity.SURFINGDimensionSimilarity,de.lmu.ifi.dbs.elki.math.dimensionsimilarity.SURFINGDimensionSimilarity)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.dependence.SURFINGDependenceMeasure,de.lmu.ifi.dbs.elki.math.statistics.dependence.SURFINGDependenceMeasure)]]
+ By: Christian Baumgartner, Claudia Plant, Karin Kailing, Hans-Peter Kriegel, and Peer Kröger [[br]]
+ '''Subspace Selection for Clustering High-Dimensional Data''' [[br]]
+ In: IEEE International Conference on Data Mining, 2004 [[br]]
+ Online: [http://dx.doi.org/10.1109/ICDM.2004.10112][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.geodesy.SphereUtil,de.lmu.ifi.dbs.elki.math.geodesy.SphereUtil)]]
+ By: Ed Williams [[br]]
+ '''Aviation Formulary''' [[br]]
+ Online: [http://williams.best.vwh.net/avform.htm][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.geodesy.SphereUtil,de.lmu.ifi.dbs.elki.math.geodesy.SphereUtil)]]
+ By: T. Vincenty [[br]]
+ '''Direct and inverse solutions of geodesics on the ellipsoid with application of nested equations''' [[br]]
+ In: Survey review 23 176, 1975 [[br]]
+ Online: [http://www.ngs.noaa.gov/PUBS_LIB/inverse.pdf][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.geodesy.SphereUtil,de.lmu.ifi.dbs.elki.math.geodesy.SphereUtil)]]
+ By: Sinnott, R. W. [[br]]
+ '''Virtues of the Haversine''' [[br]]
+ In: Sky and telescope, 68-2, 1984 [[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.geometry.GrahamScanConvexHull2D,de.lmu.ifi.dbs.elki.math.geometry.GrahamScanConvexHull2D)]]
+ By: Paul Graham [[br]]
+ '''An Efficient Algorithm for Determining the Convex Hull of a Finite Planar Set''' [[br]]
+ In: Information Processing Letters 1 [[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.geometry.PrimsMinimumSpanningTree,de.lmu.ifi.dbs.elki.math.geometry.PrimsMinimumSpanningTree)]]
+ By: R. C. Prim [[br]]
+ '''Shortest connection networks and some generalizations''' [[br]]
+ In: Bell System Technical Journal, 36 (1957) [[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.geometry.SweepHullDelaunay2D,de.lmu.ifi.dbs.elki.math.geometry.SweepHullDelaunay2D)]]
+ By: David Sinclair [[br]]
+ '''S-hull: a fast sweep-hull routine for Delaunay triangulation''' [[br]]
+ Online: http://s-hull.org/ [[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.linearalgebra.pca.AutotuningPCA,de.lmu.ifi.dbs.elki.math.linearalgebra.pca.AutotuningPCA)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.math.linearalgebra.pca.WeightedCovarianceMatrixBuilder,de.lmu.ifi.dbs.elki.math.linearalgebra.pca.WeightedCovarianceMatrixBuilder)]]
+ By: Hans-Peter Kriegel, Peer Kröger, Erich Schubert, Arthur Zimek [[br]]
+ '''A General Framework for Increasing the Robustness of PCA-based Correlation Clustering Algorithms''' [[br]]
+ In: Proceedings of the 20th International Conference on Scientific and Statistical Database Management (SSDBM), Hong Kong, China, 2008 [[br]]
+ Online: [http://dx.doi.org/10.1007/978-3-540-69497-7_27][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.linearalgebra.pca.RANSACCovarianceMatrixBuilder,de.lmu.ifi.dbs.elki.math.linearalgebra.pca.RANSACCovarianceMatrixBuilder)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.utilities.scaling.outlier.COPOutlierScaling,de.lmu.ifi.dbs.elki.utilities.scaling.outlier.COPOutlierScaling)]]
+ By: Hans-Peter Kriegel, Peer Kröger, Erich Schubert, Arthur Zimek [[br]]
+ '''Outlier Detection in Arbitrarily Oriented Subspaces''' [[br]]
+ In: Proc. IEEE International Conference on Data Mining (ICDM 2012) [[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.linearalgebra.pca.RANSACCovarianceMatrixBuilder,de.lmu.ifi.dbs.elki.math.linearalgebra.pca.RANSACCovarianceMatrixBuilder)]]
+ By: M.A. Fischler, R.C. Bolles [[br]]
+ '''Random sample consensus: a paradigm for model fitting with applications to image analysis and automated cartography''' [[br]]
+ In: Communications of the ACM, Vol. 24 Issue 6 [[br]]
+ Online: [http://dx.doi.org/10.1145/358669.358692][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.linearalgebra.randomprojections.AchlioptasRandomProjectionFamily,de.lmu.ifi.dbs.elki.math.linearalgebra.randomprojections.AchlioptasRandomProjectionFamily)]]
+ By: D. Achlioptas [[br]]
+ '''Database-friendly random projections: Johnson-Lindenstrauss with binary coins''' [[br]]
+ In: Proc. 20th ACM SIGMOD-SIGACT-SIGART symposium on Principles of database systems [[br]]
+ Online: [http://dx.doi.org/10.1145/375551.375608][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.linearalgebra.randomprojections.CauchyRandomProjectionFamily,de.lmu.ifi.dbs.elki.math.linearalgebra.randomprojections.CauchyRandomProjectionFamily)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.math.linearalgebra.randomprojections.GaussianRandomProjectionFamily,de.lmu.ifi.dbs.elki.math.linearalgebra.randomprojections.GaussianRandomProjectionFamily)]]
+ By: M. Datar and N. Immorlica and P. Indyk and V. S. Mirrokni [[br]]
+ '''Locality-sensitive hashing scheme based on p-stable distributions''' [[br]]
+ In: Proc. 20th Symposium on Computational Geometry [[br]]
+ Online: [http://dx.doi.org/10.1145/997817.997857][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.linearalgebra.randomprojections.RandomSubsetProjectionFamily,de.lmu.ifi.dbs.elki.math.linearalgebra.randomprojections.RandomSubsetProjectionFamily)]]
+ By: L. Breiman [[br]]
+ '''Bagging predictors''' [[br]]
+ In: Machine learning 24.2 [[br]]
+ Online: [http://dx.doi.org/10.1007/BF00058655][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.linearalgebra.randomprojections.SimplifiedRandomHyperplaneProjectionFamily,de.lmu.ifi.dbs.elki.math.linearalgebra.randomprojections.SimplifiedRandomHyperplaneProjectionFamily)]]
+ By: M. Henzinger [[br]]
+ '''Finding near-duplicate web pages: a large-scale evaluation of algorithms''' [[br]]
+ In: Proc. 29th ACM Conference on Research and Development in Information Retrieval. ACM SIGIR, 2006 [[br]]
+ Online: [http://dx.doi.org/10.1145/1148170.1148222][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.spacefillingcurves.HilbertSpatialSorter,de.lmu.ifi.dbs.elki.math.spacefillingcurves.HilbertSpatialSorter)]]
+ By: D. Hilbert [[br]]
+ '''Über die stetige Abbildung einer Linie auf ein Flächenstück''' [[br]]
+ In: Mathematische Annalen, 38(3) [[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.spacefillingcurves.PeanoSpatialSorter,de.lmu.ifi.dbs.elki.math.spacefillingcurves.PeanoSpatialSorter)]]
+ By: G. Peano [[br]]
+ '''Sur une courbe, qui remplit toute une aire plane''' [[br]]
+ In: Mathematische Annalen, 36(1) [[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.ProbabilityWeightedMoments,de.lmu.ifi.dbs.elki.math.statistics.ProbabilityWeightedMoments)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.GeneralizedExtremeValueLMMEstimator,de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.GeneralizedExtremeValueLMMEstimator)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.GeneralizedParetoLMMEstimator,de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.GeneralizedParetoLMMEstimator)]]
+ By: J.R.M. Hosking, J. R. Wallis, and E. F. Wood [[br]]
+ '''Estimation of the generalized extreme-value distribution by the method of probability-weighted moments.''' [[br]]
+ In: Technometrics 27.3 [[br]]
+ Online: [http://dx.doi.org/10.1080/00401706.1985.10488049][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.dependence.DistanceCorrelationDependenceMeasure,de.lmu.ifi.dbs.elki.math.statistics.dependence.DistanceCorrelationDependenceMeasure)]]
+ By: Székely, G. J., Rizzo, M. L., & Bakirov, N. K. [[br]]
+ '''Measuring and testing dependence by correlation of distances''' [[br]]
+ In: The Annals of Statistics, 35(6), 2769-2794 [[br]]
+ Online: [http://dx.doi.org/10.1214/009053607000000505][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.dependence.HoeffdingsDDependenceMeasure,de.lmu.ifi.dbs.elki.math.statistics.dependence.HoeffdingsDDependenceMeasure)]]
+ By: W. Hoeffding [[br]]
+ '''A non-parametric test of independence''' [[br]]
+ In: The Annals of Mathematical Statistics 19 [[br]]
+ Online: [http://www.jstor.org/stable/2236021][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.distribution.ChiSquaredDistribution,de.lmu.ifi.dbs.elki.math.statistics.distribution.ChiSquaredDistribution)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.distribution.GammaDistribution,de.lmu.ifi.dbs.elki.math.statistics.distribution.GammaDistribution)]]
+ By: D.J. Best, D. E. Roberts [[br]]
+ '''Algorithm AS 91: The percentage points of the $\chi^2$ distribution''' [[br]]
+ In: Journal of the Royal Statistical Society. Series C (Applied Statistics) [[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.distribution.GammaDistribution,de.lmu.ifi.dbs.elki.math.statistics.distribution.GammaDistribution)]]
+ By: J. M. Bernando [[br]]
+ '''Algorithm AS 103: Psi (Digamma) Function''' [[br]]
+ In: Statistical Algorithms [[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.distribution.HaltonUniformDistribution,de.lmu.ifi.dbs.elki.math.statistics.distribution.HaltonUniformDistribution)]]
+ By: Wang, X. and Hickernell, F.J. [[br]]
+ '''Randomized halton sequences''' [[br]]
+ In: Mathematical and Computer Modelling Vol. 32 (7) [[br]]
+ Online: [http://dx.doi.org/10.1016/S0895-7177(00)00178-3][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.distribution.PoissonDistribution,de.lmu.ifi.dbs.elki.math.statistics.distribution.PoissonDistribution)]]
+ By: C. Loader [[br]]
+ '''Fast and accurate computation of binomial probabilities''' [[br]]
+ Online: [http://projects.scipy.org/scipy/raw-attachment/ticket/620/loader2000Fast.pdf][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.CauchyMADEstimator,de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.CauchyMADEstimator)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.ExponentialMADEstimator,de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.ExponentialMADEstimator)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.GumbelMADEstimator,de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.GumbelMADEstimator)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.LaplaceMADEstimator,de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.LaplaceMADEstimator)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.LogLogisticMADEstimator,de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.LogLogisticMADEstimator)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.RayleighMADEstimator,de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.RayleighMADEstimator)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.UniformMADEstimator,de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.UniformMADEstimator)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.WeibullLogMADEstimator,de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.WeibullLogMADEstimator)]]
+ By: D. J. Olive [[br]]
+ '''Applied Robust Statistics''' [[br]]
+ In: Applied Robust Statistics [[br]]
+ Online: [http://lagrange.math.siu.edu/Olive/preprints.htm][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.EMGOlivierNorbergEstimator,de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.EMGOlivierNorbergEstimator)]]
+ By: J. Olivier, M. M. Norberg [[br]]
+ '''Positively skewed data: Revisiting the Box-Cox power transformation''' [[br]]
+ In: International Journal of Psychological Research Vol. 3 No. 1 [[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.ExponentialLMMEstimator,de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.ExponentialLMMEstimator)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.GammaLMMEstimator,de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.GammaLMMEstimator)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.GeneralizedLogisticAlternateLMMEstimator,de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.GeneralizedLogisticAlternateLMMEstimator)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.GumbelLMMEstimator,de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.GumbelLMMEstimator)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.LogNormalLMMEstimator,de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.LogNormalLMMEstimator)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.LogisticLMMEstimator,de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.LogisticLMMEstimator)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.NormalLMMEstimator,de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.NormalLMMEstimator)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.SkewGNormalLMMEstimator,de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.SkewGNormalLMMEstimator)]]
+ By: J.R.M. Hosking [[br]]
+ '''Fortran routines for use with the method of L-moments Version 3.03''' [[br]]
+ In: IBM Research Technical Report [[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.ExponentialMedianEstimator,de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.ExponentialMedianEstimator)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.LogisticMADEstimator,de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.LogisticMADEstimator)]]
+ By: D. J. Olive [[br]]
+ '''Robust Estimators for Transformed Location Scale Families''' [[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.GammaChoiWetteEstimator,de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.GammaChoiWetteEstimator)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.LogGammaChoiWetteEstimator,de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.LogGammaChoiWetteEstimator)]]
+ By: S. C. Choi, R. Wette [[br]]
+ '''Maximum likelihood estimation of the parameters of the gamma distribution and their bias''' [[br]]
+ In: Technometrics [[br]]
+ Online: [http://www.jstor.org/stable/10.2307/1266892][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.GammaMADEstimator,de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.GammaMADEstimator)]]
+ By: J. Chen. H. Rubin [[br]]
+ '''Bounds for the difference between median and mean of Gamma and Poisson distributions''' [[br]]
+ In: Statist. Probab. Lett., 4 [[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.GammaMOMEstimator,de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.GammaMOMEstimator)]]
+ By: G. Casella, R. L. Berger [[br]]
+ '''Statistical inference. Vol. 70''' [[br]]
+ In: Statistical inference. Vol. 70 [[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.LaplaceMLEEstimator,de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.LaplaceMLEEstimator)]]
+ By: R. M. Norton [[br]]
+ '''The Double Exponential Distribution: Using Calculus to Find a Maximum Likelihood Estimator''' [[br]]
+ In: The American Statistician 38 (2) [[br]]
+ Online: [http://dx.doi.org/10.2307/2683252][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.LogNormalBilkovaLMMEstimator,de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.LogNormalBilkovaLMMEstimator)]]
+ By: D. Bílková [[br]]
+ '''Lognormal distribution and using L-moment method for estimating its parameters''' [[br]]
+ In: Int. Journal of Mathematical Models and Methods in Applied Sciences (NAUN) [[br]]
+ Online: [http://www.naun.org/multimedia/NAUN/m3as/17-079.pdf][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.LogNormalLogMADEstimator,de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.LogNormalLogMADEstimator)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.NormalMADEstimator,de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.NormalMADEstimator)]]
+ By: F. R. Hampel [[br]]
+ '''The Influence Curve and Its Role in Robust Estimation''' [[br]]
+ In: Journal of the American Statistical Association, June 1974, Vol. 69, No. 346 [[br]]
+ Online: [http://www.jstor.org/stable/10.2307/2285666][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.meta.WinsorisingEstimator,de.lmu.ifi.dbs.elki.math.statistics.distribution.estimator.meta.WinsorisingEstimator)]]
+ By: C. Hastings, F. Mosteller, J. W. Tukey, C. P. Winsor [[br]]
+ '''Low moments for small samples: a comparative study of order statistics''' [[br]]
+ In: The Annals of Mathematical Statistics, 18(3) [[br]]
+ Online: [http://dx.doi.org/10.1214/aoms/1177730388][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.intrinsicdimensionality.AggregatedHillEstimator,de.lmu.ifi.dbs.elki.math.statistics.intrinsicdimensionality.AggregatedHillEstimator)]]
+ By: R. Huisman and K. G. Koedijk and C. J. M. Kool and F. Palm [[br]]
+ '''Tail-Index Estimates in Small Samples''' [[br]]
+ In: Journal of Business & Economic Statistics [[br]]
+ Online: [http://dx.doi.org/10.1198/073500101316970421][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.intrinsicdimensionality.GEDEstimator,de.lmu.ifi.dbs.elki.math.statistics.intrinsicdimensionality.GEDEstimator)]]
+ By: M. E. Houle, H. Kashima, M. Nett [[br]]
+ '''Generalized expansion dimension''' [[br]]
+ In: 12th International Conference on Data Mining Workshops (ICDMW) [[br]]
+ Online: [http://dx.doi.org/10.1109/ICDMW.2012.94][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.intrinsicdimensionality.HillEstimator,de.lmu.ifi.dbs.elki.math.statistics.intrinsicdimensionality.HillEstimator)]]
+ By: B. M. Hill [[br]]
+ '''A simple general approach to inference about the tail of a distribution''' [[br]]
+ In: The annals of statistics 3(5) [[br]]
+ Online: [http://dx.doi.org/10.1214/aos/1176343247][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.intrinsicdimensionality.MOMEstimator,de.lmu.ifi.dbs.elki.math.statistics.intrinsicdimensionality.MOMEstimator)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.intrinsicdimensionality.RVEstimator,de.lmu.ifi.dbs.elki.math.statistics.intrinsicdimensionality.RVEstimator)]]
+ By: L. Amsaleg and O. Chelly and T. Furon and S. Girard and M. E. Houle and K. Kawarabayashi and M. Nett [[br]]
+ '''Estimating Local Intrinsic Dimensionality''' [[br]]
+ In: Proc. SIGKDD International Conference on Knowledge Discovery and Data Mining 2015 [[br]]
+ Online: [http://dx.doi.org/10.1145/2783258.2783405][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.intrinsicdimensionality.ZipfEstimator,de.lmu.ifi.dbs.elki.math.statistics.intrinsicdimensionality.ZipfEstimator)]]
+ By: M. Kratz and S. I. Resnick [[br]]
+ '''On Least Squares Estimates of an Exponential Tail Coefficient''' [[br]]
+ In: Statistics & Risk Modeling. Band 14, Heft 4 [[br]]
+ Online: [http://dx.doi.org/10.1524/strm.1996.14.4.353][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.kernelfunctions.BiweightKernelDensityFunction,de.lmu.ifi.dbs.elki.math.statistics.kernelfunctions.BiweightKernelDensityFunction)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.kernelfunctions.EpanechnikovKernelDensityFunction,de.lmu.ifi.dbs.elki.math.statistics.kernelfunctions.EpanechnikovKernelDensityFunction)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.kernelfunctions.GaussianKernelDensityFunction,de.lmu.ifi.dbs.elki.math.statistics.kernelfunctions.GaussianKernelDensityFunction)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.kernelfunctions.KernelDensityFunction,de.lmu.ifi.dbs.elki.math.statistics.kernelfunctions.KernelDensityFunction)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.kernelfunctions.TriweightKernelDensityFunction,de.lmu.ifi.dbs.elki.math.statistics.kernelfunctions.TriweightKernelDensityFunction)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.kernelfunctions.UniformKernelDensityFunction,de.lmu.ifi.dbs.elki.math.statistics.kernelfunctions.UniformKernelDensityFunction)]]
+ By: J.S. Marron, D. Nolan [[br]]
+ '''Canonical kernels for density estimation''' [[br]]
+ In: Statistics & Probability Letters, Volume 7, Issue 3 [[br]]
+ Online: [http://dx.doi.org/10.1016/0167-7152(88)90050-8][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.tests.AndersonDarlingTest,de.lmu.ifi.dbs.elki.math.statistics.tests.AndersonDarlingTest)]]
+ By: T. W. Anderson, and D. A. Darling [[br]]
+ '''Asymptotic theory of certain 'goodness of fit' criteria based on stochastic processes''' [[br]]
+ In: Annals of mathematical statistics 23(2) [[br]]
+ Online: [http://dx.doi.org/10.1214/aoms/1177729437][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.tests.AndersonDarlingTest,de.lmu.ifi.dbs.elki.math.statistics.tests.AndersonDarlingTest)]]
+ By: M. A. Stephens [[br]]
+ '''EDF Statistics for Goodness of Fit and Some Comparisons''' [[br]]
+ In: Journal of the American Statistical Association, Volume 69, Issue 347 [[br]]
+ Online: [http://dx.doi.org/10.1080/01621459.1974.10480196][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.tests.StandardizedTwoSampleAndersonDarlingTest,de.lmu.ifi.dbs.elki.math.statistics.tests.StandardizedTwoSampleAndersonDarlingTest)]]
+ By: A. N. Pettitt [[br]]
+ '''A two-sample Anderson-Darling rank statistic''' [[br]]
+ In: Biometrika 63 (1) [[br]]
+ Online: [http://dx.doi.org/10.1093/biomet/63.1.161][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.tests.StandardizedTwoSampleAndersonDarlingTest,de.lmu.ifi.dbs.elki.math.statistics.tests.StandardizedTwoSampleAndersonDarlingTest)]]
+ By: F. W. Scholz, and M. A. Stephens [[br]]
+ '''K-sample Anderson–Darling tests''' [[br]]
+ In: Journal of the American Statistical Association, 82(399) [[br]]
+ Online: [http://dx.doi.org/10.1080/01621459.1987.10478517][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.math.statistics.tests.StandardizedTwoSampleAndersonDarlingTest,de.lmu.ifi.dbs.elki.math.statistics.tests.StandardizedTwoSampleAndersonDarlingTest)]]
+ By: D. A. Darling [[br]]
+ '''The Kolmogorov-Smirnov, Cramer-von Mises tests''' [[br]]
+ In: Annals of mathematical statistics 28(4) [[br]]
+ Online: [http://dx.doi.org/10.1214/aoms/1177706788][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.result.KMLOutputHandler,de.lmu.ifi.dbs.elki.result.KMLOutputHandler)]]
+ By: E. Achtert, A. Hettab, H.-P. Kriegel, E. Schubert, A. Zimek [[br]]
+ '''Spatial Outlier Detection: Data, Algorithms, Visualizations''' [[br]]
+ In: Proc. 12th International Symposium on Spatial and Temporal Databases (SSTD), Minneapolis, MN, 2011 [[br]]
+ Online: [http://dx.doi.org/10.1007/978-3-642-22922-0_41][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.utilities.datastructures.unionfind.WeightedQuickUnionInteger,de.lmu.ifi.dbs.elki.utilities.datastructures.unionfind.WeightedQuickUnionInteger)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.utilities.datastructures.unionfind.WeightedQuickUnionRangeDBIDs,de.lmu.ifi.dbs.elki.utilities.datastructures.unionfind.WeightedQuickUnionRangeDBIDs)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.utilities.datastructures.unionfind.WeightedQuickUnionStaticDBIDs,de.lmu.ifi.dbs.elki.utilities.datastructures.unionfind.WeightedQuickUnionStaticDBIDs)]]
+ By: R. Sedgewick [[br]]
+ '''1.3 Union-Find Algorithms''' [[br]]
+ In: Algorithms in C, Parts 1-4 [[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.utilities.scaling.outlier.COPOutlierScaling,de.lmu.ifi.dbs.elki.utilities.scaling.outlier.COPOutlierScaling)]]
+ By: H.-P. Kriegel, P. Kröger, E. Schubert, A. Zimek [[br]]
+ '''Interpreting and Unifying Outlier Scores''' [[br]]
+ In: Proc. 11th SIAM International Conference on Data Mining (SDM), Mesa, AZ, 2011 [[br]]
+ Online: [http://siam.omnibooksonline.com/2011datamining/data/papers/018.pdf][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.utilities.scaling.outlier.HeDESNormalizationOutlierScaling,de.lmu.ifi.dbs.elki.utilities.scaling.outlier.HeDESNormalizationOutlierScaling)]]
+ By: H. V. Nguyen, H. H. Ang, V. Gopalkrishnan [[br]]
+ '''Mining Outliers with Ensemble of Heterogeneous Detectors on Random Subspaces''' [[br]]
+ In: Proc. 15th International Conference on Database Systems for Advanced Applications (DASFAA 2010) [[br]]
+ Online: [http://dx.doi.org/10.1007/978-3-642-12026-8_29][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.utilities.scaling.outlier.MinusLogGammaScaling,de.lmu.ifi.dbs.elki.utilities.scaling.outlier.MinusLogGammaScaling)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.utilities.scaling.outlier.MinusLogStandardDeviationScaling,de.lmu.ifi.dbs.elki.utilities.scaling.outlier.MinusLogStandardDeviationScaling)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.utilities.scaling.outlier.MultiplicativeInverseScaling,de.lmu.ifi.dbs.elki.utilities.scaling.outlier.MultiplicativeInverseScaling)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.utilities.scaling.outlier.OutlierGammaScaling,de.lmu.ifi.dbs.elki.utilities.scaling.outlier.OutlierGammaScaling)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.utilities.scaling.outlier.OutlierMinusLogScaling,de.lmu.ifi.dbs.elki.utilities.scaling.outlier.OutlierMinusLogScaling)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.utilities.scaling.outlier.SqrtStandardDeviationScaling,de.lmu.ifi.dbs.elki.utilities.scaling.outlier.SqrtStandardDeviationScaling)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.utilities.scaling.outlier.StandardDeviationScaling,de.lmu.ifi.dbs.elki.utilities.scaling.outlier.StandardDeviationScaling)]]
+ By: H.-P. Kriegel, P. Kröger, E. Schubert, A. Zimek [[br]]
+ '''Interpreting and Unifying Outlier Scores''' [[br]]
+ In: Proc. 11th SIAM International Conference on Data Mining (SDM), Mesa, AZ, 2011 [[br]]
+ Online: [http://dx.doi.org/10.1137/1.9781611972818.2][[br]]
+
+
+[[javadoc(de.lmu.ifi.dbs.elki.utilities.scaling.outlier.MixtureModelOutlierScalingFunction,de.lmu.ifi.dbs.elki.utilities.scaling.outlier.MixtureModelOutlierScalingFunction)]],[[br]]
+[[javadoc(de.lmu.ifi.dbs.elki.utilities.scaling.outlier.SigmoidOutlierScalingFunction,de.lmu.ifi.dbs.elki.utilities.scaling.outlier.SigmoidOutlierScalingFunction)]]
+ By: J. Gao, P.-N. Tan [[br]]
+ '''Converting Output Scores from Outlier Detection Algorithms into Probability Estimates''' [[br]]
+ In: Proc. Sixth International Conference on Data Mining, 2006. ICDM'06. [[br]]
+ Online: [http://dx.doi.org/10.1109/ICDM.2006.43][[br]]
+
+

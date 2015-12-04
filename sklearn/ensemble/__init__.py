@@ -12,12 +12,15 @@ from .forest import ExtraTreesRegressor
 from .bagging import BaggingClassifier
 from .bagging import BaggingRegressor
 from .iforest import IsolationForest
-from .one_class_forest import OneClassForest
+from .oneclassforest import OneClassRF
 from .weight_boosting import AdaBoostClassifier
 from .weight_boosting import AdaBoostRegressor
 from .gradient_boosting import GradientBoostingClassifier
 from .gradient_boosting import GradientBoostingRegressor
 from .voting_classifier import VotingClassifier
+from .EvOutSe import EvOutSe
+from .OCRF import OCRF
+from .RF import RF
 
 from . import bagging
 from . import forest
@@ -29,8 +32,10 @@ __all__ = ["BaseEnsemble",
            "RandomForestClassifier", "RandomForestRegressor",
            "RandomTreesEmbedding", "ExtraTreesClassifier",
            "ExtraTreesRegressor", "BaggingClassifier",
-           "BaggingRegressor", "IsolationForest", "OneClassForest", "GradientBoostingClassifier",
+           "BaggingRegressor", "IsolationForest", "OneClassRF",
+           "GradientBoostingClassifier",
            "GradientBoostingRegressor", "AdaBoostClassifier",
            "AdaBoostRegressor", "VotingClassifier",
            "bagging", "forest", "gradient_boosting",
-           "partial_dependence", "weight_boosting"]
+           "partial_dependence", "weight_boosting",
+           "EvOutSe", "OCRF", "RF"]

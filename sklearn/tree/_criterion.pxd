@@ -27,6 +27,7 @@ cdef class Criterion:
     cdef DOUBLE_t* y                     # Values of y
     cdef SIZE_t y_stride                 # Stride in y (since n_outputs >= 1)
     cdef DOUBLE_t* sample_weight         # Sample weights
+    cdef DTYPE_t* feature_values         # Feature values
 
     cdef SIZE_t* samples                 # Sample indices in X, y
     cdef SIZE_t start                    # samples[start:pos] are the samples in the left node
@@ -53,14 +54,14 @@ cdef class Criterion:
 
     # Methods
     cdef void init(self, DOUBLE_t* y, SIZE_t y_stride, DOUBLE_t* sample_weight,
-                   double weighted_n_samples, SIZE_t* samples, SIZE_t start,
+                   double weighted_n_samples, SIZE_t* samples, DTYPE_t* feature_values, SIZE_t start,
                    SIZE_t end) nogil
     cdef void reset(self) nogil
     cdef void reverse_reset(self) nogil
     cdef void update(self, SIZE_t new_pos) nogil
     cdef double node_impurity(self) nogil
-    cdef void children_impurity(self, double* impurity_left,
-                                double* impurity_right) nogil
+    cdef void children_impurity(self, double* impurity_left, double* impurity_right,
+				double volume_left=*, double volume_right=*) nogil
     cdef void node_value(self, double* dest) nogil
     cdef double impurity_improvement(self, double impurity) nogil
-    cdef double proxy_impurity_improvement(self) nogil
+    cdef double proxy_impurity_improvement(self, double volume_left=*, double volume_right=*) nogil
