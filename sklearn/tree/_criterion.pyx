@@ -49,7 +49,7 @@ cdef class Criterion:
         pass
 
     cdef void init(self, DOUBLE_t* y, SIZE_t y_stride, DOUBLE_t* sample_weight,
-                   double weighted_n_samples, SIZE_t* samples, SIZE_t start,
+                   double weighted_n_samples, SIZE_t* samples, DTYPE_t* feature_values, SIZE_t start,
                    SIZE_t end) nogil:
         """Placeholder for a method which will initialize the criterion.
 
@@ -227,6 +227,7 @@ cdef class ClassificationCriterion(Criterion):
         self.sample_weight = NULL
 
         self.samples = NULL
+        self.feature_values = NULL
         self.start = 0
         self.pos = 0
         self.end = 0
@@ -281,7 +282,7 @@ cdef class ClassificationCriterion(Criterion):
 
     cdef void init(self, DOUBLE_t* y, SIZE_t y_stride,
                    DOUBLE_t* sample_weight, double weighted_n_samples,
-                   SIZE_t* samples, SIZE_t start, SIZE_t end) nogil:
+                   SIZE_t* samples,  DTYPE_t* feature_values, SIZE_t start, SIZE_t end) nogil:
         """Initialize the criterion at node samples[start:end] and
         children samples[start:start] and samples[start:end].
 
@@ -307,6 +308,7 @@ cdef class ClassificationCriterion(Criterion):
         self.y = y
         self.y_stride = y_stride
         self.sample_weight = sample_weight
+        self.feature_values = feature_values
         self.samples = samples
         self.start = start
         self.end = end
@@ -731,7 +733,7 @@ cdef class RegressionCriterion(Criterion):
         return (RegressionCriterion, (self.n_outputs,), self.__getstate__())
 
     cdef void init(self, DOUBLE_t* y, SIZE_t y_stride, DOUBLE_t* sample_weight,
-                   double weighted_n_samples, SIZE_t* samples, SIZE_t start,
+                   double weighted_n_samples, SIZE_t* samples, DTYPE_t* feature_values, SIZE_t start,
                    SIZE_t end) nogil:
         """Initialize the criterion at node samples[start:end] and
            children samples[start:start] and samples[start:end]."""
@@ -1021,3 +1023,88 @@ cdef class FriedmanMSE(MSE):
 
         return (diff * diff / (self.weighted_n_left * self.weighted_n_right * 
                                self.weighted_n_node_samples))
+
+
+cdef class OneClassGini(ClassificationCriterion):
+    """Gini Index impurity criterion.
+
+    This handles cases where the target is a classification taking values
+    0, 1, ... K-2, K-1. If node m represents a region Rm with Nm observations,
+    then let
+
+        count_k = 1/ Nm \sum_{x_i in Rm} I(yi = k)
+
+    be the proportion of class k observations in node m.
+
+    The Gini Index is then defined as:
+
+        index = \sum_{k=0}^{K-1} count_k (1 - count_k)
+              = 1 - \sum_{k=0}^{K-1} count_k ** 2
+    """
+
+    cdef double node_impurity(self) nogil:
+        """Evaluate the impurity of the current node, i.e. the impurity of
+        samples[start:end] using the Gini criterion."""
+
+        return 0.5
+
+    cdef void children_impurity(self, double* impurity_left,
+                                double* impurity_right) nogil:
+        """Evaluate the impurity in children nodes
+
+        i.e. the impurity of the left child (samples[start:pos]) and the
+        impurity the right child (samples[pos:end]) using the Gini index.
+
+        Parameters
+        ----------
+        impurity_left: DTYPE_t
+            The memory address to save the impurity of the left node to
+        impurity_right: DTYPE_t
+            The memory address to save the impurity of the right node to
+        """
+
+        cdef double* sum_total = self.sum_total
+        cdef SIZE_t pos = self.pos
+        cdef SIZE_t start = self.start
+        cdef SIZE_t end = self.end
+
+        cdef DTYPE_t* Xf = <DTYPE_t*> self.feature_values  ###XXX pb: on n'a pas acces à ça ici
+
+        cdef DTYPE_t Xf_start = <DTYPE_t> Xf[start]
+        cdef DTYPE_t Xf_pos = <DTYPE_t> Xf[pos]
+        cdef DTYPE_t Xf_end = <DTYPE_t> Xf[end]
+
+        cdef DTYPE_t n_leb_right = <DTYPE_t> (end - start) * <DTYPE_t> (<DTYPE_t>Xf_end - <DTYPE_t>Xf_pos) / <DTYPE_t> (<DTYPE_t>Xf_end - <DTYPE_t>Xf_start)
+        cdef DTYPE_t n_leb_left = <DTYPE_t> (end - start) * <DTYPE_t> (<DTYPE_t>Xf_pos - <DTYPE_t>Xf_start) / <DTYPE_t> (<DTYPE_t>Xf_end - <DTYPE_t>Xf_start)
+        
+        cdef SIZE_t* n_classes = self.n_classes
+        cdef double* sum_left = self.sum_left
+        cdef double* sum_right = self.sum_right
+        cdef double gini_left = 0.0
+        cdef double gini_right = 0.0
+        cdef double sq_count_left
+        cdef double sq_count_right
+        cdef double count_k
+        cdef SIZE_t k
+        cdef SIZE_t c
+
+        for k in range(self.n_outputs):
+            sq_count_left = 0.0
+            sq_count_right = 0.0
+
+            for c in range(n_classes[k]):
+                count_k = sum_left[c]
+                sq_count_left += count_k * count_k
+
+                count_k = sum_right[c]
+                sq_count_right += count_k * count_k
+
+            gini_left += 1.0 - (sq_count_left - n_leb_left * n_leb_left) / ((self.weighted_n_left + n_leb_left)  * (self.weighted_n_left + n_leb_left))
+
+            gini_right += 1.0 - (sq_count_right - n_leb_right * n_leb_right) / ((self.weighted_n_right + n_leb_right)  * (self.weighted_n_right + n_leb_right))
+
+            sum_left += self.sum_stride
+            sum_right += self.sum_stride
+
+        impurity_left[0] = gini_left / self.n_outputs
+        impurity_right[0] = gini_right / self.n_outputs

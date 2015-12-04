@@ -203,6 +203,7 @@ cdef class Splitter:
                             self.sample_weight,
                             self.weighted_n_samples,
                             self.samples,
+                            self.feature_values,
                             start,
                             end)
 
