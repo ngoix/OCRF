@@ -1,5 +1,4 @@
 # Authors: Nicolas Goix <nicolas.goix@telecom-paristech.fr>
-#          Alexandre Gramfort <alexandre.gramfort@telecom-paristech.fr>
 # License: BSD 3 clause
 
 from __future__ import division
@@ -12,7 +11,7 @@ from scipy.sparse import issparse
 
 from ..externals import six
 from ..externals.joblib import Parallel, delayed
-from ..tree import ExtraTreeRegressor
+from ..tree import ExtraTreeClassifier
 from ..utils import check_random_state, check_array
 
 from .bagging import BaseBagging
@@ -101,7 +100,7 @@ class OneClassForest(BaseBagging):
                  random_state=None,
                  verbose=0):
         super(OneClassForest, self).__init__(
-            base_estimator=ExtraTreeRegressor(
+            base_estimator=ExtraTreeClassifier(
                 max_features=1,
                 criterion='oneclassgini',
                 splitter='best',
@@ -143,7 +142,7 @@ class OneClassForest(BaseBagging):
             X.sort_indices()
 
         rnd = check_random_state(self.random_state)
-        y = rnd.uniform(size=X.shape[0])
+        y = np.zeros(X.shape[0])#rnd.uniform(size=X.shape[0])
 
         # ensure that max_sample is in [1, n_samples]:
         n_samples = X.shape[0]
@@ -215,6 +214,21 @@ class OneClassForest(BaseBagging):
             leaves_index = tree.apply(X)
             node_indicator = tree.decision_path(X)
             n_samples_leaf[:, i] = tree.tree_.n_node_samples[leaves_index]
+
+############## BROUILLON:
+            Xf = tree.tree_.feature_values[leaves_index]  # ou tree.tree_.node_id[leaves_index].feature_values?  ###XXX pb: on n'a pas acces à ça ici
+            start = tree.tree_.start
+            end = tree.tree_.end
+
+            Xf_start = Xf[start]
+            Xf_pos = Xf[pos]
+            Xf_end = Xf[end]
+
+        cdef DTYPE_t n_leb_right = <DTYPE_t> (end - start) * <DTYPE_t> (<DTYPE_t> Xf_end - <DTYPE_t> Xf_pos) / <DTYPE_t> (<DTYPE_t> Xf_end - <DTYPE_t> Xf_start)
+        cdef DTYPE_t n_leb_left = <DTYPE_t> (end - start) * <DTYPE_t> (<DTYPE_t> Xf_pos - <DTYPE_t> Xf_start) / <DTYPE_t> (<DTYPE_t> Xf_end - <DTYPE_t> Xf_start)
+##############
+
+            
             depths[:, i] = np.asarray(node_indicator.sum(axis=1)).reshape(-1) - 1
 
         depths += _average_path_length(n_samples_leaf)

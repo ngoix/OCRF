@@ -117,7 +117,7 @@ cdef class Stack:
         return self.top <= 0
 
     cdef int push(self, SIZE_t start, SIZE_t end, SIZE_t depth, SIZE_t parent,
-                  bint is_left, double impurity,
+                  bint is_left, double volume, double impurity,
                   SIZE_t n_constant_features) nogil:
         """Push a new element onto the stack.
 
@@ -142,6 +142,7 @@ cdef class Stack:
         stack[top].depth = depth
         stack[top].parent = parent
         stack[top].is_left = is_left
+        stack[top].volume = volume
         stack[top].impurity = impurity
         stack[top].n_constant_features = n_constant_features
 
@@ -240,6 +241,7 @@ cdef class PriorityHeap:
 
     cdef int push(self, SIZE_t node_id, SIZE_t start, SIZE_t end, SIZE_t pos,
                   SIZE_t depth, bint is_leaf, double improvement,
+                  double volume, double volume_left, double volume_right,
                   double impurity, double impurity_left,
                   double impurity_right) nogil:
         """Push record on the priority heap.
@@ -268,6 +270,9 @@ cdef class PriorityHeap:
         heap[heap_ptr].pos = pos
         heap[heap_ptr].depth = depth
         heap[heap_ptr].is_leaf = is_leaf
+        heap[heap_ptr].volume = volume
+        heap[heap_ptr].volume_left = volume_left
+        heap[heap_ptr].volume_right = volume_right
         heap[heap_ptr].impurity = impurity
         heap[heap_ptr].impurity_left = impurity_left
         heap[heap_ptr].impurity_right = impurity_right

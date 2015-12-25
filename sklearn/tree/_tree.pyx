@@ -67,8 +67,8 @@ cdef DTYPE_t MIN_IMPURITY_SPLIT = 1e-7
 
 # Repeat struct definition for numpy
 NODE_DTYPE = np.dtype({
-    'names': ['left_child', 'right_child', 'feature', 'threshold', 'impurity',
-              'n_node_samples', 'weighted_n_node_samples'],
+    'names': ['left_child', 'right_child', 'feature', 'threshold', 'volume',
+              'impurity', 'n_node_samples', 'weighted_n_node_samples'],
     'formats': [np.intp, np.intp, np.intp, np.float64, np.float64, np.intp,
                 np.float64],
     'offsets': [
@@ -76,6 +76,7 @@ NODE_DTYPE = np.dtype({
         <Py_ssize_t> &(<Node*> NULL).right_child,
         <Py_ssize_t> &(<Node*> NULL).feature,
         <Py_ssize_t> &(<Node*> NULL).threshold,
+        <Py_ssize_t> &(<Node*> NULL).volume,
         <Py_ssize_t> &(<Node*> NULL).impurity,
         <Py_ssize_t> &(<Node*> NULL).n_node_samples,
         <Py_ssize_t> &(<Node*> NULL).weighted_n_node_samples
@@ -182,6 +183,7 @@ cdef class DepthFirstTreeBuilder(TreeBuilder):
         cdef SIZE_t node_id
 
         cdef double threshold
+        cdef double volume = 1.
         cdef double impurity = INFINITY
         cdef SIZE_t n_constant_features
         cdef bint is_leaf
@@ -193,7 +195,7 @@ cdef class DepthFirstTreeBuilder(TreeBuilder):
         cdef StackRecord stack_record
 
         # push root node onto stack
-        rc = stack.push(0, n_node_samples, 0, _TREE_UNDEFINED, 0, INFINITY, 0)
+        rc = stack.push(0, n_node_samples, 0, _TREE_UNDEFINED, 0, 1., INFINITY, 0)
         if rc == -1:
             # got return code -1 - out-of-memory
             raise MemoryError()
@@ -207,6 +209,7 @@ cdef class DepthFirstTreeBuilder(TreeBuilder):
                 depth = stack_record.depth
                 parent = stack_record.parent
                 is_left = stack_record.is_left
+                volume = stack_record.volume
                 impurity = stack_record.impurity
                 n_constant_features = stack_record.n_constant_features
 
@@ -219,17 +222,19 @@ cdef class DepthFirstTreeBuilder(TreeBuilder):
                            (weighted_n_node_samples < min_weight_leaf))
 
                 if first:
+                    volume = 1.
                     impurity = splitter.node_impurity()
                     first = 0
 
                 is_leaf = is_leaf or (impurity <= MIN_IMPURITY_SPLIT)
 
                 if not is_leaf:
-                    splitter.node_split(impurity, &split, &n_constant_features)
+                    splitter.node_split(volume, impurity, &split, &n_constant_features)
                     is_leaf = is_leaf or (split.pos >= end)
 
+                #XXX ajouter volume ou feature_values comme attribut de node comme impurity, calculer par le splitter
                 node_id = tree._add_node(parent, is_left, is_leaf, split.feature,
-                                         split.threshold, impurity, n_node_samples,
+                                         split.threshold, volume, impurity, n_node_samples,
                                          weighted_n_node_samples)
 
                 if node_id == <SIZE_t>(-1):
@@ -243,13 +248,15 @@ cdef class DepthFirstTreeBuilder(TreeBuilder):
                 if not is_leaf:
                     # Push right child on stack
                     rc = stack.push(split.pos, end, depth + 1, node_id, 0,
-                                    split.impurity_right, n_constant_features)
+                                    split.volume_right, split.impurity_right,
+                                    n_constant_features)
                     if rc == -1:
                         break
 
                     # Push left child on stack
                     rc = stack.push(start, split.pos, depth + 1, node_id, 1,
-                                    split.impurity_left, n_constant_features)
+                                    split.volume_left, split.impurity_left,
+                                    n_constant_features)
                     if rc == -1:
                         break
 
@@ -272,7 +279,8 @@ cdef inline int _add_to_frontier(PriorityHeapRecord* rec,
     """Adds record ``rec`` to the priority queue ``frontier``; returns -1
     on memory-error. """
     return frontier.push(rec.node_id, rec.start, rec.end, rec.pos, rec.depth,
-                         rec.is_leaf, rec.improvement, rec.impurity,
+                         rec.is_leaf, rec.improvement, rec.volume,
+                         rec.volume_left, rec.volume_right, rec.impurity,
                          rec.impurity_left, rec.impurity_right)
 
 
@@ -336,7 +344,7 @@ cdef class BestFirstTreeBuilder(TreeBuilder):
 
         with nogil:
             # add root to frontier
-            rc = self._add_split_node(splitter, tree, 0, n_node_samples,
+            rc = self._add_split_node(splitter, tree, 0, n_node_samples, 1.,
                                       INFINITY, IS_FIRST, IS_LEFT, NULL, 0,
                                       &split_node_left)
             if rc >= 0:
@@ -367,6 +375,7 @@ cdef class BestFirstTreeBuilder(TreeBuilder):
                     # Compute left split node
                     rc = self._add_split_node(splitter, tree,
                                               record.start, record.pos,
+                                              record.volume_left,
                                               record.impurity_left,
                                               IS_NOT_FIRST, IS_LEFT, node,
                                               record.depth + 1,
@@ -380,6 +389,7 @@ cdef class BestFirstTreeBuilder(TreeBuilder):
                     # Compute right split node
                     rc = self._add_split_node(splitter, tree, record.pos,
                                               record.end,
+                                              record.volume_right,
                                               record.impurity_right,
                                               IS_NOT_FIRST, IS_NOT_LEFT, node,
                                               record.depth + 1,
@@ -409,9 +419,9 @@ cdef class BestFirstTreeBuilder(TreeBuilder):
             raise MemoryError()
 
     cdef inline int _add_split_node(self, Splitter splitter, Tree tree,
-                                    SIZE_t start, SIZE_t end, double impurity,
-                                    bint is_first, bint is_left, Node* parent,
-                                    SIZE_t depth,
+                                    SIZE_t start, SIZE_t end, double volume,
+                                    double impurity, bint is_first,
+                                    bint is_left, Node* parent, SIZE_t depth,
                                     PriorityHeapRecord* res) nogil:
         """Adds node w/ partition ``[start, end)`` to the frontier. """
         cdef SplitRecord split
@@ -427,6 +437,7 @@ cdef class BestFirstTreeBuilder(TreeBuilder):
         splitter.node_reset(start, end, &weighted_n_node_samples)
 
         if is_first:
+            volume = 1.
             impurity = splitter.node_impurity()
 
         n_node_samples = end - start
@@ -437,15 +448,15 @@ cdef class BestFirstTreeBuilder(TreeBuilder):
                    (impurity <= MIN_IMPURITY_SPLIT))
 
         if not is_leaf:
-            splitter.node_split(impurity, &split, &n_constant_features)
+            splitter.node_split(volume, impurity, &split, &n_constant_features)
             is_leaf = is_leaf or (split.pos >= end)
 
         node_id = tree._add_node(parent - tree.nodes
                                  if parent != NULL
                                  else _TREE_UNDEFINED,
                                  is_left, is_leaf,
-                                 split.feature, split.threshold, impurity, n_node_samples,
-                                 weighted_n_node_samples)
+                                 split.feature, split.threshold, volume, impurity,
+                                 n_node_samples, weighted_n_node_samples)
         if node_id == <SIZE_t>(-1):
             return -1
 
@@ -456,6 +467,7 @@ cdef class BestFirstTreeBuilder(TreeBuilder):
         res.start = start
         res.end = end
         res.depth = depth
+        res.volume = volume
         res.impurity = impurity
 
         if not is_leaf:
@@ -463,6 +475,8 @@ cdef class BestFirstTreeBuilder(TreeBuilder):
             res.pos = split.pos
             res.is_leaf = 0
             res.improvement = split.improvement
+            res.volume_left = split.volume_left
+            res.volume_right = split.volume_right
             res.impurity_left = split.impurity_left
             res.impurity_right = split.impurity_right
 
@@ -471,6 +485,8 @@ cdef class BestFirstTreeBuilder(TreeBuilder):
             res.pos = end
             res.is_leaf = 1
             res.improvement = 0.0
+            res.volume_left = volume
+            res.volume_right = volume
             res.impurity_left = impurity
             res.impurity_right = impurity
 
@@ -559,6 +575,10 @@ cdef class Tree:
     property threshold:
         def __get__(self):
             return self._get_node_ndarray()['threshold'][:self.node_count]
+
+    property volume:
+        def __get__(self):
+            return self._get_node_ndarray()['volume'][:self.node_count]
 
     property impurity:
         def __get__(self):
@@ -696,8 +716,9 @@ cdef class Tree:
         return 0
 
     cdef SIZE_t _add_node(self, SIZE_t parent, bint is_left, bint is_leaf,
-                          SIZE_t feature, double threshold, double impurity,
-                          SIZE_t n_node_samples, double weighted_n_node_samples) nogil:
+                          SIZE_t feature, double threshold, double volume,
+                          double impurity, SIZE_t n_node_samples,
+                          double weighted_n_node_samples) nogil:
         """Add a node to the tree.
 
         The new node registers itself as the child of its parent.
@@ -711,6 +732,7 @@ cdef class Tree:
                 return <SIZE_t>(-1)
 
         cdef Node* node = &self.nodes[node_id]
+        node.volume = volume
         node.impurity = impurity
         node.n_node_samples = n_node_samples
         node.weighted_n_node_samples = weighted_n_node_samples

@@ -1074,9 +1074,8 @@ cdef class OneClassGini(ClassificationCriterion):
         cdef DTYPE_t Xf_pos = <DTYPE_t> Xf[pos]
         cdef DTYPE_t Xf_end = <DTYPE_t> Xf[end]
 
-        cdef DTYPE_t n_leb_right = <DTYPE_t> (end - start) * <DTYPE_t> (<DTYPE_t>Xf_end - <DTYPE_t>Xf_pos) / <DTYPE_t> (<DTYPE_t>Xf_end - <DTYPE_t>Xf_start)
-        cdef DTYPE_t n_leb_left = <DTYPE_t> (end - start) * <DTYPE_t> (<DTYPE_t>Xf_pos - <DTYPE_t>Xf_start) / <DTYPE_t> (<DTYPE_t>Xf_end - <DTYPE_t>Xf_start)
-        
+        cdef DTYPE_t n_leb_right = <DTYPE_t> (end - start) * <DTYPE_t> (<DTYPE_t> Xf_end - <DTYPE_t> Xf_pos) / <DTYPE_t> (<DTYPE_t> Xf_end - <DTYPE_t> Xf_start)
+        cdef DTYPE_t n_leb_left = <DTYPE_t> (end - start) * <DTYPE_t> (<DTYPE_t> Xf_pos - <DTYPE_t> Xf_start) / <DTYPE_t> (<DTYPE_t> Xf_end - <DTYPE_t> Xf_start)
         cdef SIZE_t* n_classes = self.n_classes
         cdef double* sum_left = self.sum_left
         cdef double* sum_right = self.sum_right
@@ -1099,9 +1098,9 @@ cdef class OneClassGini(ClassificationCriterion):
                 count_k = sum_right[c]
                 sq_count_right += count_k * count_k
 
-            gini_left += 1.0 - (sq_count_left - n_leb_left * n_leb_left) / ((self.weighted_n_left + n_leb_left)  * (self.weighted_n_left + n_leb_left))
+            gini_left += 1.0 - (sq_count_left - n_leb_left * n_leb_left) / ((self.weighted_n_left + n_leb_left) * (self.weighted_n_left + n_leb_left))
 
-            gini_right += 1.0 - (sq_count_right - n_leb_right * n_leb_right) / ((self.weighted_n_right + n_leb_right)  * (self.weighted_n_right + n_leb_right))
+            gini_right += 1.0 - (sq_count_right - n_leb_right * n_leb_right) / ((self.weighted_n_right + n_leb_right) * (self.weighted_n_right + n_leb_right))
 
             sum_left += self.sum_stride
             sum_right += self.sum_stride
