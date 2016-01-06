@@ -92,7 +92,7 @@ class OneClassForest(BaseBagging):
     """
 
     def __init__(self,
-                 n_estimators=100,
+                 n_estimators=1,
                  max_samples="auto",
                  max_features=1.,
                  bootstrap=False,
@@ -101,7 +101,7 @@ class OneClassForest(BaseBagging):
                  verbose=0):
         super(OneClassForest, self).__init__(
             base_estimator=ExtraTreeClassifier(
-                max_features=1,
+                max_features=None,
                 criterion='oneclassgini',
                 splitter='best',
                 random_state=random_state),
@@ -208,27 +208,13 @@ class OneClassForest(BaseBagging):
 
 
         n_samples_leaf = np.zeros((n_samples, self.n_estimators), order="f")
+        volume = np.zeros((n_samples, self.n_estimators), order="f")
         depths = np.zeros((n_samples, self.n_estimators), order="f")
 
         for i, tree in enumerate(self.estimators_):
             leaves_index = tree.apply(X)
             node_indicator = tree.decision_path(X)
             n_samples_leaf[:, i] = tree.tree_.n_node_samples[leaves_index]
-
-############## BROUILLON:
-            Xf = tree.tree_.feature_values[leaves_index]  # ou tree.tree_.node_id[leaves_index].feature_values?  ###XXX pb: on n'a pas acces à ça ici
-            start = tree.tree_.start
-            end = tree.tree_.end
-
-            Xf_start = Xf[start]
-            Xf_pos = Xf[pos]
-            Xf_end = Xf[end]
-
-        cdef DTYPE_t n_leb_right = <DTYPE_t> (end - start) * <DTYPE_t> (<DTYPE_t> Xf_end - <DTYPE_t> Xf_pos) / <DTYPE_t> (<DTYPE_t> Xf_end - <DTYPE_t> Xf_start)
-        cdef DTYPE_t n_leb_left = <DTYPE_t> (end - start) * <DTYPE_t> (<DTYPE_t> Xf_pos - <DTYPE_t> Xf_start) / <DTYPE_t> (<DTYPE_t> Xf_end - <DTYPE_t> Xf_start)
-##############
-
-            
             depths[:, i] = np.asarray(node_indicator.sum(axis=1)).reshape(-1) - 1
 
         depths += _average_path_length(n_samples_leaf)
@@ -236,6 +222,18 @@ class OneClassForest(BaseBagging):
         scores = 2 ** (-depths.mean(axis=1) / _average_path_length(self.max_samples_))
 
         return scores
+
+        # for i, tree in enumerate(self.estimators_):
+        #     leaves_index = tree.apply(X)
+        #     node_indicator = tree.decision_path(X)
+        #     n_samples_leaf[:, i] = tree.tree_.n_node_samples[leaves_index]
+
+
+        #     volume[:, i] = tree.tree_.volume[leaves_index]
+
+        #     scores = - n_samples_leaf.mean(axis=1) / volume.mean(axis=1)
+
+        # return scores
 
     def decision_function(self, X):
         """Average of the decision functions of the base classifiers.

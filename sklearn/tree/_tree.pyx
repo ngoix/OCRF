@@ -67,16 +67,17 @@ cdef DTYPE_t MIN_IMPURITY_SPLIT = 1e-7
 
 # Repeat struct definition for numpy
 NODE_DTYPE = np.dtype({
-    'names': ['left_child', 'right_child', 'feature', 'threshold', 'volume',
+    'names': ['left_child', 'right_child', 'feature', 'threshold', 'lim_inf', 'lim_sup',
               'impurity', 'n_node_samples', 'weighted_n_node_samples'],
-    'formats': [np.intp, np.intp, np.intp, np.float64, np.float64, np.intp,
+    'formats': [np.intp, np.intp, np.intp, np.float64, np.ndarray, np.ndarray, np.float64, np.intp,
                 np.float64],
     'offsets': [
         <Py_ssize_t> &(<Node*> NULL).left_child,
         <Py_ssize_t> &(<Node*> NULL).right_child,
         <Py_ssize_t> &(<Node*> NULL).feature,
         <Py_ssize_t> &(<Node*> NULL).threshold,
-        <Py_ssize_t> &(<Node*> NULL).volume,
+        <Py_ssize_t> &(<Node*> NULL).lim_inf,
+        <Py_ssize_t> &(<Node*> NULL).lim_sup,
         <Py_ssize_t> &(<Node*> NULL).impurity,
         <Py_ssize_t> &(<Node*> NULL).n_node_samples,
         <Py_ssize_t> &(<Node*> NULL).weighted_n_node_samples
@@ -176,14 +177,30 @@ cdef class DepthFirstTreeBuilder(TreeBuilder):
         cdef SIZE_t depth
         cdef SIZE_t parent
         cdef bint is_left
+
         cdef SIZE_t n_node_samples = splitter.n_samples
+        cdef SIZE_t n_samples = X.shape[0]
+        cdef SIZE_t n_features = X.shape[1]
+        #cdef DTYPE_t* X = splitter.X
+        cdef np.ndarray X_ndarray = X
+        cdef DTYPE_t* XX = <DTYPE_t*> X_ndarray.data
+
+        cdef SIZE_t* samples = splitter.samples
+
+        cdef SIZE_t X_sample_stride = <SIZE_t> X.strides[0] / <SIZE_t> X.itemsize  #splitter.X_sample_stride
+        cdef SIZE_t X_feature_stride = <SIZE_t> X.strides[1] / <SIZE_t> X.itemsize  #splitter.X_feature_stride
+
+   
+        cdef DTYPE_t x
+        cdef SIZE_t i, j
         cdef double weighted_n_samples = splitter.weighted_n_samples
         cdef double weighted_n_node_samples
         cdef SplitRecord split
         cdef SIZE_t node_id
 
         cdef double threshold
-        cdef double volume = 1.
+        cdef DTYPE_t* lim_inf = NULL  # <DTYPE_t*> -INFINITY * np.ones(n_features) 
+        cdef DTYPE_t* lim_sup = NULL  # <DTYPE_t*> INFINITY * np.ones(n_features)
         cdef double impurity = INFINITY
         cdef SIZE_t n_constant_features
         cdef bint is_leaf
@@ -195,12 +212,13 @@ cdef class DepthFirstTreeBuilder(TreeBuilder):
         cdef StackRecord stack_record
 
         # push root node onto stack
-        rc = stack.push(0, n_node_samples, 0, _TREE_UNDEFINED, 0, 1., INFINITY, 0)
+        rc = stack.push(0, n_node_samples, 0, _TREE_UNDEFINED, 0, lim_inf, lim_sup, INFINITY, 0)
         if rc == -1:
             # got return code -1 - out-of-memory
             raise MemoryError()
 
-        with nogil:
+        #with nogil:
+        if True:
             while not stack.is_empty():
                 stack.pop(&stack_record)
 
@@ -209,7 +227,8 @@ cdef class DepthFirstTreeBuilder(TreeBuilder):
                 depth = stack_record.depth
                 parent = stack_record.parent
                 is_left = stack_record.is_left
-                volume = stack_record.volume
+                lim_inf = stack_record.lim_inf
+                lim_sup = stack_record.lim_sup
                 impurity = stack_record.impurity
                 n_constant_features = stack_record.n_constant_features
 
@@ -222,19 +241,30 @@ cdef class DepthFirstTreeBuilder(TreeBuilder):
                            (weighted_n_node_samples < min_weight_leaf))
 
                 if first:
-                    volume = 1.
+                    safe_realloc(&lim_inf, n_features)# * sizeof(DTYPE_t))
+                    safe_realloc(&lim_sup, n_features)# * sizeof(DTYPE_t))
+                    for j in range(n_features):
+                        lim_inf[j] = 0.
+                        lim_sup[j] = 0.
+                        for i in range(n_samples): #ou alors splitter.n_samples et pas end - start?? (idem l. 470)
+                            x = XX[X_sample_stride * samples[i] + X_feature_stride * j]
+                            if x < lim_inf[j]:
+                                lim_inf[j] = x
+                            if x > lim_sup[j]:
+                                lim_sup[j] = x
+
                     impurity = splitter.node_impurity()
                     first = 0
 
                 is_leaf = is_leaf or (impurity <= MIN_IMPURITY_SPLIT)
 
                 if not is_leaf:
-                    splitter.node_split(volume, impurity, &split, &n_constant_features)
+                    splitter.node_split(lim_inf, lim_sup, impurity, &split, &n_constant_features)
                     is_leaf = is_leaf or (split.pos >= end)
 
                 #XXX ajouter volume ou feature_values comme attribut de node comme impurity, calculer par le splitter
                 node_id = tree._add_node(parent, is_left, is_leaf, split.feature,
-                                         split.threshold, volume, impurity, n_node_samples,
+                                         split.threshold, lim_inf, lim_sup, impurity, n_node_samples,
                                          weighted_n_node_samples)
 
                 if node_id == <SIZE_t>(-1):
@@ -248,14 +278,14 @@ cdef class DepthFirstTreeBuilder(TreeBuilder):
                 if not is_leaf:
                     # Push right child on stack
                     rc = stack.push(split.pos, end, depth + 1, node_id, 0,
-                                    split.volume_right, split.impurity_right,
+                                    split.lim_inf_right, split.lim_sup_right, split.impurity_right,
                                     n_constant_features)
                     if rc == -1:
                         break
 
                     # Push left child on stack
                     rc = stack.push(start, split.pos, depth + 1, node_id, 1,
-                                    split.volume_left, split.impurity_left,
+                                    split.lim_inf_left, split.lim_sup_left, split.impurity_left,
                                     n_constant_features)
                     if rc == -1:
                         break
@@ -279,9 +309,10 @@ cdef inline int _add_to_frontier(PriorityHeapRecord* rec,
     """Adds record ``rec`` to the priority queue ``frontier``; returns -1
     on memory-error. """
     return frontier.push(rec.node_id, rec.start, rec.end, rec.pos, rec.depth,
-                         rec.is_leaf, rec.improvement, rec.volume,
-                         rec.volume_left, rec.volume_right, rec.impurity,
-                         rec.impurity_left, rec.impurity_right)
+                         rec.is_leaf, rec.improvement, rec.lim_inf, rec.lim_inf_left,
+                         rec.lim_inf_right, rec.lim_sup, rec.lim_sup_left,
+                         rec.lim_sup_right, rec.impurity, rec.impurity_left,
+                         rec.impurity_right)
 
 
 cdef class BestFirstTreeBuilder(TreeBuilder):
@@ -338,13 +369,17 @@ cdef class BestFirstTreeBuilder(TreeBuilder):
         cdef int rc = 0
         cdef Node* node
 
+        cdef DTYPE_t* lim_inf = NULL  #-INFINITY * np.ones(splitter.n_features) 
+        cdef DTYPE_t* lim_sup = NULL  #INFINITY * np.ones(splitter.n_features) 
+
+        
         # Initial capacity
         cdef SIZE_t init_capacity = max_split_nodes + max_leaf_nodes
         tree._resize(init_capacity)
 
         with nogil:
             # add root to frontier
-            rc = self._add_split_node(splitter, tree, 0, n_node_samples, 1.,
+            rc = self._add_split_node(splitter, tree, 0, n_node_samples, lim_inf, lim_sup,
                                       INFINITY, IS_FIRST, IS_LEFT, NULL, 0,
                                       &split_node_left)
             if rc >= 0:
@@ -375,7 +410,8 @@ cdef class BestFirstTreeBuilder(TreeBuilder):
                     # Compute left split node
                     rc = self._add_split_node(splitter, tree,
                                               record.start, record.pos,
-                                              record.volume_left,
+                                              record.lim_inf_left,
+                                              record.lim_sup_left,
                                               record.impurity_left,
                                               IS_NOT_FIRST, IS_LEFT, node,
                                               record.depth + 1,
@@ -389,7 +425,8 @@ cdef class BestFirstTreeBuilder(TreeBuilder):
                     # Compute right split node
                     rc = self._add_split_node(splitter, tree, record.pos,
                                               record.end,
-                                              record.volume_right,
+                                              record.lim_inf_right,
+                                              record.lim_sup_right,
                                               record.impurity_right,
                                               IS_NOT_FIRST, IS_NOT_LEFT, node,
                                               record.depth + 1,
@@ -419,8 +456,8 @@ cdef class BestFirstTreeBuilder(TreeBuilder):
             raise MemoryError()
 
     cdef inline int _add_split_node(self, Splitter splitter, Tree tree,
-                                    SIZE_t start, SIZE_t end, double volume,
-                                    double impurity, bint is_first,
+                                    SIZE_t start, SIZE_t end, DTYPE_t* lim_inf,
+                                    DTYPE_t* lim_sup, double impurity, bint is_first,
                                     bint is_left, Node* parent, SIZE_t depth,
                                     PriorityHeapRecord* res) nogil:
         """Adds node w/ partition ``[start, end)`` to the frontier. """
@@ -428,6 +465,9 @@ cdef class BestFirstTreeBuilder(TreeBuilder):
         cdef SIZE_t node_id
         cdef SIZE_t n_node_samples
         cdef SIZE_t n_constant_features = 0
+        cdef SIZE_t n_features = splitter.n_features
+        # cdef DTYPE_t* X = splitter.X
+        cdef SIZE_t i, j
         cdef double weighted_n_samples = splitter.weighted_n_samples
         cdef double weighted_n_node_samples
         cdef bint is_leaf
@@ -437,10 +477,21 @@ cdef class BestFirstTreeBuilder(TreeBuilder):
         splitter.node_reset(start, end, &weighted_n_node_samples)
 
         if is_first:
-            volume = 1.
+            # realloc(&lim_inf, n_features)
+            # realloc(&lim_sup, n_features)
+            # for j in range(n_features):
+            #     lim_inf[j] = 0.
+            #     lim_sup[j] = 0.
+            #     for i in range(n_node_samples): #ou alors splitter.n_samples??
+            #         if X[i, j] < lim_inf[j]:
+            #             lim_inf[j] = X[i, j]
+            #         if X[i, j] > lim_sup[j]:
+            #             lim_sup[j] = X[i, j]
+                        
             impurity = splitter.node_impurity()
 
         n_node_samples = end - start
+
         is_leaf = ((depth > self.max_depth) or
                    (n_node_samples < self.min_samples_split) or
                    (n_node_samples < 2 * self.min_samples_leaf) or
@@ -448,14 +499,14 @@ cdef class BestFirstTreeBuilder(TreeBuilder):
                    (impurity <= MIN_IMPURITY_SPLIT))
 
         if not is_leaf:
-            splitter.node_split(volume, impurity, &split, &n_constant_features)
+            splitter.node_split(lim_inf, lim_sup, impurity, &split, &n_constant_features)
             is_leaf = is_leaf or (split.pos >= end)
 
         node_id = tree._add_node(parent - tree.nodes
                                  if parent != NULL
                                  else _TREE_UNDEFINED,
                                  is_left, is_leaf,
-                                 split.feature, split.threshold, volume, impurity,
+                                 split.feature, split.threshold, lim_inf, lim_sup, impurity,
                                  n_node_samples, weighted_n_node_samples)
         if node_id == <SIZE_t>(-1):
             return -1
@@ -467,7 +518,8 @@ cdef class BestFirstTreeBuilder(TreeBuilder):
         res.start = start
         res.end = end
         res.depth = depth
-        res.volume = volume
+        res.lim_inf = lim_inf
+        res.lim_sup = lim_sup
         res.impurity = impurity
 
         if not is_leaf:
@@ -475,8 +527,10 @@ cdef class BestFirstTreeBuilder(TreeBuilder):
             res.pos = split.pos
             res.is_leaf = 0
             res.improvement = split.improvement
-            res.volume_left = split.volume_left
-            res.volume_right = split.volume_right
+            res.lim_inf_left = split.lim_inf_left
+            res.lim_inf_right = split.lim_inf_right
+            res.lim_sup_left = split.lim_sup_left
+            res.lim_sup_right = split.lim_sup_right
             res.impurity_left = split.impurity_left
             res.impurity_right = split.impurity_right
 
@@ -485,8 +539,10 @@ cdef class BestFirstTreeBuilder(TreeBuilder):
             res.pos = end
             res.is_leaf = 1
             res.improvement = 0.0
-            res.volume_left = volume
-            res.volume_right = volume
+            res.lim_inf_left = lim_inf
+            res.lim_inf_right = lim_inf
+            res.lim_sup_left = lim_sup
+            res.lim_sup_right = lim_sup
             res.impurity_left = impurity
             res.impurity_right = impurity
 
@@ -574,11 +630,15 @@ cdef class Tree:
 
     property threshold:
         def __get__(self):
-            return self._get_node_ndarray()['threshold'][:self.node_count]
+            return self._get_node_ndarray()['threshold']
 
-    property volume:
+    property lim_inf:
         def __get__(self):
-            return self._get_node_ndarray()['volume'][:self.node_count]
+            return self._multi_get_node_ndarray()['lim_inf']
+
+    property lim_sup:
+        def __get__(self):
+            return self._multi_get_node_ndarray()['lim_sup'][:self.node_count]
 
     property impurity:
         def __get__(self):
@@ -716,7 +776,7 @@ cdef class Tree:
         return 0
 
     cdef SIZE_t _add_node(self, SIZE_t parent, bint is_left, bint is_leaf,
-                          SIZE_t feature, double threshold, double volume,
+                          SIZE_t feature, double threshold, DTYPE_t* lim_inf, DTYPE_t* lim_sup,
                           double impurity, SIZE_t n_node_samples,
                           double weighted_n_node_samples) nogil:
         """Add a node to the tree.
@@ -732,7 +792,8 @@ cdef class Tree:
                 return <SIZE_t>(-1)
 
         cdef Node* node = &self.nodes[node_id]
-        node.volume = volume
+        node.lim_inf = lim_inf
+        node.lim_sup = lim_sup
         node.impurity = impurity
         node.n_node_samples = n_node_samples
         node.weighted_n_node_samples = weighted_n_node_samples
@@ -1118,6 +1179,28 @@ cdef class Tree:
         cdef np.ndarray arr
         Py_INCREF(NODE_DTYPE)
         arr = PyArray_NewFromDescr(np.ndarray, <np.dtype> NODE_DTYPE, 1, shape,
+                                   strides, <void*> self.nodes,
+                                   np.NPY_DEFAULT, None)
+        Py_INCREF(self)
+        arr.base = <PyObject*> self
+        return arr
+#XXX le pb (core dumped) vient de la fonction precedente qui n'esgt pas faite pour retrouner un vecteur sur chaque noeud. La fonction ci-après essaye d'y remedier (sans succes)
+    cdef np.ndarray _multi_get_node_ndarray(self):
+        """Wraps nodes as a NumPy struct array.
+
+        The array keeps a reference to this Tree, which manages the underlying
+        memory. Individual fields are publicly accessible as properties of the
+        Tree.
+        """
+        cdef np.npy_intp shape[2]
+        shape[0] = <np.npy_intp> self.node_count
+        shape[1] = <np.npy_intp> 2
+        cdef np.npy_intp strides[1]
+        strides[0] = sizeof(Node)
+        strides[1] = sizeof(DTYPE_t)
+        cdef np.ndarray arr
+        Py_INCREF(NODE_DTYPE)
+        arr = PyArray_NewFromDescr(np.ndarray, <np.dtype> NODE_DTYPE, 2, shape,
                                    strides, <void*> self.nodes,
                                    np.NPY_DEFAULT, None)
         Py_INCREF(self)

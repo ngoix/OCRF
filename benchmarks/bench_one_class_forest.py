@@ -26,7 +26,7 @@ for dat in datasets:
     # loading and vectorization
     print('loading data')
     if dat in ['http', 'smtp', 'SA', 'SF']:
-        dataset = fetch_kddcup99(subset=dat, shuffle=True, percent10=True)
+        dataset = fetch_kddcup99(subset=dat, shuffle=True, percent10=False)
         X = dataset.data
         y = dataset.target
 
@@ -87,7 +87,7 @@ for dat in datasets:
     y_test = y[n_samples_train:]
 
     print('OneClassForest processing...')
-    model = OneClassForest()
+    model = OneClassForest(n_jobs=-1)
     tstart = time()
     model.fit(X_train)
     fit_time = time() - tstart
