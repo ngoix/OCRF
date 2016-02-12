@@ -63,6 +63,7 @@ cdef struct StackRecord:
     bint is_left
     DTYPE_t* lim_inf
     DTYPE_t* lim_sup
+    double volume
     double impurity
     SIZE_t n_constant_features
 
@@ -73,7 +74,9 @@ cdef class Stack:
 
     cdef bint is_empty(self) nogil
     cdef int push(self, SIZE_t start, SIZE_t end, SIZE_t depth, SIZE_t parent,
-                  bint is_left, DTYPE_t* lim_inf, DTYPE_t* lim_sup, double impurity,
+                  bint is_left,
+		  DTYPE_t* lim_inf, DTYPE_t* lim_sup,
+		  double volume, double impurity,
                   SIZE_t n_constant_features) nogil
     cdef int pop(self, StackRecord* res) nogil
 
@@ -96,6 +99,9 @@ cdef struct PriorityHeapRecord:
     DTYPE_t* lim_sup
     DTYPE_t* lim_sup_left
     DTYPE_t* lim_sup_right
+    double volume
+    double volume_left
+    double volume_right
     double impurity
     double impurity_left
     double impurity_right
@@ -111,6 +117,6 @@ cdef class PriorityHeap:
                   SIZE_t depth, bint is_leaf, double improvement,
                   DTYPE_t* lim_inf, DTYPE_t* lim_inf_left, DTYPE_t* lim_inf_right,
                   DTYPE_t* lim_sup, DTYPE_t* lim_sup_left, DTYPE_t* lim_sup_right,
-                  double impurity, double impurity_left,
-                  double impurity_right) nogil
+                  double volume, double volume_left, double volume_right,
+                  double impurity, double impurity_left, double impurity_right) nogil
     cdef int pop(self, PriorityHeapRecord* res) nogil

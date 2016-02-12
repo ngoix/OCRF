@@ -117,7 +117,9 @@ cdef class Stack:
         return self.top <= 0
 
     cdef int push(self, SIZE_t start, SIZE_t end, SIZE_t depth, SIZE_t parent,
-                  bint is_left, DTYPE_t* lim_inf, DTYPE_t* lim_sup, double impurity,
+                  bint is_left,
+                  DTYPE_t* lim_inf, DTYPE_t* lim_sup,
+                  double volume, double impurity,
                   SIZE_t n_constant_features) nogil:
         """Push a new element onto the stack.
 
@@ -144,6 +146,7 @@ cdef class Stack:
         stack[top].is_left = is_left
         stack[top].lim_inf = lim_inf
         stack[top].lim_sup = lim_sup
+        stack[top].volume = volume
         stack[top].impurity = impurity
         stack[top].n_constant_features = n_constant_features
 
@@ -244,8 +247,8 @@ cdef class PriorityHeap:
                   SIZE_t depth, bint is_leaf, double improvement,
                   DTYPE_t* lim_inf, DTYPE_t* lim_inf_left, DTYPE_t* lim_inf_right,
                   DTYPE_t* lim_sup, DTYPE_t* lim_sup_left, DTYPE_t* lim_sup_right,
-                  double impurity, double impurity_left,
-                  double impurity_right) nogil:
+                  double volume, double volume_left, double volume_right,
+                  double impurity, double impurity_left, double impurity_right) nogil:
         """Push record on the priority heap.
 
         Returns 0 if successful; -1 on out of memory error.
@@ -278,6 +281,9 @@ cdef class PriorityHeap:
         heap[heap_ptr].lim_sup = lim_sup
         heap[heap_ptr].lim_sup_left = lim_sup_left
         heap[heap_ptr].lim_sup_right = lim_sup_right
+        heap[heap_ptr].volume = volume
+        heap[heap_ptr].volume_left = volume_left
+        heap[heap_ptr].volume_right = volume_right
         heap[heap_ptr].impurity = impurity
         heap[heap_ptr].impurity_left = impurity_left
         heap[heap_ptr].impurity_right = impurity_right

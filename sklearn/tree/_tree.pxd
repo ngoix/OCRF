@@ -23,13 +23,13 @@ from ._splitter cimport SplitRecord
 
 cdef struct Node:
     # Base storage structure for the nodes in a Tree object
-
     SIZE_t left_child                    # id of the left child of the node
     SIZE_t right_child                   # id of the right child of the node
     SIZE_t feature                       # Feature used for splitting the node
     DOUBLE_t threshold                   # Threshold value at the node
-    DTYPE_t* lim_inf                      # Volume of the node
-    DTYPE_t* lim_sup                      # Volume of the node
+    # DTYPE_t* lim_inf                      # Volume of the node
+    # DTYPE_t* lim_sup                      # Volume of the node
+    DOUBLE_t volume                      # Volume of the node
     DOUBLE_t impurity                    # Impurity of the node (i.e., the value of the criterion)
     SIZE_t n_node_samples                # Number of samples at the node
     DOUBLE_t weighted_n_node_samples     # Weighted number of samples at the node
@@ -57,8 +57,10 @@ cdef class Tree:
 
     # Methods
     cdef SIZE_t _add_node(self, SIZE_t parent, bint is_left, bint is_leaf,
-                          SIZE_t feature, double threshold, DTYPE_t* lim_inf,
-			  DTYPE_t* lim_sup, double impurity,
+                          SIZE_t feature, double threshold,
+			  # DTYPE_t* lim_inf, DTYPE_t* lim_sup,
+			  double volume,
+			  double impurity,
                           SIZE_t n_node_samples,
                           double weighted_n_samples) nogil
     cdef void _resize(self, SIZE_t capacity) except *

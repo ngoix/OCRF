@@ -32,6 +32,8 @@ cdef struct SplitRecord:
     DTYPE_t* lim_sup_left   # Volume of the left split.
     DTYPE_t* lim_sup_right  # Volume of the right split.
     double improvement     # Impurity improvement given parent node.
+    double volume_left   # Volume of the left split.
+    double volume_right  # Volume of the right split.
     double impurity_left   # Impurity of the left split.
     double impurity_right  # Impurity of the right split.
 
@@ -93,9 +95,10 @@ cdef class Splitter:
                          double* weighted_n_node_samples) nogil
 
     cdef void node_split(self,
-			 DTYPE_t* lim_inf,   # Volume of the node
-			 DTYPE_t* lim_sup,   # Volume of the node
-                         double impurity,   # Impurity of the node
+			 DTYPE_t* lim_inf,   # lim inf of the cell
+			 DTYPE_t* lim_sup,   # lim sup of the cell
+			 double volume,      # Volume of the node
+			 double impurity,    # Impurity of the node
                          SplitRecord* split,
                          SIZE_t* n_constant_features) nogil
 
