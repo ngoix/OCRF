@@ -845,7 +845,7 @@ cdef class OneClassGini(ClassificationCriterion):
         cdef SIZE_t start = self.start
         cdef SIZE_t end = self.end
 
-        cdef DTYPE_t* Xf = <DTYPE_t*> self.feature_values  ###XXX pb: on n'a pas acces à ça ici
+        cdef DTYPE_t* Xf = <DTYPE_t*> self.feature_values  ###XXX pb: on n'a pas acces à ça ici (plus de problem, feature_values passé en argument de criterion.init _splitter.pyx L.207)
 
         cdef DTYPE_t Xf_start = <DTYPE_t> Xf[start]
         cdef DTYPE_t Xf_pos = <DTYPE_t> Xf[pos-1]#(Xf[pos] + Xf[pos-1]) / 2

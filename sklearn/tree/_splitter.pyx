@@ -18,6 +18,7 @@
 from ._criterion cimport Criterion
 
 from libc.stdlib cimport free
+from libc.stdlib cimport realloc
 from libc.stdlib cimport qsort
 from libc.string cimport memcpy
 from libc.string cimport memset
@@ -46,10 +47,10 @@ cdef DTYPE_t EXTRACT_NNZ_SWITCH = 0.1
 cdef inline void _init_split(SplitRecord* self, SIZE_t start_pos) nogil:
     self.volume_left = 2.
     self.volume_right = 2.
-    self.lim_inf_left = NULL
-    self.lim_inf_right = NULL #<DTYPE_t*> -INFINITY * np.ones(n_features)
-    self.lim_sup_left = NULL #<DTYPE_t*> INFINITY * np.ones(n_features)
-    self.lim_sup_right = NULL #<DTYPE_t*> INFINITY * np.ones(n_features)
+    self.lim_inf_left = <DTYPE_t*> NULL
+    self.lim_inf_right = <DTYPE_t*> NULL #<DTYPE_t*> -INFINITY * np.ones(n_features)
+    self.lim_sup_left = <DTYPE_t*> NULL #<DTYPE_t*> INFINITY * np.ones(n_features)
+    self.lim_sup_right = <DTYPE_t*> NULL #<DTYPE_t*> INFINITY * np.ones(n_features)
     self.impurity_left = INFINITY
     self.impurity_right = INFINITY
     self.pos = start_pos
@@ -350,7 +351,8 @@ cdef class BestSplitter(BaseDenseSplitter):
         cdef SIZE_t n_total_constants = n_known_constants
         cdef DTYPE_t current_feature_value
         cdef SIZE_t partition_end
-
+        cdef void* ptr
+        
         _init_split(&best, end)
 
         if self.presort == 1:
@@ -499,19 +501,35 @@ cdef class BestSplitter(BaseDenseSplitter):
             self.criterion.children_impurity(&best.impurity_left,
                                              &best.impurity_right)
 
-            Xf_pos = <DTYPE_t> 0.9 * Xf[best.pos-1] + 0.1 * Xf[best.pos]
+            Xf_pos = best.threshold #<DTYPE_t> 0.5 * Xf[best.pos-1] + 0.5 * Xf[best.pos]
+            # safe_realloc(&best.lim_inf_right, n_features)
+            # safe_realloc(&best.lim_sup_right, n_features)
+
+            # ptr = realloc(best.lim_sup_right, n_features * sizeof(DTYPE_t))
+            # best.lim_sup_right = <DTYPE_t*> ptr
+            # ptr = realloc(best.lim_inf_right, n_features * sizeof(DTYPE_t))
+            # best.lim_inf_right = <DTYPE_t*> ptr
+
+            # ptr = realloc(best.lim_sup_left, n_features * sizeof(DTYPE_t))
+            # best.lim_sup_left = <DTYPE_t*> ptr
+            # ptr = realloc(best.lim_inf_left, n_features * sizeof(DTYPE_t))
+            # best.lim_inf_left = <DTYPE_t*> ptr
+
+            best.volume_right = volume * (lim_sup[best.feature] - Xf_pos) / (lim_sup[best.feature] - lim_inf[best.feature])
+            # ou equivalent mais + couteux: = (lim_sup_right - lim_inf_right).prod()
+            best.volume_left = volume * (Xf_pos - lim_inf[best.feature]) / (lim_sup[best.feature] - lim_inf[best.feature])
+            # ou equivalent mais + couteux: = (lim_sup_left - lim_inf_left).prod()
+
             best.lim_inf_right = lim_inf
+            best.lim_inf_left = lim_inf
+            best.lim_sup_right = lim_sup
             best.lim_sup_left = lim_sup
+
             best.lim_inf_right[best.feature] = Xf_pos #best.threshold
             best.lim_sup_left[best.feature] = Xf_pos #best.threshold
 
-            best.volume_right = volume * (Xf_pos - best.lim_inf_right[best.feature]) / (best.lim_sup_right[best.feature] - best.lim_inf_right[best.feature])
-            # ou equivalent mais + couteux: = (lim_sup_right - lim_inf_right).prod()
-            best.volume_left = volume * (Xf_pos - best.lim_inf_left[best.feature]) / (best.lim_sup_left[best.feature] - best.lim_inf_left[best.feature])
-            # ou equivalent mais + couteux: = (lim_sup_left - lim_inf_left).prod()
-
-            # best.volume_right = volume * (Xf[end-1] - Xf_pos) / (Xf[end-1] - Xf[start])
-            # best.volume_left = volume * (Xf_pos - Xf[start]) / (Xf[end-1] - Xf[start])
+            ## best.volume_right = volume * (Xf[end-1] - Xf_pos) / (Xf[end-1] - Xf[start])
+            ## best.volume_left = volume * (Xf_pos - Xf[start]) / (Xf[end-1] - Xf[start])
 
         # Reset sample mask
         if self.presort == 1:

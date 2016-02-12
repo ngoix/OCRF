@@ -19,6 +19,8 @@ from cpython cimport Py_INCREF, PyObject
 
 from libc.stdlib cimport free
 from libc.stdlib cimport realloc
+from libc.stdlib cimport malloc
+
 from libc.string cimport memcpy
 from libc.string cimport memset
 
@@ -180,7 +182,7 @@ cdef class DepthFirstTreeBuilder(TreeBuilder):
         cdef SIZE_t parent
         cdef bint is_left
 
-        cdef SIZE_t n_node_samples = splitter.n_samples
+        cdef SIZE_t n_node_samples = splitter.n_samples  #pareil que n_samples sauf que splitter a tenu compte des poids
         cdef SIZE_t n_samples = X.shape[0]
         cdef SIZE_t n_features = X.shape[1]
         #cdef DTYPE_t* X = splitter.X
@@ -201,8 +203,12 @@ cdef class DepthFirstTreeBuilder(TreeBuilder):
         cdef SIZE_t node_id
 
         cdef double threshold
-        cdef DTYPE_t* lim_inf #= <double*> malloc(n_features * sizeof(double))
-        cdef DTYPE_t* lim_sup #= <double*> malloc(n_features * sizeof(double))
+        cdef DTYPE_t* lim_inf = <DTYPE_t*> malloc(n_features * sizeof(DTYPE_t))  #il faudra faire un free() qq part
+        if not lim_inf:
+            raise MemoryError()
+        cdef DTYPE_t* lim_sup = <DTYPE_t*> malloc(n_features * sizeof(DTYPE_t))
+        if not lim_inf:
+            raise MemoryError()
         # cdef np.ndarray[ndim=n_features, dtype=DTYPE_t] lim_inf = np.zeros((n_features))
         # cdef np.ndarray[ndim=n_features, dtype=DTYPE_t] lim_sup = np.zeros((n_features))
         # cdef double* lim_inf = np.zeros((n_features))
@@ -218,6 +224,10 @@ cdef class DepthFirstTreeBuilder(TreeBuilder):
         cdef Stack stack = Stack(INITIAL_STACK_SIZE)
         cdef StackRecord stack_record
 
+        # safe_realloc(&lim_inf, n_features * sizeof(DTYPE_t))
+        # safe_realloc(&lim_sup, n_features * sizeof(DTYPE_t))
+
+        
         # push root node onto stack
         rc = stack.push(0, n_node_samples, 0, _TREE_UNDEFINED, 0, lim_inf, lim_sup,
                         1., INFINITY, 0)
@@ -250,19 +260,17 @@ cdef class DepthFirstTreeBuilder(TreeBuilder):
                            (weighted_n_node_samples < min_weight_leaf))
 
                 if first:
-                    safe_realloc(&lim_inf, n_features)# * sizeof(DTYPE_t))
-                    safe_realloc(&lim_sup, n_features)# * sizeof(DTYPE_t))
                     for j in range(n_features):
-                        lim_inf[j] = 0.
-                        lim_sup[j] = 0.
+                        lim_inf[j] = INFINITY
+                        lim_sup[j] = -INFINITY
                         for i in range(n_samples): #ou alors splitter.n_samples et pas end - start?? (idem l. 470)
                             x = XX[X_sample_stride * samples[i] + X_feature_stride * j]
                             if x < lim_inf[j]:
                                 lim_inf[j] = x
                             if x > lim_sup[j]:
                                 lim_sup[j] = x
-
-                    volume = (lim_sup - lim_inf).prod()
+                        volume *= lim_sup[j] - lim_inf[j]
+#                    volume = (lim_sup - lim_inf).prod()
                     impurity = splitter.node_impurity()
                     first = 0
 
@@ -314,7 +322,6 @@ cdef class DepthFirstTreeBuilder(TreeBuilder):
                 tree.max_depth = max_depth_seen
         if rc == -1:
             raise MemoryError()
-
 
 # Best first builder ---------------------------------------------------------- (on s'en tape pour l'instant)
 
