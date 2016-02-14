@@ -215,11 +215,11 @@ class OneClassForest(BaseBagging):
             leaves_index = tree.apply(X)
             node_indicator = tree.decision_path(X)
             n_samples_leaf[:, i] = tree.tree_.n_node_samples[leaves_index]
-            depths[:, i] = np.asarray(node_indicator.sum(axis=1)).reshape(-1) - 1
 
-        depths += _average_path_length(n_samples_leaf)
 
-        scores = 2 ** (-depths.mean(axis=1) / _average_path_length(self.max_samples_))
+            volume[:, i] = tree.tree_.volume[leaves_index]
+
+            scores = - n_samples_leaf.mean(axis=1) / volume.mean(axis=1)
 
         return scores
 
@@ -227,14 +227,15 @@ class OneClassForest(BaseBagging):
         #     leaves_index = tree.apply(X)
         #     node_indicator = tree.decision_path(X)
         #     n_samples_leaf[:, i] = tree.tree_.n_node_samples[leaves_index]
+        #     depths[:, i] = np.asarray(node_indicator.sum(axis=1)).reshape(-1) - 1
 
+        # depths += _average_path_length(n_samples_leaf)
 
-        #     volume[:, i] = tree.tree_.volume[leaves_index]
-
-        #     scores = - n_samples_leaf.mean(axis=1) / volume.mean(axis=1)
+        # scores = 2 ** (-depths.mean(axis=1) / _average_path_length(self.max_samples_))
 
         # return scores
 
+    
     def decision_function(self, X):
         """Average of the decision functions of the base classifiers.
 
@@ -254,40 +255,40 @@ class OneClassForest(BaseBagging):
         return - self.predict(X)
 
 
-def _average_path_length(n_samples_leaf):
-    """ The average path length in a n_samples iTree, which is equal to
-    the average path length of an unsuccessful BST search since the
-    latter has the same structure as an isolation tree.
-    Parameters
-    ----------
-    n_samples_leaf : array-like of shape (n_samples, n_estimators), or int.
-        The number of training samples in each test sample leaf, for
-        each estimators.
+# def _average_path_length(n_samples_leaf):
+#     """ The average path length in a n_samples iTree, which is equal to
+#     the average path length of an unsuccessful BST search since the
+#     latter has the same structure as an isolation tree.
+#     Parameters
+#     ----------
+#     n_samples_leaf : array-like of shape (n_samples, n_estimators), or int.
+#         The number of training samples in each test sample leaf, for
+#         each estimators.
     
-    Returns
-    -------
-    average_path_length : array, same shape as n_samples_leaf
+#     Returns
+#     -------
+#     average_path_length : array, same shape as n_samples_leaf
 
-    """
-    if isinstance(n_samples_leaf, six.integer_types):
-        if n_samples_leaf <= 1:
-            return 1.
-        else:
-            return 2. * (np.log(n_samples_leaf) + 0.5772156649) - 2. * (
-                n_samples_leaf - 1.) / n_samples_leaf
+#     """
+#     if isinstance(n_samples_leaf, six.integer_types):
+#         if n_samples_leaf <= 1:
+#             return 1.
+#         else:
+#             return 2. * (np.log(n_samples_leaf) + 0.5772156649) - 2. * (
+#                 n_samples_leaf - 1.) / n_samples_leaf
 
-    else:
+#     else:
 
-        n_samples_leaf_shape = n_samples_leaf.shape
-        n_samples_leaf = n_samples_leaf.reshape((1, -1))
-        average_path_length = np.zeros(n_samples_leaf.shape)
+#         n_samples_leaf_shape = n_samples_leaf.shape
+#         n_samples_leaf = n_samples_leaf.reshape((1, -1))
+#         average_path_length = np.zeros(n_samples_leaf.shape)
 
-        mask = (n_samples_leaf <= 1)
-        not_mask = np.logical_not(mask)
+#         mask = (n_samples_leaf <= 1)
+#         not_mask = np.logical_not(mask)
 
-        average_path_length[mask] = 1.
-        average_path_length[not_mask] = 2. * (
-            np.log(n_samples_leaf[not_mask]) + 0.5772156649) - 2. * (
-                n_samples_leaf[not_mask] - 1.) / n_samples_leaf[not_mask]
+#         average_path_length[mask] = 1.
+#         average_path_length[not_mask] = 2. * (
+#             np.log(n_samples_leaf[not_mask]) + 0.5772156649) - 2. * (
+#                 n_samples_leaf[not_mask] - 1.) / n_samples_leaf[not_mask]
 
-        return average_path_length.reshape(n_samples_leaf_shape)
+#         return average_path_length.reshape(n_samples_leaf_shape)

@@ -501,32 +501,37 @@ cdef class BestSplitter(BaseDenseSplitter):
             self.criterion.children_impurity(&best.impurity_left,
                                              &best.impurity_right)
 
-            Xf_pos = best.threshold #<DTYPE_t> 0.5 * Xf[best.pos-1] + 0.5 * Xf[best.pos]
-            # safe_realloc(&best.lim_inf_right, n_features)
-            # safe_realloc(&best.lim_sup_right, n_features)
-
-            # ptr = realloc(best.lim_sup_right, n_features * sizeof(DTYPE_t))
-            # best.lim_sup_right = <DTYPE_t*> ptr
-            # ptr = realloc(best.lim_inf_right, n_features * sizeof(DTYPE_t))
-            # best.lim_inf_right = <DTYPE_t*> ptr
-
-            # ptr = realloc(best.lim_sup_left, n_features * sizeof(DTYPE_t))
-            # best.lim_sup_left = <DTYPE_t*> ptr
-            # ptr = realloc(best.lim_inf_left, n_features * sizeof(DTYPE_t))
-            # best.lim_inf_left = <DTYPE_t*> ptr
+            Xf_pos = best.threshold #<DTYPE_t> 0.5 * Xf[best.pos-1] + 0.5 * Xf[best.pos] 
 
             best.volume_right = volume * (lim_sup[best.feature] - Xf_pos) / (lim_sup[best.feature] - lim_inf[best.feature])
             # ou equivalent mais + couteux: = (lim_sup_right - lim_inf_right).prod()
             best.volume_left = volume * (Xf_pos - lim_inf[best.feature]) / (lim_sup[best.feature] - lim_inf[best.feature])
             # ou equivalent mais + couteux: = (lim_sup_left - lim_inf_left).prod()
 
-            best.lim_inf_right = lim_inf
-            best.lim_inf_left = lim_inf
-            best.lim_sup_right = lim_sup
-            best.lim_sup_left = lim_sup
+            # want to do best.lim_inf_left = lim_inf but making copies:
+            ptr = realloc(best.lim_inf_left, n_features * sizeof(DTYPE_t))
+            best.lim_inf_left = <DTYPE_t*> ptr
+            ptr = realloc(best.lim_inf_right, n_features * sizeof(DTYPE_t))
+            best.lim_inf_right = <DTYPE_t*> ptr
+            ptr = realloc(best.lim_sup_left, n_features * sizeof(DTYPE_t))
+            best.lim_sup_left = <DTYPE_t*> ptr
+            ptr = realloc(best.lim_sup_right, n_features * sizeof(DTYPE_t))
+            best.lim_sup_right = <DTYPE_t*> ptr
+            
+            memcpy(best.lim_inf_left, lim_inf, sizeof(DTYPE_t) * n_features)
+            memcpy(best.lim_inf_right, lim_inf, sizeof(DTYPE_t) * n_features)
+            memcpy(best.lim_sup_right, lim_sup, sizeof(DTYPE_t) * n_features)
+            memcpy(best.lim_sup_left, lim_sup, sizeof(DTYPE_t) * n_features)
 
             best.lim_inf_right[best.feature] = Xf_pos #best.threshold
             best.lim_sup_left[best.feature] = Xf_pos #best.threshold
+
+            # best.volume_right = 1.
+            # best.volume_left = 1.
+            # for j in range(n_features):
+            #     best.volume_right *= best.lim_sup_right[j] - best.lim_inf_right[j]
+            #     best.volume_left *= best.lim_sup_left[j] - best.lim_inf_left[j]
+
 
             ## best.volume_right = volume * (Xf[end-1] - Xf_pos) / (Xf[end-1] - Xf[start])
             ## best.volume_left = volume * (Xf_pos - Xf[start]) / (Xf[end-1] - Xf[start])
