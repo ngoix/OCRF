@@ -255,40 +255,40 @@ class OneClassForest(BaseBagging):
         return - self.predict(X)
 
 
-# def _average_path_length(n_samples_leaf):
-#     """ The average path length in a n_samples iTree, which is equal to
-#     the average path length of an unsuccessful BST search since the
-#     latter has the same structure as an isolation tree.
-#     Parameters
-#     ----------
-#     n_samples_leaf : array-like of shape (n_samples, n_estimators), or int.
-#         The number of training samples in each test sample leaf, for
-#         each estimators.
+def _average_path_length(n_samples_leaf):
+    """ The average path length in a n_samples iTree, which is equal to
+    the average path length of an unsuccessful BST search since the
+    latter has the same structure as an isolation tree.
+    Parameters
+    ----------
+    n_samples_leaf : array-like of shape (n_samples, n_estimators), or int.
+        The number of training samples in each test sample leaf, for
+        each estimators.
     
-#     Returns
-#     -------
-#     average_path_length : array, same shape as n_samples_leaf
+    Returns
+    -------
+    average_path_length : array, same shape as n_samples_leaf
 
-#     """
-#     if isinstance(n_samples_leaf, six.integer_types):
-#         if n_samples_leaf <= 1:
-#             return 1.
-#         else:
-#             return 2. * (np.log(n_samples_leaf) + 0.5772156649) - 2. * (
-#                 n_samples_leaf - 1.) / n_samples_leaf
+    """
+    if isinstance(n_samples_leaf, six.integer_types):
+        if n_samples_leaf <= 1:
+            return 1.
+        else:
+            return 2. * (np.log(n_samples_leaf) + 0.5772156649) - 2. * (
+                n_samples_leaf - 1.) / n_samples_leaf
 
-#     else:
+    else:
 
-#         n_samples_leaf_shape = n_samples_leaf.shape
-#         n_samples_leaf = n_samples_leaf.reshape((1, -1))
-#         average_path_length = np.zeros(n_samples_leaf.shape)
+        n_samples_leaf_shape = n_samples_leaf.shape
+        n_samples_leaf = n_samples_leaf.reshape((1, -1))
+        average_path_length = np.zeros(n_samples_leaf.shape)
 
-#         mask = (n_samples_leaf <= 1)
-#         not_mask = np.logical_not(mask)
+        mask = (n_samples_leaf <= 1)
+        not_mask = np.logical_not(mask)
 
-#         average_path_length[mask] = 1.
-#         average_path_length[not_mask] = 2. * (
-#             np.log(n_samples_leaf[not_mask]) + 0.5772156649) - 2. * (
-#                 n_samples_leaf[not_mask] - 1.) / n_samples_leaf[not_mask]
+        average_path_length[mask] = 1.
+        average_path_length[not_mask] = 2. * (
+            np.log(n_samples_leaf[not_mask]) + 0.5772156649) - 2. * (
+                n_samples_leaf[not_mask] - 1.) / n_samples_leaf[not_mask]
 
-#         return average_path_length.reshape(n_samples_leaf_shape)
+        return average_path_length.reshape(n_samples_leaf_shape)

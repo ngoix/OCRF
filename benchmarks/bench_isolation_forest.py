@@ -20,13 +20,13 @@ from sklearn.utils import shuffle as sh
 np.random.seed(1)
 
 
-datasets = ['http', 'smtp', 'SA', 'SF', 'shuttle', 'forestcover']
+datasets = ['SF']#['http', 'smtp', 'SA', 'SF', 'shuttle', 'forestcover']
 
 for dat in datasets:
     # loading and vectorization
     print('loading data')
     if dat in ['http', 'smtp', 'SA', 'SF']:
-        dataset = fetch_kddcup99(subset=dat, shuffle=True, percent10=False)
+        dataset = fetch_kddcup99(subset=dat, shuffle=True, percent10=True)
         X = dataset.data
         y = dataset.target
 

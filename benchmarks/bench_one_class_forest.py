@@ -7,15 +7,18 @@ A test of OneClassForest on classical anomaly detection datasets.
 
 """
 print(__doc__)
+import sys
+sys.path.append('~/Bureau/OCRF')
 
 from time import time
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.ensemble import OneClassForest, IsolationForest
+from sklearn.ensemble import IsolationForest, OneClassForest
 from sklearn.metrics import roc_curve, auc
 from sklearn.datasets import fetch_kddcup99, fetch_covtype, fetch_mldata
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.utils import shuffle as sh
+
 
 np.random.seed(1)
 
@@ -87,7 +90,7 @@ for dat in datasets:
     y_test = y[n_samples_train:]
 
     print('OneClassForest processing...')
-    model = OneClassForest(n_jobs=-1)
+    model = OneClassForest()#n_jobs=-1)
     tstart = time()
     model.fit(X_train)
     fit_time = time() - tstart

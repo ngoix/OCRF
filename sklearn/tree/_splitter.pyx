@@ -508,7 +508,7 @@ cdef class BestSplitter(BaseDenseSplitter):
             best.volume_left = volume * (Xf_pos - lim_inf[best.feature]) / (lim_sup[best.feature] - lim_inf[best.feature])
             # ou equivalent mais + couteux: = (lim_sup_left - lim_inf_left).prod()
 
-            # want to do best.lim_inf_left = lim_inf but making copies:
+            # want to do best.lim_inf_left = lim_inf but making copies: (done by memcpy, but need good memory size before)
             ptr = realloc(best.lim_inf_left, n_features * sizeof(DTYPE_t))
             best.lim_inf_left = <DTYPE_t*> ptr
             ptr = realloc(best.lim_inf_right, n_features * sizeof(DTYPE_t))
@@ -517,6 +517,7 @@ cdef class BestSplitter(BaseDenseSplitter):
             best.lim_sup_left = <DTYPE_t*> ptr
             ptr = realloc(best.lim_sup_right, n_features * sizeof(DTYPE_t))
             best.lim_sup_right = <DTYPE_t*> ptr
+            #free(ptr)
             
             memcpy(best.lim_inf_left, lim_inf, sizeof(DTYPE_t) * n_features)
             memcpy(best.lim_inf_right, lim_inf, sizeof(DTYPE_t) * n_features)
@@ -535,7 +536,6 @@ cdef class BestSplitter(BaseDenseSplitter):
 
             ## best.volume_right = volume * (Xf[end-1] - Xf_pos) / (Xf[end-1] - Xf[start])
             ## best.volume_left = volume * (Xf_pos - Xf[start]) / (Xf[end-1] - Xf[start])
-
         # Reset sample mask
         if self.presort == 1:
             for p in range(start, end):
@@ -555,7 +555,14 @@ cdef class BestSplitter(BaseDenseSplitter):
         split[0] = best
         n_constant_features[0] = n_total_constants
 
+        # XXXX
+        # free(best.lim_inf_left)
+        # free(best.lim_inf_right)
+        # free(best.lim_sup_left)
+        # free(best.lim_sup_right)
 
+        
+        
 # Sort n-element arrays pointed to by Xf and samples, simultaneously,
 # by the values in Xf. Algorithm: Introsort (Musser, SP&E, 1997).
 cdef inline void sort(DTYPE_t* Xf, SIZE_t* samples, SIZE_t n) nogil:

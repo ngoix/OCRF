@@ -235,8 +235,8 @@ cdef class DepthFirstTreeBuilder(TreeBuilder):
             # got return code -1 - out-of-memory
             raise MemoryError()
 
-        #with nogil:
-        if True: # to not re-indent the following due to commenting with nogil
+        with nogil:
+        #if True: # to not re-indent the following due to commenting with nogil
             while not stack.is_empty():
                 stack.pop(&stack_record)
 
@@ -322,7 +322,14 @@ cdef class DepthFirstTreeBuilder(TreeBuilder):
                 tree.max_depth = max_depth_seen
         if rc == -1:
             raise MemoryError()
-
+        
+        # XXXX free aux arrays:
+        # free(lim_inf)
+        # free(lim_sup)
+        # free(split.lim_inf_left)
+        # free(split.lim_inf_right)
+        # free(split.lim_sup_left)
+        # free(split.lim_sup_right)
 # Best first builder ---------------------------------------------------------- (on s'en tape pour l'instant)
 
 cdef inline int _add_to_frontier(PriorityHeapRecord* rec,

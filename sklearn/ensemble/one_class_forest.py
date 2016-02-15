@@ -152,7 +152,7 @@ def _build_iforest(X, t, psi, random_state=None):
     return forest
 
 
-def _itree(X, current_level, max_level, rng, split_bool_all=None, volume=None, volume_init=None):
+def _itree(X, current_level, max_level, rng, split_bool_all=None, lim_inf=None, lim_sup=None):
     """Construct a binary tree, named isolation tree.
 
     Parameters
@@ -183,11 +183,16 @@ def _itree(X, current_level, max_level, rng, split_bool_all=None, volume=None, v
     """
     n_initial, n_features = X.shape
 
-    if volume is None:
-        volume = np.prod(np.maximum(np.max(X, axis=0) - np.min(X, axis=0), 0.001 * np.ones(n_features)))
+    if lim_inf is None:
+        lim_inf = X.min(axis=0)
+        lim_sup = X.max(axis=0)
+        volume = (lim_sup - lim_inf).prod()
+    
+    # if volume is None:
+    #     volume = np.prod(np.maximum(np.max(X, axis=0) - np.min(X, axis=0), 0.001 * np.ones(n_features)))
 
-    if volume_init is None:
-        volume_init = np.prod(np.maximum(np.max(X, axis=0) - np.min(X, axis=0), 0.001 * np.ones(n_features)))
+    # if volume_init is None:
+    #     volume_init = np.prod(np.maximum(np.max(X, axis=0) - np.min(X, axis=0), 0.001 * np.ones(n_features)))
         
     if split_bool_all is None:
         split_bool_all = np.ones((n_initial,), dtype=bool)
@@ -196,7 +201,7 @@ def _itree(X, current_level, max_level, rng, split_bool_all=None, volume=None, v
     if current_level >= max_level or n_samples <= 1:
         tree = _ExNode(n_samples)
     else:
-        gini_one_class_index = 2
+        gini = 2
         # optimize feature to split on :
         for j in range(10):
             split_feature_ = rng.randint(0, n_features)
@@ -225,24 +230,42 @@ def _itree(X, current_level, max_level, rng, split_bool_all=None, volume=None, v
                 X_left = X[split_bool_all_left_]
                 n_right = sum(split_bool_all_right_)
                 n_left = sum(split_bool_all_left_)
-                volume_left_ = volume * max((split_value_ - min_split), 0.001)
-                volume_right_ = volume * max((max_split - split_value_), 0.001)
+
+                lim_inf_left_ = np.copy(lim_inf)
+                lim_sup_left_ = np.copy(lim_inf)
+                lim_sup_left_[split_feature_] = split_value_
+
+                lim_inf_right_ = np.copy(lim_inf)
+                lim_sup_right_ = np.copy(lim_inf)
+                lim_inf_right_[split_feature_] = split_value_
+
+                volume_left_ = (lim_sup_left - lim_inf_left).prod()  # volume * max((split_value_ - min_split), 0.001)
+                volume_right_ = (lim_sup_right - lim_inf_right).prod() # volume * max((max_split - split_value_), 0.001)
                 # print n_right, n_samples, volume_right_, volume, volume_init
-                gini_one_class_index_right = 0.5 * (n_right * n_samples * volume_right_ / volume_init) / (n_right + n_samples * volume_right_ / volume_init) ** 2
-                gini_one_class_index_left = 0.5 * (n_left * n_samples * volume_left_ / volume_init) / (n_left + n_samples * volume_left_ / volume_init) ** 2
-                gini_one_class_index_ = float(n_right) / n_samples * gini_one_class_index_right  + float(n_left) / n_samples  * gini_one_class_index_left
+
+                n_leb = n_samples
+                n_leb_left_ = n_leb * volume_left_ / volume
+                n_leb_right_ = n_leb * volume_right_ / volume
                 
-                if gini_one_class_index_ < gini_one_class_index:
+                gini_left = 1.0 - (n_left * n_left + n_leb_left * n_leb_left) / ((n_left + n_leb_left)**2)
+                gini_right = 1.0 - (n_right**2 + n_leb_right**2) / ((n_right + n_leb_right)**2)
+                
+                gini_ = ((n_left + n_leb_left) * gini_left + (n_right + n_leb_right) * gini_right) / (n_samples + n_leb)
+                # gini_one_class_index_right = 0.5 * (n_right * n_samples * volume_right_ / volume_init) / (n_right + n_samples * volume_right_ / volume_init) ** 2
+                # gini_one_class_index_left = 0.5 * (n_left * n_samples * volume_left_ / volume_init) / (n_left + n_samples * volume_left_ / volume_init) ** 2
+                # gini_one_class_index_ = float(n_right) / n_samples * gini_one_class_index_right  + float(n_left) / n_samples  * gini_one_class_index_left
+
+                if gini_ < gini:
                     split_feature = split_feature_
                     split_value = split_value_
                     split_bool_all_right = split_bool_all_right_
                     split_bool_all_left = split_bool_all_left_
                     volume_right = volume_right_
                     volume_left = volume_left_
-                    gini_one_class_index = gini_one_class_index_
-
-        left = _itree(X, current_level + 1, max_level, rng, split_bool_all_left, volume=volume_right, volume_init=volume_init)
-        right = _itree(X, current_level + 1, max_level, rng, split_bool_all_right, volume=volume_right, volume_init=volume_init)
+                    gini = gini_
+                    
+        left = _itree(X, current_level + 1, max_level, rng, split_bool_all_left, lim_inf_left, lim_sup_left)
+        right = _itree(X, current_level + 1, max_level, rng, split_bool_all_right, lim_inf_right, lim_sup_right)
         tree = _InNode(split_feature, split_value, left, right)
     return tree
 
