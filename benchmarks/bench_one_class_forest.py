@@ -23,7 +23,8 @@ from sklearn.utils import shuffle as sh
 np.random.seed(1)
 
 
-datasets = ['http', 'smtp', 'SA', 'SF', 'shuttle', 'forestcover']
+datasets = ['http', 'smtp', 'SA', # 'SF',
+            'shuttle', 'forestcover']
 
 for dat in datasets:
     # loading and vectorization
@@ -90,7 +91,7 @@ for dat in datasets:
     y_test = y[n_samples_train:]
 
     print('OneClassForest processing...')
-    model = OneClassForest()#n_jobs=-1)
+    model = OneClassForest()  # n_jobs=-1)
     tstart = time()
     model.fit(X_train)
     fit_time = time() - tstart

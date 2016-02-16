@@ -352,6 +352,7 @@ cdef class BestSplitter(BaseDenseSplitter):
         cdef DTYPE_t current_feature_value
         cdef SIZE_t partition_end
         cdef void* ptr
+        cdef double volume_left, volume_right 
         
         _init_split(&best, end)
 
@@ -466,9 +467,11 @@ cdef class BestSplitter(BaseDenseSplitter):
                             if ((self.criterion.weighted_n_left < min_weight_leaf) or
                                     (self.criterion.weighted_n_right < min_weight_leaf)):
                                 continue
-
-                            current_proxy_improvement = self.criterion.proxy_impurity_improvement()
-
+                            ############
+                            volume_right = volume * (lim_sup[current.feature] - (Xf[p - 1] + Xf[p]) / 2.0) / (lim_sup[current.feature] - lim_inf[current.feature])
+                            volume_left = volume * ((Xf[p - 1] + Xf[p]) / 2.0 - lim_inf[current.feature]) / (lim_sup[current.feature] - lim_inf[current.feature])
+                            current_proxy_improvement = self.criterion.proxy_impurity_improvement(volume_left, volume_right)
+                            ############
                             if current_proxy_improvement > best_proxy_improvement:
                                 best_proxy_improvement = current_proxy_improvement
                                 current.threshold = (Xf[p - 1] + Xf[p]) / 2.0
@@ -498,8 +501,6 @@ cdef class BestSplitter(BaseDenseSplitter):
             self.criterion.reset()
             self.criterion.update(best.pos)
             best.improvement = self.criterion.impurity_improvement(impurity)
-            self.criterion.children_impurity(&best.impurity_left,
-                                             &best.impurity_right)
 
             Xf_pos = best.threshold #<DTYPE_t> 0.5 * Xf[best.pos-1] + 0.5 * Xf[best.pos] 
 
@@ -536,6 +537,11 @@ cdef class BestSplitter(BaseDenseSplitter):
 
             ## best.volume_right = volume * (Xf[end-1] - Xf_pos) / (Xf[end-1] - Xf[start])
             ## best.volume_left = volume * (Xf_pos - Xf[start]) / (Xf[end-1] - Xf[start])
+            self.criterion.children_impurity(&best.impurity_left,
+                                             &best.impurity_right,
+                                             best.volume_left,
+                                             best.volume_right)
+
         # Reset sample mask
         if self.presort == 1:
             for p in range(start, end):

@@ -85,8 +85,9 @@ def _iforest_score(X, forest):
     n_samples = X.shape[0]
     scores = np.zeros(n_samples)
     for i in range(n_samples):
-        mean_path_length = 0
+        mean_score = 0
         x = X[i, :]
+
         for tree in forest:
             path_length = 0
             while isinstance(tree, _InNode):
@@ -94,29 +95,34 @@ def _iforest_score(X, forest):
                     tree = tree.right
                 else:
                     tree = tree.left
-                path_length += 1
-            path_length += _cost(tree.size)
-            mean_path_length += path_length
-        mean_path_length /= len(forest)
-        scores[i] = np.power(2, - mean_path_length / _cost(n_samples))
+                #path_length += 1
+            volume = tree.volume
+            size = tree.size
+            mean_score += tree.size / tree.volume
+            
+            # idea: score = nombre moyen de samples/ volume moyen sur les arbres plutot que (nbre/volume) moyen
+
+            
+        mean_score /= len(forest)
+        scores[i] = -mean_score
     return scores
 
 
-def _cost(n):
-    """ The average path length in a n samples iTree, which is equal to
-        the average path length of an unsuccessful BST search since the
-        latter has the same structure as an isolation tree.
-    """
-    if n <= 1:
-        return 0.
-    else:
-        return 2. * _harmonic(n) - 2. * (n - 1.) / n
+# def _cost(n):
+#     """ The average path length in a n samples iTree, which is equal to
+#         the average path length of an unsuccessful BST search since the
+#         latter has the same structure as an isolation tree.
+#     """
+#     if n <= 1:
+#         return 0.
+#     else:
+#         return 2. * _harmonic(n) - 2. * (n - 1.) / n
 
 
-def _harmonic(n):
-    """Harmonic number
-    """
-    return np.log(n) + 0.5772156649
+# def _harmonic(n):
+#     """Harmonic number
+#     """
+#     return np.log(n) + 0.5772156649
 
 
 def _build_iforest(X, t, psi, random_state=None):
@@ -142,7 +148,7 @@ def _build_iforest(X, t, psi, random_state=None):
     """
     rng = check_random_state(random_state)
     n_samples = X.shape[0]
-    max_level = int(np.ceil(np.log2(psi)))
+    max_level = 8 #int(np.ceil(np.log2(psi)))
     forest = []
     for _ in range(t):
         sample = rng.permutation(n_samples)[:psi]
@@ -184,9 +190,11 @@ def _itree(X, current_level, max_level, rng, split_bool_all=None, lim_inf=None, 
     n_initial, n_features = X.shape
 
     if lim_inf is None:
-        lim_inf = X.min(axis=0)
-        lim_sup = X.max(axis=0)
-        volume = (lim_sup - lim_inf).prod()
+        lim_inf = X.min(axis=0) # warning: some subsamples may have zero volume before any split
+        lim_sup = X.max(axis=0) 
+    # print 'lim_inf=', lim_inf
+    # print 'lim_sup=', lim_sup
+    volume = (lim_sup - lim_inf).prod()
     
     # if volume is None:
     #     volume = np.prod(np.maximum(np.max(X, axis=0) - np.min(X, axis=0), 0.001 * np.ones(n_features)))
@@ -198,21 +206,26 @@ def _itree(X, current_level, max_level, rng, split_bool_all=None, lim_inf=None, 
         split_bool_all = np.ones((n_initial,), dtype=bool)
     n_samples = sum(split_bool_all)
 
-    if current_level >= max_level or n_samples <= 1:
-        tree = _ExNode(n_samples)
+    if current_level >= max_level or n_samples <= 1 or (X[split_bool_all] == X[split_bool_all][0]).all() or volume == 0:
+        if volume==0:
+            volume = 0.00001
+        tree = _ExNode(volume, n_samples)
     else:
-        gini = 2
         # optimize feature to split on :
-        for j in range(10):
-            split_feature_ = rng.randint(0, n_features)
+        for j in range(n_features):
+            split_feature_ = j #rng.randint(0, n_features)
             x = X[split_bool_all, split_feature_]
-            min_split = np.min(x)
-            max_split = np.max(x)
 
+            min_split = x.min()
+            max_split = x.max()
+               
             # find optimal split_value:
-
-            x_sorted = np.sort(x)
-            for i in range(20):
+            # x_sorted = np.sort(x)
+            gini = np.inf
+            for i in range(10):
+                if min_split == max_split:
+                    break  # wrong feature split
+                
                 # split_value_ = x_sorted[i]
                 split_value_ = min_split + (max_split - min_split) * rng.rand()
 
@@ -226,47 +239,56 @@ def _itree(X, current_level, max_level, rng, split_bool_all=None, lim_inf=None, 
                         split_bool_all_right_[i] = not(split_bool[cpt])
                         cpt += 1
 
-                X_right = X[split_bool_all_right_]
-                X_left = X[split_bool_all_left_]
+                # X_right = X[split_bool_all_right_]
+                # X_left = X[split_bool_all_left_]
                 n_right = sum(split_bool_all_right_)
                 n_left = sum(split_bool_all_left_)
-
+                
                 lim_inf_left_ = np.copy(lim_inf)
-                lim_sup_left_ = np.copy(lim_inf)
-                lim_sup_left_[split_feature_] = split_value_
-
                 lim_inf_right_ = np.copy(lim_inf)
-                lim_sup_right_ = np.copy(lim_inf)
+                lim_sup_left_ = np.copy(lim_sup)
+                lim_sup_right_ = np.copy(lim_sup)
+
+                if lim_sup_left_[split_feature_] <= split_value_:
+                    print 'error left'
+                if lim_inf_right_[split_feature_] >= split_value_:
+                    print 'error right'
+
+                lim_sup_left_[split_feature_] = split_value_
                 lim_inf_right_[split_feature_] = split_value_
 
-                volume_left_ = (lim_sup_left - lim_inf_left).prod()  # volume * max((split_value_ - min_split), 0.001)
-                volume_right_ = (lim_sup_right - lim_inf_right).prod() # volume * max((max_split - split_value_), 0.001)
-                # print n_right, n_samples, volume_right_, volume, volume_init
+                volume_left = (lim_sup_left_ - lim_inf_left_).prod()  # volume * max((split_value_ - min_split), 0.001)
+                volume_right = (lim_sup_right_ - lim_inf_right_).prod() # volume * max((max_split - split_value_), 0.001)
+
 
                 n_leb = n_samples
-                n_leb_left_ = n_leb * volume_left_ / volume
-                n_leb_right_ = n_leb * volume_right_ / volume
-                
-                gini_left = 1.0 - (n_left * n_left + n_leb_left * n_leb_left) / ((n_left + n_leb_left)**2)
-                gini_right = 1.0 - (n_right**2 + n_leb_right**2) / ((n_right + n_leb_right)**2)
-                
-                gini_ = ((n_left + n_leb_left) * gini_left + (n_right + n_leb_right) * gini_right) / (n_samples + n_leb)
+                n_leb_left = n_leb * volume_left / volume  # if volume > 0 else 0
+                n_leb_right = n_leb * volume_right / volume  # if volume > 0 else 0
+
+                if n_leb_right == 0 or n_leb_left == 0: # or n_right == 0 or n_left == 0:
+                    print 'error: n_leb_right or left = 0' #gini_ = np.inf
+                else:
+                    gini_left = 1.0 - (n_left**2 + n_leb_left**2) / ((n_left + n_leb_left)**2)
+                    gini_right = 1.0 - (n_right**2 + n_leb_right**2) / ((n_right + n_leb_right)**2)
+
+                    gini_ = ((n_left + n_leb_left) * gini_left + (n_right + n_leb_right) * gini_right) / (n_samples + n_leb)
                 # gini_one_class_index_right = 0.5 * (n_right * n_samples * volume_right_ / volume_init) / (n_right + n_samples * volume_right_ / volume_init) ** 2
                 # gini_one_class_index_left = 0.5 * (n_left * n_samples * volume_left_ / volume_init) / (n_left + n_samples * volume_left_ / volume_init) ** 2
                 # gini_one_class_index_ = float(n_right) / n_samples * gini_one_class_index_right  + float(n_left) / n_samples  * gini_one_class_index_left
-
+                # print gini_, gini
                 if gini_ < gini:
                     split_feature = split_feature_
                     split_value = split_value_
                     split_bool_all_right = split_bool_all_right_
                     split_bool_all_left = split_bool_all_left_
-                    volume_right = volume_right_
-                    volume_left = volume_left_
+                    lim_inf_left = lim_inf_left_
+                    lim_sup_left = lim_sup_left_
+                    lim_inf_right = lim_inf_right_
+                    lim_sup_right = lim_sup_right_
                     gini = gini_
-                    
-        left = _itree(X, current_level + 1, max_level, rng, split_bool_all_left, lim_inf_left, lim_sup_left)
-        right = _itree(X, current_level + 1, max_level, rng, split_bool_all_right, lim_inf_right, lim_sup_right)
-        tree = _InNode(split_feature, split_value, left, right)
+        left = _itree(X, current_level + 1, max_level, rng, split_bool_all_left, lim_inf=lim_inf_left, lim_sup=lim_sup_left)
+        right = _itree(X, current_level + 1, max_level, rng, split_bool_all_right, lim_inf=lim_inf_right, lim_sup=lim_sup_right)
+        tree = _InNode(split_feature, split_value, volume, left, right)
     return tree
 
 
@@ -292,12 +314,13 @@ class _InNode:
         Right descendant of the actual node. Data whose splitting feature is
         greater than the spliting value.
     """
-    def __init__(self, split_feature, split_value, left, right):
+    def __init__(self, split_feature, split_value, volume, left, right):
         self.split_feature = split_feature
         self.split_value = split_value
+        self.volume = volume
         self.left = left
         self.right = right
-
+        
     def compare(self, x):
         return x[self.split_feature] >= self.split_value
 
@@ -313,5 +336,6 @@ class _ExNode:
     size : int
        Number of data contained in this node.
     """
-    def __init__(self, size=1):
+    def __init__(self, volume, size=1):
+        self.volume = volume
         self.size = size

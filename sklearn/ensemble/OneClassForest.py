@@ -92,7 +92,7 @@ class OneClassForest(BaseBagging):
     """
 
     def __init__(self,
-                 n_estimators=1,
+                 n_estimators=100,
                  max_samples="auto",
                  max_features=1.,
                  bootstrap=False,
