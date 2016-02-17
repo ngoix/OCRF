@@ -18,6 +18,8 @@ from .bagging import BaseBagging
 from .forest import _parallel_helper
 from .base import _partition_estimators
 
+from ..metrics import roc_auc_score
+
 __all__ = ["OneClassForest"]
 
 
@@ -60,6 +62,12 @@ class OneClassForest(BaseBagging):
             - If int, then draw `max_features` features.
             - If float, then draw `max_features * X.shape[1]` features.
 
+    max_depth : int or float, optional (default="auto")
+        The max_depth of the tree.
+            - If int, then maximum depth is `max_depth`.
+            - If float, then maximum depth is  `max_depth * max_samples`.
+            - If "auto", then `max_depth = ceiling(log2 max_samples).
+
     bootstrap : boolean, optional (default=False)
         Whether samples are drawn with replacement.
 
@@ -92,9 +100,10 @@ class OneClassForest(BaseBagging):
     """
 
     def __init__(self,
-                 n_estimators=100,
-                 max_samples="auto",
-                 max_features=1.,
+                 n_estimators=10,
+                 max_samples='auto',
+                 max_features=10,
+                 max_depth='auto',
                  bootstrap=False,
                  n_jobs=1,
                  random_state=None,
@@ -114,7 +123,8 @@ class OneClassForest(BaseBagging):
             n_jobs=n_jobs,
             random_state=random_state,
             verbose=verbose)
-
+        self.max_depth = max_depth
+    
     def _set_oob_score(self, X, y):
         raise NotImplementedError("OOB score not supported by iforest")
 
@@ -170,7 +180,33 @@ class OneClassForest(BaseBagging):
             max_samples = int(self.max_samples * X.shape[0])
 
         self.max_samples_ = max_samples
-        max_depth = int(np.ceil(np.log2(max(max_samples, 2))))
+
+
+        ############## for max_depth #############
+        if isinstance(self.max_depth, six.string_types):
+            if self.max_depth == 'auto':
+                max_depth = int(np.ceil(np.log2(max(self.max_samples_, 2))))
+            else:
+                raise ValueError('max_depth (%s) is not supported. '
+                                 'Valid choices are: "auto", int or '
+                                 'float' % self.max_depth)
+
+        elif isinstance(self.max_depth, six.integer_types):
+            # ensure that max_depth is in [1, max_samples]
+            if self.max_depth > self.max_samples_:
+                warn("max_depth (%s) is greater than "
+                     "max_samples (%s). max_depth "
+                     "will be set to max_samples for estimation."
+                     % (self.max_depth, self.max_samples_))
+                max_depth = self.max_samples_
+            else:
+                max_depth = self.max_depth
+        else: # float
+            if not (0.0 < self.max_depth <=1.0):
+                raise ValueError("max_depth must be in (0, 1]")
+            max_depth = int(self.max_depth * self.max_samples_)
+        ########################################
+        
         super(OneClassForest, self)._fit(X, y, max_samples,
                                           max_depth=max_depth,
                                           sample_weight=sample_weight)
@@ -203,25 +239,30 @@ class OneClassForest(BaseBagging):
         """
         # code structure from ForestClassifier/predict_proba
         # Check data
-        X = self.estimators_[0]._validate_X_predict(X, check_input=True)
+        X = check_array(X, accept_sparse='csr')
         n_samples = X.shape[0]
 
 
         n_samples_leaf = np.zeros((n_samples, self.n_estimators), order="f")
         volume = np.zeros((n_samples, self.n_estimators), order="f")
+        scores = np.zeros((n_samples, self.n_estimators), order="f")
         depths = np.zeros((n_samples, self.n_estimators), order="f")
 
-        for i, tree in enumerate(self.estimators_):
-            leaves_index = tree.apply(X)
-            node_indicator = tree.decision_path(X)
+        for i, (tree, features) in enumerate(zip(self.estimators_,
+                                                 self.estimators_features_)):
+            leaves_index = tree.apply(X[:, features])
+            node_indicator = tree.decision_path(X[:, features])
             n_samples_leaf[:, i] = tree.tree_.n_node_samples[leaves_index]
-
-
             volume[:, i] = tree.tree_.volume[leaves_index]
-
-            scores = - n_samples_leaf.mean(axis=1) / volume.mean(axis=1)
-
-        return scores
+            #scores[:, i] = np.divide(n_samples_leaf[:, i], n_samples_leaf[:, i]) 
+        scores_av = - n_samples_leaf.mean(axis=1) / volume.mean(axis=1)
+        #scores_av = - scores.mean(axis=1)
+        print 'volume=', volume
+        print 'volume..mean(axis=1)=', volume.mean(axis=1)
+        print 'n_samples_leaf', n_samples_leaf
+        print 'n_samples_leaf.mean(axis=1)=', n_samples_leaf.mean(axis=1)
+        print 'scores_av', scores_av
+        return scores_av
 
         # for i, tree in enumerate(self.estimators_):
         #     leaves_index = tree.apply(X)
@@ -254,6 +295,10 @@ class OneClassForest(BaseBagging):
         # minus as bigger is better (here less abnormal):
         return - self.predict(X)
 
+    def score(self, X, y):  # return the auROC score
+        """XXX missing docstring"""
+        scoring = self.predict(X)
+        return roc_auc_score(y, scoring)
 
 def _average_path_length(n_samples_leaf):
     """ The average path length in a n_samples iTree, which is equal to
