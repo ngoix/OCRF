@@ -20,15 +20,15 @@ from .base import _partition_estimators
 
 from ..metrics import roc_auc_score
 
-__all__ = ["OneClassForest"]
+__all__ = ["OneClassRF"]
 
 
-class OneClassForest(BaseBagging):
+class OneClassRF(BaseBagging):
     """OneClass Forest Algorithm
 
-    Return the anomaly score of each sample using the OneClassForest algorithm
+    Return the anomaly score of each sample using the OneClassRF algorithm
 
-    The OneClassForest 'isolates' observations by randomly selecting a feature
+    The OneClassRF 'isolates' observations by randomly selecting a feature
     and then randomly selecting a split value between the maximum and minimum
     values of the selected feature.
 
@@ -102,13 +102,13 @@ class OneClassForest(BaseBagging):
     def __init__(self,
                  n_estimators=10,
                  max_samples='auto',
-                 max_features=10,
+                 max_features=1.,
                  max_depth='auto',
                  bootstrap=False,
                  n_jobs=1,
                  random_state=None,
                  verbose=0):
-        super(OneClassForest, self).__init__(
+        super(OneClassRF, self).__init__(
             base_estimator=ExtraTreeClassifier(
                 max_features=None,
                 criterion='oneclassgini',
@@ -156,6 +156,10 @@ class OneClassForest(BaseBagging):
 
         # ensure that max_sample is in [1, n_samples]:
         n_samples = X.shape[0]
+
+        # input rectangular cell kept in memory:
+        self.lim_inf = X.min(axis=0)
+        self.lim_sup = X.max(axis=0)
 
         if isinstance(self.max_samples, six.string_types):
             if self.max_samples == 'auto':
@@ -207,13 +211,13 @@ class OneClassForest(BaseBagging):
             max_depth = int(self.max_depth * self.max_samples_)
         ########################################
         
-        super(OneClassForest, self)._fit(X, y, max_samples,
+        super(OneClassRF, self)._fit(X, y, max_samples,
                                           max_depth=max_depth,
                                           sample_weight=sample_weight)
         return self
 
     def predict(self, X):
-        """Predict anomaly score of X with the OneClassForest algorithm.
+        """Predict anomaly score of X with the OneClassRF algorithm.
 
         The anomaly score of an input sample is computed as
         the mean anomaly score of the trees in the forest.
@@ -254,14 +258,20 @@ class OneClassForest(BaseBagging):
             node_indicator = tree.decision_path(X[:, features])
             n_samples_leaf[:, i] = tree.tree_.n_node_samples[leaves_index]
             volume[:, i] = tree.tree_.volume[leaves_index]
-            #scores[:, i] = np.divide(n_samples_leaf[:, i], n_samples_leaf[:, i]) 
-        scores_av = - n_samples_leaf.mean(axis=1) / volume.mean(axis=1)
-        #scores_av = - scores.mean(axis=1)
-        print 'volume=', volume
-        print 'volume..mean(axis=1)=', volume.mean(axis=1)
-        print 'n_samples_leaf', n_samples_leaf
-        print 'n_samples_leaf.mean(axis=1)=', n_samples_leaf.mean(axis=1)
-        print 'scores_av', scores_av
+            scores[:, i] = np.divide(n_samples_leaf[:, i], volume[:, i]) 
+        #scores_av = - n_samples_leaf.mean(axis=1) / volume.mean(axis=1)
+        scores_av = - scores.mean(axis=1)
+        # print 'volume=', volume
+        # print 'volume..mean(axis=1)=', volume.mean(axis=1)
+        # print 'n_samples_leaf', n_samples_leaf
+        # print 'n_samples_leaf.mean(axis=1)=', n_samples_leaf.mean(axis=1)
+        # print 'scores_av', scores_av
+
+        # one has to detect observation outside the input cell self.lim_inf/sup
+        # (otherwise, can yields very normal score for them):
+        out_index = (X > self.lim_sup).any(axis=1) + (X < self.lim_inf).any(axis=1)
+        scores_av[out_index] = scores_av.max()
+        
         return scores_av
 
         # for i, tree in enumerate(self.estimators_):

@@ -353,7 +353,9 @@ cdef class BestSplitter(BaseDenseSplitter):
         cdef SIZE_t partition_end
         cdef void* ptr
         cdef double volume_left, volume_right 
-        
+        cdef DTYPE_t n_leb_left = 0.
+        cdef DTYPE_t n_leb_right = 0.
+
         _init_split(&best, end)
 
         if self.presort == 1:
@@ -537,10 +539,14 @@ cdef class BestSplitter(BaseDenseSplitter):
 
             ## best.volume_right = volume * (Xf[end-1] - Xf_pos) / (Xf[end-1] - Xf[start])
             ## best.volume_left = volume * (Xf_pos - Xf[start]) / (Xf[end-1] - Xf[start])
+            n_leb_right = <DTYPE_t> (end - start) * best.volume_right / (best.volume_right + best.volume_left) 
+            n_leb_left = <DTYPE_t> (end - start) * best.volume_left / (best.volume_right + best.volume_left) 
             self.criterion.children_impurity(&best.impurity_left,
                                              &best.impurity_right,
                                              best.volume_left,
-                                             best.volume_right)
+                                             best.volume_right,
+                                             n_leb_left,
+                                             n_leb_right)
 
         # Reset sample mask
         if self.presort == 1:
@@ -678,7 +684,7 @@ cdef void heapsort(DTYPE_t* Xf, SIZE_t* samples, SIZE_t n) nogil:
         sift_down(Xf, samples, 0, end)
         end = end - 1
 
-
+# plus tard faire la même chose sur cette classe:
 cdef class RandomSplitter(BaseDenseSplitter):
     """Splitter for finding the best random split."""
     def __reduce__(self):
@@ -1447,7 +1453,6 @@ cdef class BestSparseSplitter(BaseSparseSplitter):
         # Return values
         split[0] = best
         n_constant_features[0] = n_total_constants
-
 
 cdef class RandomSparseSplitter(BaseSparseSplitter):
     """Splitter for finding a random split, using the sparse data."""

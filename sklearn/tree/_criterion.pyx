@@ -117,7 +117,8 @@ cdef class Criterion:
         pass
 
     cdef void children_impurity(self, double* impurity_left, double* impurity_right,
-                                double volume_left=0., double volume_right=0.) nogil:
+                                double volume_left=0., double volume_right=0.,
+                                DTYPE_t n_leb_left=0, DTYPE_t n_leb_right=0) nogil:
         """Placeholder for calculating the impurity of children.
 
         Placeholder for a method which evaluates the impurity in
@@ -460,7 +461,8 @@ cdef class ClassificationCriterion(Criterion):
         pass
 
     cdef void children_impurity(self, double* impurity_left, double* impurity_right,
-                                double volume_left=0., double volume_right=0.) nogil:
+                                double volume_left=0., double volume_right=0.,
+                                DTYPE_t n_leb_left=0, DTYPE_t n_leb_right=0) nogil:
         pass
 
     cdef void node_value(self, double* dest) nogil:
@@ -560,7 +562,8 @@ cdef class Entropy(ClassificationCriterion):
         return entropy / self.n_outputs
 
     cdef void children_impurity(self, double* impurity_left, double* impurity_right,
-                                double volume_left=0., double volume_right=0.) nogil:
+                                double volume_left=0., double volume_right=0.,
+                                DTYPE_t n_leb_left=0, DTYPE_t n_leb_right=0) nogil:
         """Evaluate the impurity in children nodes
 
         i.e. the impurity of the left child (samples[start:pos]) and the
@@ -700,7 +703,8 @@ cdef class Gini(ClassificationCriterion):
         return gini / self.n_outputs
 
     cdef void children_impurity(self, double* impurity_left, double* impurity_right,
-                                double volume_left=0., double volume_right=0.) nogil:
+                                double volume_left=0., double volume_right=0.,
+                                DTYPE_t n_leb_left=0, DTYPE_t n_leb_right=0) nogil:
         """Evaluate the impurity in children nodes
 
         i.e. the impurity of the left child (samples[start:pos]) and the
@@ -826,7 +830,8 @@ cdef class OneClassGini(ClassificationCriterion):
         return 3
 
     cdef void children_impurity(self, double* impurity_left, double* impurity_right,
-                                double volume_left=0., double volume_right=0.) nogil:
+                                double volume_left=0., double volume_right=0.,
+                                DTYPE_t n_leb_left=0, DTYPE_t n_leb_right=0) nogil:
         """Evaluate the impurity in children nodes
 
         i.e. the impurity of the left child (samples[start:pos]) and the
@@ -848,11 +853,11 @@ cdef class OneClassGini(ClassificationCriterion):
         cdef DTYPE_t* Xf = <DTYPE_t*> self.feature_values  ###XXX pb: on n'a pas acces à ça ici (plus de problem, feature_values passé en argument de criterion.init _splitter.pyx L.207)
 
         cdef DTYPE_t Xf_start = <DTYPE_t> Xf[start]
-        cdef DTYPE_t Xf_pos = <DTYPE_t> Xf[pos-1]#(Xf[pos] + Xf[pos-1]) / 2
+        cdef DTYPE_t Xf_pos = <DTYPE_t> Xf[pos-1] #(Xf[pos] + Xf[pos-1]) / 2
         cdef DTYPE_t Xf_end = <DTYPE_t> Xf[end-1]
 
-        cdef DTYPE_t n_leb_right = <DTYPE_t> (end - start) * volume_right / (volume_right + volume_left) #<DTYPE_t> (<DTYPE_t> Xf_end - <DTYPE_t> Xf_pos) / <DTYPE_t> (<DTYPE_t> Xf_end - <DTYPE_t> Xf_start)
-        cdef DTYPE_t n_leb_left = <DTYPE_t> (end - start) * volume_left / (volume_right + volume_left) #<DTYPE_t> (<DTYPE_t> Xf_pos - <DTYPE_t> Xf_start) / <DTYPE_t> (<DTYPE_t> Xf_end - <DTYPE_t> Xf_start)
+        # cdef DTYPE_t n_leb_right = <DTYPE_t> (end - start) * volume_right / (volume_right + volume_left) #<DTYPE_t> (<DTYPE_t> Xf_end - <DTYPE_t> Xf_pos) / <DTYPE_t> (<DTYPE_t> Xf_end - <DTYPE_t> Xf_start)
+        # cdef DTYPE_t n_leb_left = <DTYPE_t> (end - start) * volume_left / (volume_right + volume_left) #<DTYPE_t> (<DTYPE_t> Xf_pos - <DTYPE_t> Xf_start) / <DTYPE_t> (<DTYPE_t> Xf_end - <DTYPE_t> Xf_start)
         cdef SIZE_t* n_classes = self.n_classes
         cdef double* sum_left = self.sum_left
         cdef double* sum_right = self.sum_right
@@ -911,7 +916,7 @@ cdef class OneClassGini(ClassificationCriterion):
         cdef DTYPE_t* Xf = <DTYPE_t*> self.feature_values
 
         cdef DTYPE_t Xf_start = <DTYPE_t> Xf[start]
-        cdef DTYPE_t Xf_pos = <DTYPE_t> 0.9 * Xf[pos-1] + 0.1 * Xf[pos] #(Xf[pos] + Xf[pos-1]) / 2
+        cdef DTYPE_t Xf_pos = <DTYPE_t> (Xf[pos] + Xf[pos-1]) / 2 #0.9 * Xf[pos-1] + 0.1 * Xf[pos]
         cdef DTYPE_t Xf_end = <DTYPE_t> Xf[end-1]
 
         cdef DTYPE_t n_leb_right = <DTYPE_t> (end - start) * volume_right / (volume_left + volume_right) #<DTYPE_t> (<DTYPE_t> Xf_end - <DTYPE_t> Xf_pos) / <DTYPE_t> (<DTYPE_t> Xf_end - <DTYPE_t> Xf_start)
@@ -919,7 +924,7 @@ cdef class OneClassGini(ClassificationCriterion):
         ######################################################################################
         cdef double impurity_left
         cdef double impurity_right
-        self.children_impurity(&impurity_left, &impurity_right, volume_left, volume_right)
+        self.children_impurity(&impurity_left, &impurity_right, volume_left, volume_right, n_leb_left, n_leb_right)
 
         return (- (self.weighted_n_right + n_leb_right) * impurity_right
                 - (self.weighted_n_left + n_leb_left) * impurity_left)
@@ -1162,7 +1167,8 @@ cdef class RegressionCriterion(Criterion):
         pass
 
     cdef void children_impurity(self, double* impurity_left, double* impurity_right,
-                                double volume_left=0., double volume_right=0.) nogil:
+                                double volume_left=0., double volume_right=0.,
+                                DTYPE_t n_leb_left=0, DTYPE_t n_leb_right=0) nogil:
         pass
 
     cdef void node_value(self, double* dest) nogil:
@@ -1258,7 +1264,8 @@ cdef class MSE(RegressionCriterion):
                 proxy_impurity_right / self.weighted_n_right)
 
     cdef void children_impurity(self, double* impurity_left, double* impurity_right,
-                                double volume_left=0., double volume_right=0.) nogil:
+                                double volume_left=0., double volume_right=0.,
+                                DTYPE_t n_leb_left=0, DTYPE_t n_leb_right=0) nogil:
         """Evaluate the impurity in children nodes, i.e. the impurity of the
            left child (samples[start:pos]) and the impurity the right child
            (samples[pos:end])."""
