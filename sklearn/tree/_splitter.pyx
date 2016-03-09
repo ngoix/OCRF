@@ -544,10 +544,7 @@ cdef class BestSplitter(BaseDenseSplitter):
             self.criterion.children_impurity(&best.impurity_left,
                                              &best.impurity_right,
                                              best.volume_left,
-                                             best.volume_right,
-                                             n_leb_left,
-                                             n_leb_right)
-
+                                             best.volume_right)
         # Reset sample mask
         if self.presort == 1:
             for p in range(start, end):
@@ -884,7 +881,7 @@ cdef class RandomSplitter(BaseDenseSplitter):
             self.criterion.children_impurity(&best.impurity_left,
                                              &best.impurity_right)
 
-            Xf_pos = <DTYPE_t> 0.9 * Xf[best.pos-1] + 0.1 * Xf[best.pos]
+            Xf_pos = <DTYPE_t> 0.9 * Xf[best.pos-1] + 0.1 * Xf[best.pos] #best.threshold
             #best.lim_inf_right = lim_inf
             #best.lim_sup_left = lim_sup
             #best.lim_inf_right[best.feature] = Xf_pos #best.threshold
@@ -1667,7 +1664,7 @@ cdef class RandomSparseSplitter(BaseSparseSplitter):
             self.criterion.children_impurity(&best.impurity_left,
                                              &best.impurity_right)
 
-            Xf_pos = <DTYPE_t> 0.9 * Xf[best.pos-1] + 0.1 * Xf[best.pos]
+            Xf_pos = <DTYPE_t> 0.9 * Xf[best.pos-1] + 0.1 * Xf[best.pos] #best.threshold
             #best.lim_inf_right = lim_inf
             #best.lim_sup_left = lim_sup
             #best.lim_inf_right[best.feature] = Xf_pos #best.threshold #XXX indenter???

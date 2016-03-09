@@ -7,6 +7,8 @@ A test of OneClassRF on classical anomaly detection datasets.
 
 """
 print(__doc__)
+import sys
+sys.path.append('~/Bureau/OCRF')
 
 from time import time
 import numpy as np
@@ -19,17 +21,17 @@ from sklearn.utils import shuffle as sh
 from sklearn import grid_search
 
 
-np.random.seed(0)
+rng = np.random.RandomState(42)
 
 # ['http', 'smtp', 'SA', 'SF', 'shuttle', 'forestcover']
 # continuous datasets: http, smtp, shuttle, forescover
-datasets = ['http', 'smtp', 'forestcover'] #['http', 'smtp', 'shuttle', 'forestcover'] 
+datasets = ['shuttle']#['http', 'smtp', 'shuttle', 'forestcover'] 
 
 for dat in datasets:
     # loading and vectorization
     print('loading data')
     if dat in ['http', 'smtp', 'SA', 'SF']:
-        dataset = fetch_kddcup99(subset=dat, shuffle=True, percent10=False)
+        dataset = fetch_kddcup99(subset=dat, shuffle=True, percent10=False, random_state=rng)
         X = dataset.data
         y = dataset.target
 
@@ -37,7 +39,7 @@ for dat in datasets:
         dataset = fetch_mldata('shuttle')
         X = dataset.data
         y = dataset.target
-        sh(X, y)
+        sh(X, y, random_state=rng)
         # we remove data with label 4
         # normal data are then those of class 1
         s = (y != 4)
@@ -46,7 +48,7 @@ for dat in datasets:
         y = (y != 1).astype(int)
 
     if dat == 'forestcover':
-        dataset = fetch_covtype(shuffle=True)
+        dataset = fetch_covtype(shuffle=True, random_state=rng)
         X = dataset.data
         y = dataset.target
         # normal data are those with attribute 2
@@ -97,31 +99,31 @@ for dat in datasets:
     y_test = y[n_samples_train:]
 
     
-    ### cross-val: ####
-    #parameters = {'max_samples':[.05, .1, .2, .3], 'max_features':[2, 5, 8, 10, 15], 'n_estimators':[5, 10, 20]}   #too much parameters yields segmentation error
-    parameters = {'max_depth':['auto', 10, 100, 1000
-                           ], 'max_samples':[.05, .1, 'auto'], 'max_features':[min(10, n_features)], 'n_estimators':[20, 50]}
-    # good param: .05,10,20  (-> auc:0.977)  aussi: 0.02,10,70 aussi: max_depth=1000 et 0.5,8,70
-    model = OneClassRF()
-    clf = grid_search.GridSearchCV(model, parameters, refit=False,cv=2)
-    clf.fit(X_train, y_train)
-    print 'clf.best_params_', clf.best_params_
-    model.set_params(**clf.best_params_)
+    # ### cross-val: ####
+    # #parameters = {'max_samples':[.05, .1, .2, .3], 'max_features':[2, 5, 8, 10, 15], 'n_estimators':[5, 10, 20]}   #too much parameters yields segmentation error
+    # parameters = {'max_depth':['auto']# ['auto' , 5, 10 , 100, 1000]
+    #               , 'max_samples':[0.01, .05, .1, 'auto'], 'max_features':[min(10, n_features), 3], 'n_estimators':[20, 50]}
+    # # good param: .05,10,20  (-> auc:0.977)  aussi: 0.02,10,70 aussi: max_depth=1000 et 0.5,8,70
+    # model = OneClassRF()
+    # clf = grid_search.GridSearchCV(model, parameters, refit=False,cv=2)
+    # clf.fit(X_train, y_train)
+    # print 'clf.best_params_', clf.best_params_
+    # model.set_params(**clf.best_params_)
 
     ################### bench results:
-    #http: {'max_features': 3, 'max_samples': 'auto', 'n_estimators': 20, 'max_depth': 100} -> AUC 0.997 (alpha=1), 0.998 (alpha=0.1) (opt parameters unchanged)
-    #smtp: {'max_features': 3, 'max_samples': 0.1, 'n_estimators': 50, 'max_depth': 100} -> AUC 0.98 (alpha=1), 0.98 (alpha=0.1)
-    #forestcover: {'max_features': 10, 'max_samples': 0.05, 'n_estimators': 50, 'max_depth': 1000} ->AUC 0.966 (alpha=1.), 0.967 (alpha=0.1)
-    #shuttle: (segm error when too large max_depth): {'max_features': 9, 'max_samples': 0.1, 'n_estimators': 20, 'max_depth': 10} --> AUC 0.97
+    #http: {'max_features': 3, 'max_samples': 'auto', 'n_estimators': 50, 'max_depth': 5} -> AUC 0.998 (alpha=1), 0.998 (alpha=0.1) (opt parameters unchanged)
+    #smtp: {'max_features': 3, 'max_samples': 0.1, 'n_estimators': 20, 'max_depth': 100} -> AUC 0.981 (alpha=1), 0.98 (alpha=0.1)
+    #forestcover: {'max_features': 3, 'max_samples': 'auto', 'n_estimators': 50, 'max_depth': 100} ->AUC 0.979 (alpha=1.)
+    #shuttle: (segm error when too large max_depth): {'max_features': 3, 'max_samples': 0.1, 'n_estimators': 20, 'max_depth': 5} --> AUC 1.000
     ###################
 
     print('OneClassRF processing...')
-    #model = OneClassRF(max_depth='auto', max_samples=0.05, max_features=min(8,n_features), n_estimators=50)  # n_jobs=-1)  #commented since cross val
+    model = OneClassRF(max_depth='auto', max_samples=0.1, max_features=3, n_estimators=20, random_state=rng)  # n_jobs=-1)  #commented since cross val
     tstart = time()
 
-    # ### training only on normal data:
-    # X_train = X_train[y_train==0]
-    # y_train = y_train[y_train==0]
+    ### training only on normal data:
+    X_train = X_train[y_train==0]
+    y_train = y_train[y_train==0]
 
     model.fit(X_train)
     fit_time = time() - tstart
@@ -131,7 +133,11 @@ for dat in datasets:
     predict_time = time() - tstart
     fpr, tpr, thresholds = roc_curve(y_test, scoring)
     AUC = auc(fpr, tpr)
-    plt.plot(fpr, tpr, lw=1, label='ROC for %s (area = %0.3f, train-time: %0.2fs, test-time: %0.2fs)' % (dat, AUC, fit_time, predict_time))
+    if model.max_depth=='auto':
+        plt.plot(fpr, tpr, lw=1, label='ROC for %s (area = %0.3f, train-time: %0.2fs, test-time: %0.2fs), (%0.2f, %0.2f, %0.2f, %s)' % (dat, AUC, fit_time, predict_time, model.max_features, model.max_samples, model.n_estimators, model.max_depth))
+    else:
+        plt.plot(fpr, tpr, lw=1, label='ROC for %s (area = %0.3f, train-time: %0.2fs, test-time: %0.2fs), (%0.2f, %0.2f, %0.2f, %0.2f)' % (dat, AUC, fit_time, predict_time, model.max_features, model.max_samples, model.n_estimators, model.max_depth))
+        
 
 plt.xlim([-0.05, 1.05])
 plt.ylim([-0.05, 1.05])

@@ -151,7 +151,7 @@ class OneClassRF(BaseBagging):
             # ensemble sorts the indices.
             X.sort_indices()
 
-        rnd = check_random_state(self.random_state)
+        #rnd = check_random_state(self.random_state)
         y = np.zeros(X.shape[0])#rnd.uniform(size=X.shape[0])
 
         # ensure that max_sample is in [1, n_samples]:
@@ -258,14 +258,14 @@ class OneClassRF(BaseBagging):
             node_indicator = tree.decision_path(X[:, features])
             n_samples_leaf[:, i] = tree.tree_.n_node_samples[leaves_index]
             volume[:, i] = tree.tree_.volume[leaves_index]
-            scores[:, i] = np.divide(n_samples_leaf[:, i], volume[:, i]) 
-        #scores_av = - n_samples_leaf.mean(axis=1) / volume.mean(axis=1)
-        scores_av = - scores.mean(axis=1)
-        # print 'volume=', volume
-        # print 'volume..mean(axis=1)=', volume.mean(axis=1)
-        # print 'n_samples_leaf', n_samples_leaf
-        # print 'n_samples_leaf.mean(axis=1)=', n_samples_leaf.mean(axis=1)
-        # print 'scores_av', scores_av
+            #scores[:, i] = np.divide(n_samples_leaf[:, i], volume[:, i]) 
+        scores_av = - n_samples_leaf.mean(axis=1) / volume.mean(axis=1)
+        #scores_av = - scores.mean(axis=1)
+        print 'volume=', volume
+        print 'volume..mean(axis=1)=', volume.mean(axis=1)
+        print 'n_samples_leaf', n_samples_leaf
+        print 'n_samples_leaf.mean(axis=1)=', n_samples_leaf.mean(axis=1)
+        print 'scores_av', scores_av
 
         # one has to detect observation outside the input cell self.lim_inf/sup
         # (otherwise, can yields very normal score for them):
