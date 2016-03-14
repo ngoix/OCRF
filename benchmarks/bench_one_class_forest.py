@@ -7,8 +7,6 @@ A test of OneClassRF on classical anomaly detection datasets.
 
 """
 print(__doc__)
-import sys
-sys.path.append('~/Bureau/OCRF')
 
 from time import time
 import numpy as np
@@ -20,8 +18,8 @@ from sklearn.preprocessing import LabelBinarizer, scale
 from sklearn.utils import shuffle as sh
 from sklearn import grid_search
 
-
-rng = np.random.RandomState(42)
+np.random.seed(42)
+#rng = np.random.RandomState(42)
 
 # ['http', 'smtp', 'SA', 'SF', 'shuttle', 'forestcover']
 # continuous datasets: http, smtp, shuttle, forescover
@@ -31,7 +29,7 @@ for dat in datasets:
     # loading and vectorization
     print('loading data')
     if dat in ['http', 'smtp', 'SA', 'SF']:
-        dataset = fetch_kddcup99(subset=dat, shuffle=True, percent10=False, random_state=rng)
+        dataset = fetch_kddcup99(subset=dat, shuffle=True, percent10=False)
         X = dataset.data
         y = dataset.target
 
@@ -39,7 +37,7 @@ for dat in datasets:
         dataset = fetch_mldata('shuttle')
         X = dataset.data
         y = dataset.target
-        sh(X, y, random_state=rng)
+        sh(X, y)
         # we remove data with label 4
         # normal data are then those of class 1
         s = (y != 4)
@@ -48,7 +46,7 @@ for dat in datasets:
         y = (y != 1).astype(int)
 
     if dat == 'forestcover':
-        dataset = fetch_covtype(shuffle=True, random_state=rng)
+        dataset = fetch_covtype(shuffle=True)
         X = dataset.data
         y = dataset.target
         # normal data are those with attribute 2
@@ -118,7 +116,7 @@ for dat in datasets:
     ###################
 
     print('OneClassRF processing...')
-    model = OneClassRF(max_depth='auto', max_samples=0.1, max_features=3, n_estimators=20, random_state=rng)  # n_jobs=-1)  #commented since cross val
+    model = OneClassRF(max_depth='auto', max_samples=0.1, max_features=3, n_estimators=20)  # n_jobs=-1)  #commented since cross val
     tstart = time()
 
     ### training only on normal data:
