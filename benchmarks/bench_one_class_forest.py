@@ -14,18 +14,18 @@ from time import time
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.ensemble import IsolationForest, OneClassRF
-from sklearn.metrics import roc_curve, auc
+from sklearn.metrics import roc_curve, precision_recall_curve, auc
 from sklearn.datasets import fetch_kddcup99, fetch_covtype, fetch_mldata
 from sklearn.preprocessing import LabelBinarizer, scale
 from sklearn.utils import shuffle as sh
 from sklearn import grid_search
 
 
-rng = np.random.RandomState(42)
+rng = np.random.RandomState(41)
 
 # ['http', 'smtp', 'SA', 'SF', 'shuttle', 'forestcover']
 # continuous datasets: http, smtp, shuttle, forescover
-datasets = ['shuttle']#['http', 'smtp', 'shuttle', 'forestcover'] 
+datasets = ['shuttle', 'forestcover']#['http', 'smtp', 'shuttle', 'forestcover'] 
 
 for dat in datasets:
     # loading and vectorization
@@ -131,18 +131,30 @@ for dat in datasets:
 
     scoring = model.predict(X_test)  # the lower, the more normal
     predict_time = time() - tstart
-    fpr, tpr, thresholds = roc_curve(y_test, scoring)
+    fpr, tpr = roc_curve(y_test, scoring)[:2]
     AUC = auc(fpr, tpr)
+    precision, recall = precision_recall_curve(y_test, scoring)[:2]
+    PR = auc(recall, precision)
+    plt.subplot(121)
     if model.max_depth=='auto':
         plt.plot(fpr, tpr, lw=1, label='ROC for %s (area = %0.3f, train-time: %0.2fs, test-time: %0.2fs), (%0.2f, %0.2f, %0.2f, %s)' % (dat, AUC, fit_time, predict_time, model.max_features, model.max_samples, model.n_estimators, model.max_depth))
     else:
         plt.plot(fpr, tpr, lw=1, label='ROC for %s (area = %0.3f, train-time: %0.2fs, test-time: %0.2fs), (%0.2f, %0.2f, %0.2f, %0.2f)' % (dat, AUC, fit_time, predict_time, model.max_features, model.max_samples, model.n_estimators, model.max_depth))
         
+    plt.xlim([-0.05, 1.05])
+    plt.ylim([-0.05, 1.05])
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('Receiver operating characteristic')
+    plt.legend(loc="lower right")
 
-plt.xlim([-0.05, 1.05])
-plt.ylim([-0.05, 1.05])
-plt.xlabel('False Positive Rate')
-plt.ylabel('True Positive Rate')
-plt.title('Receiver operating characteristic')
-plt.legend(loc="lower right")
+    plt.subplot(122)
+    plt.plot(recall, precision, lw=1, label='PR for %s (area = %0.3f)' % (dat, PR))
+    plt.xlim([-0.05, 1.05])
+    plt.ylim([-0.05, 1.05])
+    plt.xlabel('Recall')
+    plt.ylabel('Precision')
+    plt.title('Precision-Recall curve')
+    plt.legend(loc="lower right")
+
 plt.show()
