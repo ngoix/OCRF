@@ -65,7 +65,7 @@ TREE_UNDEFINED = -2
 cdef SIZE_t _TREE_LEAF = TREE_LEAF
 cdef SIZE_t _TREE_UNDEFINED = TREE_UNDEFINED
 cdef SIZE_t INITIAL_STACK_SIZE = 10
-cdef DTYPE_t MIN_IMPURITY_SPLIT = 0#1e-7  il n'y a pas de vraie one class impurity, seulement un proxy donc la fonction calculant l'impurity des noeuds fait n'importe quoi, et on ne veut s'arreter de splitter
+cdef DTYPE_t MIN_IMPURITY_SPLIT = -1#1e-7  il n'y a pas de vraie one class impurity, seulement un proxy donc la fonction calculant l'impurity des noeuds fait n'importe quoi, et on ne veut s'arreter de splitter
 
 # Repeat struct definition for numpy
 NODE_DTYPE = np.dtype({

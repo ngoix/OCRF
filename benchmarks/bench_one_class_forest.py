@@ -21,11 +21,11 @@ from sklearn.utils import shuffle as sh
 from sklearn import grid_search
 
 
-rng = np.random.RandomState(41)
+rng = np.random.RandomState(42)
 
 # ['http', 'smtp', 'SA', 'SF', 'shuttle', 'forestcover']
 # continuous datasets: http, smtp, shuttle, forescover
-datasets = ['shuttle', 'forestcover']#['http', 'smtp', 'shuttle', 'forestcover'] 
+datasets = ['shuttle']#['http', 'smtp', 'shuttle', 'forestcover'] 
 
 for dat in datasets:
     # loading and vectorization
