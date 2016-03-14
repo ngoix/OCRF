@@ -504,6 +504,7 @@ cdef class BestSplitter(BaseDenseSplitter):
             self.criterion.update(best.pos)
             best.improvement = self.criterion.impurity_improvement(impurity)
 
+            ###############################################################################
             Xf_pos = best.threshold #<DTYPE_t> 0.5 * Xf[best.pos-1] + 0.5 * Xf[best.pos] 
 
             best.volume_right = volume * (lim_sup[best.feature] - Xf_pos) / (lim_sup[best.feature] - lim_inf[best.feature])
@@ -545,6 +546,7 @@ cdef class BestSplitter(BaseDenseSplitter):
                                              &best.impurity_right,
                                              best.volume_left,
                                              best.volume_right)
+        ############################################################################
         # Reset sample mask
         if self.presort == 1:
             for p in range(start, end):
@@ -706,6 +708,7 @@ cdef class RandomSplitter(BaseDenseSplitter):
 
         cdef DTYPE_t* X = self.X
         cdef DTYPE_t* Xf = self.feature_values
+        cdef DTYPE_t Xf_pos
         cdef SIZE_t X_sample_stride = self.X_sample_stride
         cdef SIZE_t X_feature_stride = self.X_feature_stride
         cdef SIZE_t max_features = self.max_features
@@ -734,6 +737,10 @@ cdef class RandomSplitter(BaseDenseSplitter):
         cdef DTYPE_t max_feature_value
         cdef DTYPE_t current_feature_value
         cdef SIZE_t partition_end
+        cdef void* ptr
+        cdef double volume_left, volume_right 
+        cdef DTYPE_t n_leb_left = 0.
+        cdef DTYPE_t n_leb_right = 0.
 
         _init_split(&best, end)
 
@@ -849,8 +856,11 @@ cdef class RandomSplitter(BaseDenseSplitter):
                     if ((self.criterion.weighted_n_left < min_weight_leaf) or
                             (self.criterion.weighted_n_right < min_weight_leaf)):
                         continue
-
-                    current_proxy_improvement = self.criterion.proxy_impurity_improvement()
+                    ############
+                    volume_right = volume * (lim_sup[current.feature] - (Xf[p - 1] + Xf[p]) / 2.0) / (lim_sup[current.feature] - lim_inf[current.feature])
+                    volume_left = volume * ((Xf[p - 1] + Xf[p]) / 2.0 - lim_inf[current.feature]) / (lim_sup[current.feature] - lim_inf[current.feature])
+                    current_proxy_improvement = self.criterion.proxy_impurity_improvement(volume_left, volume_right)
+                    ############
 
                     if current_proxy_improvement > best_proxy_improvement:
                         best_proxy_improvement = current_proxy_improvement
@@ -878,8 +888,49 @@ cdef class RandomSplitter(BaseDenseSplitter):
             self.criterion.reset()
             self.criterion.update(best.pos)
             best.improvement = self.criterion.impurity_improvement(impurity)
+            ###############################################################################
+            Xf_pos = best.threshold #<DTYPE_t> 0.5 * Xf[best.pos-1] + 0.5 * Xf[best.pos] 
+
+            best.volume_right = volume * (lim_sup[best.feature] - Xf_pos) / (lim_sup[best.feature] - lim_inf[best.feature])
+            # ou equivalent mais + couteux: = (lim_sup_right - lim_inf_right).prod()
+            best.volume_left = volume * (Xf_pos - lim_inf[best.feature]) / (lim_sup[best.feature] - lim_inf[best.feature])
+            # ou equivalent mais + couteux: = (lim_sup_left - lim_inf_left).prod()
+
+            # want to do best.lim_inf_left = lim_inf but making copies: (done by memcpy, but need good memory size before)
+            ptr = realloc(best.lim_inf_left, n_features * sizeof(DTYPE_t))
+            best.lim_inf_left = <DTYPE_t*> ptr
+            ptr = realloc(best.lim_inf_right, n_features * sizeof(DTYPE_t))
+            best.lim_inf_right = <DTYPE_t*> ptr
+            ptr = realloc(best.lim_sup_left, n_features * sizeof(DTYPE_t))
+            best.lim_sup_left = <DTYPE_t*> ptr
+            ptr = realloc(best.lim_sup_right, n_features * sizeof(DTYPE_t))
+            best.lim_sup_right = <DTYPE_t*> ptr
+            #free(ptr)
+            
+            memcpy(best.lim_inf_left, lim_inf, sizeof(DTYPE_t) * n_features)
+            memcpy(best.lim_inf_right, lim_inf, sizeof(DTYPE_t) * n_features)
+            memcpy(best.lim_sup_right, lim_sup, sizeof(DTYPE_t) * n_features)
+            memcpy(best.lim_sup_left, lim_sup, sizeof(DTYPE_t) * n_features)
+
+            best.lim_inf_right[best.feature] = Xf_pos #best.threshold
+            best.lim_sup_left[best.feature] = Xf_pos #best.threshold
+
+            # best.volume_right = 1.
+            # best.volume_left = 1.
+            # for j in range(n_features):
+            #     best.volume_right *= best.lim_sup_right[j] - best.lim_inf_right[j]
+            #     best.volume_left *= best.lim_sup_left[j] - best.lim_inf_left[j]
+
+
+            ## best.volume_right = volume * (Xf[end-1] - Xf_pos) / (Xf[end-1] - Xf[start])
+            ## best.volume_left = volume * (Xf_pos - Xf[start]) / (Xf[end-1] - Xf[start])
+            n_leb_right = <DTYPE_t> (end - start) * best.volume_right / (best.volume_right + best.volume_left) 
+            n_leb_left = <DTYPE_t> (end - start) * best.volume_left / (best.volume_right + best.volume_left) 
             self.criterion.children_impurity(&best.impurity_left,
-                                             &best.impurity_right)
+                                             &best.impurity_right,
+                                             best.volume_left,
+                                             best.volume_right)
+        ############################################################################
 
             Xf_pos = <DTYPE_t> 0.9 * Xf[best.pos-1] + 0.1 * Xf[best.pos] #best.threshold
             #best.lim_inf_right = lim_inf
