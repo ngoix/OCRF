@@ -1,9 +1,9 @@
 """
 ==========================================
-LocalOutlierFactor benchmark
+OneClassSVM benchmark
 ==========================================
 
-A test of LocalOutlierFactor on classical anomaly detection datasets.
+A test of OneClassSVM on classical anomaly detection datasets.
 
 """
 print(__doc__)
@@ -11,10 +11,9 @@ print(__doc__)
 from time import time
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.neighbors import LocalOutlierFactor
+from sklearn.svm import OneClassSVM
 from sklearn.metrics import roc_curve, auc
 from sklearn.datasets import fetch_kddcup99, fetch_covtype, fetch_mldata
-from sklearn.datasets import fetch_spambase, fetch_annthyroid, fetch_arrhythmia
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.utils import shuffle as sh
 from scipy.interpolate import interp1d
@@ -23,43 +22,27 @@ np.random.seed(1)
 
 nb_exp = 2
 
+# TODO: CV for OCSVM!
+
+
 # datasets available: ['http', 'smtp', 'SA', 'SF', 'shuttle', 'forestcover']
-datasets = ['arrhythmia']  # ['http', 'smtp', 'shuttle', 'forestcover', 'ionosphere', 'spambase', 'annthyroid']
+datasets = ['ionosphere'] #['http', 'smtp', 'shuttle', 'forestcover', 'ionosphere']
 
 for dat in datasets:
     # loading and vectorization
     print('loading data')
 
-    if dat == 'arrhythmia':
-        dataset = fetch_arrhythmia(shuffle=True)
-        X = dataset.data
-        y = dataset.target
-        # rm 14th feature wich is '?':
-        X = np.delete(X, [10, 11, 12, 13, 14], axis=1)
-        y = (y != 1).astype(int)
-        # normal data are then those of class 1
-
-    if dat == 'annthyroid':
-        dataset = fetch_annthyroid(shuffle=True)
-        X = dataset.data
-        y = dataset.target
-        y = (y != 3).astype(int)
-        # normal data are then those of class 3
-
-    if dat == 'spambase':
-        dataset = fetch_spambase(shuffle=True)
-        X = dataset.data
-        y = dataset.target
-
     if dat == 'ionosphere':
         dataset = fetch_mldata('ionosphere')
         X = dataset.data
         y = dataset.target
-        X, y = sh(X, y)
+        sh(X, y)
+        # we remove data with label 4
+        # normal data are then those of class 1
         y = (y != 1).astype(int)
 
     if dat in ['http', 'smtp', 'SA', 'SF']:
-        dataset = fetch_kddcup99(subset=dat, shuffle=True, percent10=False)
+        dataset = fetch_kddcup99(subset=dat, shuffle=True, percent10=True)
         X = dataset.data
         y = dataset.target
 
@@ -136,8 +119,8 @@ for dat in datasets:
         X_train = X_train[y_train == 0]
         y_train = y_train[y_train == 0]
 
-        print('LocalOutlierFactor processing...')
-        model = LocalOutlierFactor(n_neighbors=20)
+        print('OneClassSVM processing...')
+        model = OneClassSVM()
         tstart = time()
         model.fit(X_train)
         fit_time += time() - tstart
@@ -161,6 +144,6 @@ plt.xlim([-0.05, 1.05])
 plt.ylim([-0.05, 1.05])
 plt.xlabel('False Positive Rate')
 plt.ylabel('True Positive Rate')
-plt.title('Receiver operating characteristic for LocalOutlierFactor')
+plt.title('Receiver operating characteristic for OneClassSVM')
 plt.legend(loc="lower right")
 plt.show()

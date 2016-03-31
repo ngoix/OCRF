@@ -6,28 +6,65 @@ OneClassRF benchmark
 A test of OneClassRF on classical anomaly detection datasets.
 
 """
+import pdb
 print(__doc__)
 
 from time import time
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.ensemble import IsolationForest, OneClassRF
+from sklearn.ensemble import OneClassRF
 from sklearn.metrics import roc_curve, precision_recall_curve, auc
 from sklearn.datasets import fetch_kddcup99, fetch_covtype, fetch_mldata
+from sklearn.datasets import fetch_spambase, fetch_annthyroid, fetch_arrhythmia
 from sklearn.preprocessing import LabelBinarizer, scale
 from sklearn.utils import shuffle as sh
-from sklearn import grid_search
 
 np.random.seed(42)
-#rng = np.random.RandomState(42)
+
+# TODO: find good default parameters for every datasets
+# TODO: make an average of ROC curves over 10 experiments
+# TODO: idem in bench_lof, bench_isolation_forest (to be launch from master)
+#       bench_ocsvm (to be created), bench_ocrf (to be created)
+
+# rng = np.random.RandomState(42)
 
 # ['http', 'smtp', 'SA', 'SF', 'shuttle', 'forestcover']
 # continuous datasets: http, smtp, shuttle, forescover
-datasets = ['shuttle']#['http', 'smtp', 'shuttle', 'forestcover'] 
+datasets = ['arrhythmia']  # ['http', 'smtp', 'shuttle', 'forestcover', 'ionosphere', 'spambase', 'annthyroid']
 
 for dat in datasets:
     # loading and vectorization
     print('loading data')
+
+    if dat == 'arrhythmia':
+        dataset = fetch_arrhythmia(shuffle=True)
+        X = dataset.data
+        y = dataset.target
+        # rm 14th feature wich is '?':
+        X = np.delete(X, [10, 11, 12, 13, 14], axis=1)
+        y = (y != 1).astype(int)
+        # normal data are then those of class 1
+        pdb.set_trace()
+
+    if dat == 'annthyroid':
+        dataset = fetch_annthyroid(shuffle=True)
+        X = dataset.data
+        y = dataset.target
+        y = (y != 3).astype(int)
+        # normal data are then those of class 3
+
+    if dat == 'spambase':
+        dataset = fetch_spambase(shuffle=True)
+        X = dataset.data
+        y = dataset.target
+
+    if dat == 'ionosphere':
+        dataset = fetch_mldata('ionosphere')
+        X = dataset.data
+        y = dataset.target
+        X, y = sh(X, y)
+        y = (y != 1).astype(int)
+
     if dat in ['http', 'smtp', 'SA', 'SF']:
         dataset = fetch_kddcup99(subset=dat, shuffle=True, percent10=False)
         X = dataset.data
@@ -37,7 +74,7 @@ for dat in datasets:
         dataset = fetch_mldata('shuttle')
         X = dataset.data
         y = dataset.target
-        sh(X, y)
+        X, y = sh(X, y)
         # we remove data with label 4
         # normal data are then those of class 1
         s = (y != 4)
@@ -80,13 +117,13 @@ for dat in datasets:
         y = (y != 'normal.').astype(int)
 
     n_samples, n_features = np.shape(X)
-    n_samples_train =  n_samples // 2
+    n_samples_train = n_samples // 2
     n_samples_test = n_samples - n_samples_train
 
     X = X.astype(float)
     X = scale(X)
     # remove useless features:
-    useless_features = (X.max(axis=0) - X.min(axis=0))==0
+    useless_features = (X.max(axis=0) - X.min(axis=0)) == 0
     for j in reversed(range(n_features)):
         if useless_features[j]:
             X = np.delete(X, (j), axis=1)
@@ -96,7 +133,6 @@ for dat in datasets:
     y_train = y[:n_samples_train]
     y_test = y[n_samples_train:]
 
-    
     # ### cross-val: ####
     # #parameters = {'max_samples':[.05, .1, .2, .3], 'max_features':[2, 5, 8, 10, 15], 'n_estimators':[5, 10, 20]}   #too much parameters yields segmentation error
     # parameters = {'max_depth':['auto']# ['auto' , 5, 10 , 100, 1000]
@@ -116,12 +152,14 @@ for dat in datasets:
     ###################
 
     print('OneClassRF processing...')
-    model = OneClassRF(max_depth='auto', max_samples=0.1, max_features=3, n_estimators=20)  # n_jobs=-1)  #commented since cross val
+    # comment the following line if CV is performed above
+    model = OneClassRF(max_depth='auto', max_samples=0.1, max_features=3,
+                       n_estimators=20)  # n_jobs=-1)
     tstart = time()
 
-    ### training only on normal data:
-    X_train = X_train[y_train==0]
-    y_train = y_train[y_train==0]
+    # training only on normal data:
+    X_train = X_train[y_train == 0]
+    y_train = y_train[y_train == 0]
 
     model.fit(X_train)
     fit_time = time() - tstart
@@ -134,11 +172,11 @@ for dat in datasets:
     precision, recall = precision_recall_curve(y_test, scoring)[:2]
     PR = auc(recall, precision)
     plt.subplot(121)
-    if model.max_depth=='auto':
+    if model.max_depth == 'auto':
         plt.plot(fpr, tpr, lw=1, label='ROC for %s (area = %0.3f, train-time: %0.2fs, test-time: %0.2fs), (%0.2f, %0.2f, %0.2f, %s)' % (dat, AUC, fit_time, predict_time, model.max_features, model.max_samples, model.n_estimators, model.max_depth))
     else:
         plt.plot(fpr, tpr, lw=1, label='ROC for %s (area = %0.3f, train-time: %0.2fs, test-time: %0.2fs), (%0.2f, %0.2f, %0.2f, %0.2f)' % (dat, AUC, fit_time, predict_time, model.max_features, model.max_samples, model.n_estimators, model.max_depth))
-        
+
     plt.xlim([-0.05, 1.05])
     plt.ylim([-0.05, 1.05])
     plt.xlabel('False Positive Rate')
@@ -147,7 +185,8 @@ for dat in datasets:
     plt.legend(loc="lower right")
 
     plt.subplot(122)
-    plt.plot(recall, precision, lw=1, label='PR for %s (area = %0.3f)' % (dat, PR))
+    plt.plot(recall, precision, lw=1, label='PR for %s (area = %0.3f)'
+             % (dat, PR))
     plt.xlim([-0.05, 1.05])
     plt.ylim([-0.05, 1.05])
     plt.xlabel('Recall')
