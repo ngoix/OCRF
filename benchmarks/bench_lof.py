@@ -34,7 +34,7 @@ for dat in datasets:
         dataset = fetch_arrhythmia(shuffle=True)
         X = dataset.data
         y = dataset.target
-        # rm 14th feature wich is '?':
+        # rm 5 features containing some '?' (XXX to be mentionned in paper)
         X = np.delete(X, [10, 11, 12, 13, 14], axis=1)
         y = (y != 1).astype(int)
         # normal data are then those of class 1

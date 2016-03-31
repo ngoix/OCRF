@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 from sklearn.svm import OneClassSVM
 from sklearn.metrics import roc_curve, auc
 from sklearn.datasets import fetch_kddcup99, fetch_covtype, fetch_mldata
+from sklearn.datasets import fetch_spambase, fetch_annthyroid, fetch_arrhythmia
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.utils import shuffle as sh
 from scipy.interpolate import interp1d
@@ -26,19 +27,38 @@ nb_exp = 2
 
 
 # datasets available: ['http', 'smtp', 'SA', 'SF', 'shuttle', 'forestcover']
-datasets = ['ionosphere'] #['http', 'smtp', 'shuttle', 'forestcover', 'ionosphere']
+datasets = ['arrhythmia']  # ['http', 'smtp', 'shuttle', 'forestcover', 'ionosphere', 'spambase', 'annthyroid']
 
 for dat in datasets:
     # loading and vectorization
     print('loading data')
 
+    if dat == 'arrhythmia':
+        dataset = fetch_arrhythmia(shuffle=True)
+        X = dataset.data
+        y = dataset.target
+        # rm 5 features containing some '?' (XXX to be mentionned in paper)
+        X = np.delete(X, [10, 11, 12, 13, 14], axis=1)
+        y = (y != 1).astype(int)
+        # normal data are then those of class 1
+
+    if dat == 'annthyroid':
+        dataset = fetch_annthyroid(shuffle=True)
+        X = dataset.data
+        y = dataset.target
+        y = (y != 3).astype(int)
+        # normal data are then those of class 3
+
+    if dat == 'spambase':
+        dataset = fetch_spambase(shuffle=True)
+        X = dataset.data
+        y = dataset.target
+
     if dat == 'ionosphere':
         dataset = fetch_mldata('ionosphere')
         X = dataset.data
         y = dataset.target
-        sh(X, y)
-        # we remove data with label 4
-        # normal data are then those of class 1
+        X, y = sh(X, y)
         y = (y != 1).astype(int)
 
     if dat in ['http', 'smtp', 'SA', 'SF']:
