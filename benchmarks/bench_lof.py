@@ -12,9 +12,11 @@ from time import time
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.neighbors import LocalOutlierFactor
-from sklearn.metrics import roc_curve, auc
+from sklearn.metrics import roc_curve, precision_recall_curve, auc
 from sklearn.datasets import fetch_kddcup99, fetch_covtype, fetch_mldata
 from sklearn.datasets import fetch_spambase, fetch_annthyroid, fetch_arrhythmia
+from sklearn.datasets import fetch_pendigits, fetch_pima, fetch_wilt
+from sklearn.datasets import fetch_internet_ads
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.utils import shuffle as sh
 from scipy.interpolate import interp1d
@@ -23,12 +25,50 @@ np.random.seed(1)
 
 nb_exp = 2
 
-# datasets available: ['http', 'smtp', 'SA', 'SF', 'shuttle', 'forestcover']
-datasets = ['arrhythmia']  # ['http', 'smtp', 'shuttle', 'forestcover', 'ionosphere', 'spambase', 'annthyroid']
+# TODO: CV for OCSVM!
+
+
+# # datasets available:
+# datasets = ['http', 'smtp', 'SA', 'SF', 'shuttle', 'forestcover',
+#             'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
+#             'pendigits', 'pima', 'wilt', 'internet_ads']
+
+# # continuous datasets:
+# datasets = ['http', 'smtp', 'shuttle', 'forestcover',
+#             'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
+#             'pendigits', 'pima', 'wilt']
+
+datasets = ['ionosphere', 'spambase', 'annthyroid', 'arrhythmia', 'pendigits',
+            'pima', 'wilt']
 
 for dat in datasets:
     # loading and vectorization
     print('loading data')
+
+    if dat == 'internet_ads':  # not adapted to oneclassrf
+        dataset = fetch_internet_ads(shuffle=True)
+        X = dataset.data
+        y = dataset.target
+        y = (y == 'ad.').astype(int)
+
+    if dat == 'wilt':
+        dataset = fetch_wilt(shuffle=True)
+        X = dataset.data
+        y = dataset.target
+        y = (y == 'w').astype(int)
+
+    if dat == 'pima':
+        dataset = fetch_pima(shuffle=True)
+        X = dataset.data
+        y = dataset.target
+        # anomalies = class 4
+
+    if dat == 'pendigits':
+        dataset = fetch_pendigits(shuffle=True)
+        X = dataset.data
+        y = dataset.target
+        y = (y == 4).astype(int)
+        # anomalies = class 4
 
     if dat == 'arrhythmia':
         dataset = fetch_arrhythmia(shuffle=True)
@@ -59,7 +99,7 @@ for dat in datasets:
         y = (y != 1).astype(int)
 
     if dat in ['http', 'smtp', 'SA', 'SF']:
-        dataset = fetch_kddcup99(subset=dat, shuffle=True, percent10=False)
+        dataset = fetch_kddcup99(subset=dat, shuffle=True, percent10=True)
         X = dataset.data
         y = dataset.target
 
@@ -117,6 +157,7 @@ for dat in datasets:
     n_axis = 1000
     x_axis = np.linspace(0, 1, n_axis)
     tpr = np.zeros(n_axis)
+    precision = np.zeros(n_axis)
     fit_time = 0
     predict_time = 0
 
@@ -151,16 +192,36 @@ for dat in datasets:
         tpr += f(x_axis)
         tpr[0] = 0.
 
+        precision_, recall_ = precision_recall_curve(y_test, scoring)[:2]
+        f = interp1d(recall_, precision_)
+        precision += f(x_axis)
+
     tpr /= float(nb_exp)
     fit_time /= float(nb_exp)
     predict_time /= float(nb_exp)
     AUC = auc(x_axis, tpr)
+    precision /= float(nb_exp)
+    precision[0] = 1.
+    AUPR = auc(x_axis, precision)
+
+    plt.subplot(121)
     plt.plot(x_axis, tpr, lw=1, label='ROC for %s (area = %0.3f, train-time: %0.2fs, test-time: %0.2fs)' % (dat, AUC, fit_time, predict_time))
 
-plt.xlim([-0.05, 1.05])
-plt.ylim([-0.05, 1.05])
-plt.xlabel('False Positive Rate')
-plt.ylabel('True Positive Rate')
-plt.title('Receiver operating characteristic for LocalOutlierFactor')
-plt.legend(loc="lower right")
+    plt.xlim([-0.05, 1.05])
+    plt.ylim([-0.05, 1.05])
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('Receiver operating characteristic for LocalOutlierFactor')
+    plt.legend(loc="lower right")
+
+    plt.subplot(122)
+    plt.plot(x_axis, precision, lw=1, label='AUPR for %s (area = %0.3f)'
+             % (dat, AUPR))
+    plt.xlim([-0.05, 1.05])
+    plt.ylim([-0.05, 1.05])
+    plt.xlabel('Recall')
+    plt.ylabel('Precision')
+    plt.title('Precision-Recall curve')
+    plt.legend(loc="lower right")
+
 plt.show()

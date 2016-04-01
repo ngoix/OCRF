@@ -2,21 +2,16 @@
 # License: BSD 3 clause
 
 from __future__ import division
-
-import numbers
 import numpy as np
 from warnings import warn
 
 from scipy.sparse import issparse
 
 from ..externals import six
-from ..externals.joblib import Parallel, delayed
 from ..tree import ExtraTreeClassifier
-from ..utils import check_random_state, check_array
+from ..utils import check_array
 
 from .bagging import BaseBagging
-from .forest import _parallel_helper
-from .base import _partition_estimators
 
 from ..metrics import roc_auc_score
 
@@ -124,7 +119,7 @@ class OneClassRF(BaseBagging):
             random_state=random_state,
             verbose=verbose)
         self.max_depth = max_depth
-    
+
     def _set_oob_score(self, X, y):
         raise NotImplementedError("OOB score not supported by iforest")
 
@@ -151,8 +146,8 @@ class OneClassRF(BaseBagging):
             # ensemble sorts the indices.
             X.sort_indices()
 
-        #rnd = check_random_state(self.random_state)
-        y = np.zeros(X.shape[0])#rnd.uniform(size=X.shape[0])
+        # rnd = check_random_state(self.random_state)
+        y = np.zeros(X.shape[0])  # rnd.uniform(size=X.shape[0])
 
         # ensure that max_sample is in [1, n_samples]:
         n_samples = X.shape[0]
@@ -178,15 +173,14 @@ class OneClassRF(BaseBagging):
                 max_samples = n_samples
             else:
                 max_samples = self.max_samples
-        else: # float
+        else:  # float
             if not (0. < self.max_samples <= 1.):
                 raise ValueError("max_samples must be in (0, 1]")
-            max_samples = int(self.max_samples * X.shape[0])
+            max_samples = max(int(self.max_samples * X.shape[0]), 1)
 
         self.max_samples_ = max_samples
 
-
-        ############## for max_depth #############
+        # ############# for max_depth #############
         if isinstance(self.max_depth, six.string_types):
             if self.max_depth == 'auto':
                 max_depth = int(np.ceil(np.log2(max(self.max_samples_, 2))))
@@ -205,15 +199,14 @@ class OneClassRF(BaseBagging):
                 max_depth = self.max_samples_
             else:
                 max_depth = self.max_depth
-        else: # float
-            if not (0.0 < self.max_depth <=1.0):
+        else:  # float
+            if not (0.0 < self.max_depth <= 1.0):
                 raise ValueError("max_depth must be in (0, 1]")
             max_depth = int(self.max_depth * self.max_samples_)
         ########################################
-        
         super(OneClassRF, self)._fit(X, y, max_samples,
-                                          max_depth=max_depth,
-                                          sample_weight=sample_weight)
+                                     max_depth=max_depth,
+                                     sample_weight=sample_weight)
         return self
 
     def predict(self, X):
