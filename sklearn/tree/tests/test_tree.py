@@ -47,7 +47,7 @@ from sklearn import datasets
 
 from sklearn.utils import compute_sample_weight
 
-CLF_CRITERIONS = ("gini", "entropy")
+CLF_CRITERIONS = ("oneclassgini", "gini", "entropy")
 REG_CRITERIONS = ("mse", )
 
 CLF_TREES = {

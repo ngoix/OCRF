@@ -25,6 +25,9 @@ from .lfw import fetch_lfw_people
 from .twenty_newsgroups import fetch_20newsgroups
 from .twenty_newsgroups import fetch_20newsgroups_vectorized
 from .mldata import fetch_mldata, mldata_filename
+from .fetch_ml_mieux import fetch_spambase, fetch_annthyroid, fetch_arrhythmia
+from .fetch_ml_mieux import fetch_pendigits, fetch_pima, fetch_wilt
+from .fetch_ml_mieux import fetch_internet_ads
 from .samples_generator import make_classification
 from .samples_generator import make_multilabel_classification
 from .samples_generator import make_hastie_10_2
@@ -61,6 +64,13 @@ __all__ = ['clear_data_home',
            'fetch_lfw_pairs',
            'fetch_lfw_people',
            'fetch_mldata',
+           'fetch_spambase',
+           'fetch_annthyroid',
+           'fetch_arrhythmia',
+           'fetch_pendigits',
+           'fetch_pima',
+           'fetch_wilt',
+           'fetch_internet_ads',
            'fetch_olivetti_faces',
            'fetch_species_distributions',
            'fetch_california_housing',

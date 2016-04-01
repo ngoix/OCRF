@@ -1,33 +1,29 @@
 # Authors: Nicolas Goix <nicolas.goix@telecom-paristech.fr>
-#          Alexandre Gramfort <alexandre.gramfort@telecom-paristech.fr>
 # License: BSD 3 clause
 
 from __future__ import division
-
-import numbers
 import numpy as np
 from warnings import warn
 
 from scipy.sparse import issparse
 
 from ..externals import six
-from ..externals.joblib import Parallel, delayed
-from ..tree import ExtraTreeRegressor
-from ..utils import check_random_state, check_array
+from ..tree import ExtraTreeClassifier
+from ..utils import check_array
 
 from .bagging import BaseBagging
-from .forest import _parallel_helper
-from .base import _partition_estimators
 
-__all__ = ["IsolationForest"]
+from ..metrics import roc_auc_score
+
+__all__ = ["OneClassRF"]
 
 
-class IsolationForest(BaseBagging):
-    """Isolation Forest Algorithm
+class OneClassRF(BaseBagging):
+    """OneClass Forest Algorithm
 
-    Return the anomaly score of each sample using the IsolationForest algorithm
+    Return the anomaly score of each sample using the OneClassRF algorithm
 
-    The IsolationForest 'isolates' observations by randomly selecting a feature
+    The OneClassRF 'isolates' observations by randomly selecting a feature
     and then randomly selecting a split value between the maximum and minimum
     values of the selected feature.
 
@@ -42,7 +38,6 @@ class IsolationForest(BaseBagging):
     Hence, when a forest of random trees collectively produce shorter path
     lengths for particular samples, they are highly likely to be anomalies.
 
-    Read more in the :ref:`User Guide <isolation_forest>`.
 
     Parameters
     ----------
@@ -61,6 +56,12 @@ class IsolationForest(BaseBagging):
         The number of features to draw from X to train each base estimator.
             - If int, then draw `max_features` features.
             - If float, then draw `max_features * X.shape[1]` features.
+
+    max_depth : int or float, optional (default="auto")
+        The max_depth of the tree.
+            - If int, then maximum depth is `max_depth`.
+            - If float, then maximum depth is  `max_depth * max_samples`.
+            - If "auto", then `max_depth = ceiling(log2 max_samples).
 
     bootstrap : boolean, optional (default=False)
         Whether samples are drawn with replacement.
@@ -91,27 +92,22 @@ class IsolationForest(BaseBagging):
     max_samples_ : integer
         The actual number of samples
 
-    References
-    ----------
-    .. [1] Liu, Fei Tony, Ting, Kai Ming and Zhou, Zhi-Hua. "Isolation forest."
-           Data Mining, 2008. ICDM'08. Eighth IEEE International Conference on.
-    .. [2] Liu, Fei Tony, Ting, Kai Ming and Zhou, Zhi-Hua. "Isolation-based
-           anomaly detection." ACM Transactions on Knowledge Discovery from
-           Data (TKDD) 6.1 (2012): 3.
     """
 
     def __init__(self,
-                 n_estimators=1,
-                 max_samples="auto",
+                 n_estimators=10,
+                 max_samples='auto',
                  max_features=1.,
+                 max_depth='auto',
                  bootstrap=False,
                  n_jobs=1,
                  random_state=None,
                  verbose=0):
-        super(IsolationForest, self).__init__(
-            base_estimator=ExtraTreeRegressor(
-                max_features=1,
-                splitter='random',
+        super(OneClassRF, self).__init__(
+            base_estimator=ExtraTreeClassifier(
+                max_features=None,
+                criterion='oneclassgini',
+                splitter='best',
                 random_state=random_state),
             # here above max_features has no links with self.max_features
             bootstrap=bootstrap,
@@ -122,6 +118,7 @@ class IsolationForest(BaseBagging):
             n_jobs=n_jobs,
             random_state=random_state,
             verbose=verbose)
+        self.max_depth = max_depth
 
     def _set_oob_score(self, X, y):
         raise NotImplementedError("OOB score not supported by iforest")
@@ -134,7 +131,7 @@ class IsolationForest(BaseBagging):
         X : array-like or sparse matrix, shape (n_samples, n_features)
             The input samples. Use ``dtype=np.float32`` for maximum
             efficiency. Sparse matrices are also supported, use sparse
-            ``csc_matrix`` for maximum efficiency.
+            ``csc_matrix`` for maximum efficieny.
 
         Returns
         -------
@@ -149,11 +146,15 @@ class IsolationForest(BaseBagging):
             # ensemble sorts the indices.
             X.sort_indices()
 
-        rnd = check_random_state(self.random_state)
-        y = rnd.uniform(size=X.shape[0])
+        # rnd = check_random_state(self.random_state)
+        y = np.zeros(X.shape[0])  # rnd.uniform(size=X.shape[0])
 
         # ensure that max_sample is in [1, n_samples]:
         n_samples = X.shape[0]
+
+        # input rectangular cell kept in memory:
+        self.lim_inf = X.min(axis=0)
+        self.lim_sup = X.max(axis=0)
 
         if isinstance(self.max_samples, six.string_types):
             if self.max_samples == 'auto':
@@ -172,20 +173,44 @@ class IsolationForest(BaseBagging):
                 max_samples = n_samples
             else:
                 max_samples = self.max_samples
-        else: # float
+        else:  # float
             if not (0. < self.max_samples <= 1.):
                 raise ValueError("max_samples must be in (0, 1]")
-            max_samples = int(self.max_samples * X.shape[0])
+            max_samples = max(int(self.max_samples * X.shape[0]), 1)
 
         self.max_samples_ = max_samples
-        max_depth = int(np.ceil(np.log2(max(max_samples, 2))))
-        super(IsolationForest, self)._fit(X, y, max_samples,
-                                          max_depth=max_depth,
-                                          sample_weight=sample_weight)
+
+        # ############# for max_depth #############
+        if isinstance(self.max_depth, six.string_types):
+            if self.max_depth == 'auto':
+                max_depth = int(np.ceil(np.log2(max(self.max_samples_, 2))))
+            else:
+                raise ValueError('max_depth (%s) is not supported. '
+                                 'Valid choices are: "auto", int or '
+                                 'float' % self.max_depth)
+
+        elif isinstance(self.max_depth, six.integer_types):
+            # ensure that max_depth is in [1, max_samples]
+            if self.max_depth > self.max_samples_:
+                warn("max_depth (%s) is greater than "
+                     "max_samples (%s). max_depth "
+                     "will be set to max_samples for estimation."
+                     % (self.max_depth, self.max_samples_))
+                max_depth = self.max_samples_
+            else:
+                max_depth = self.max_depth
+        else:  # float
+            if not (0.0 < self.max_depth <= 1.0):
+                raise ValueError("max_depth must be in (0, 1]")
+            max_depth = int(self.max_depth * self.max_samples_)
+        ########################################
+        super(OneClassRF, self)._fit(X, y, max_samples,
+                                     max_depth=max_depth,
+                                     sample_weight=sample_weight)
         return self
 
     def predict(self, X):
-        """Predict anomaly score of X with the IsolationForest algorithm.
+        """Predict anomaly score of X with the OneClassRF algorithm.
 
         The anomaly score of an input sample is computed as
         the mean anomaly score of the trees in the forest.
@@ -211,25 +236,50 @@ class IsolationForest(BaseBagging):
         """
         # code structure from ForestClassifier/predict_proba
         # Check data
-        X = self.estimators_[0]._validate_X_predict(X, check_input=True)
+        X = check_array(X, accept_sparse='csr')
         n_samples = X.shape[0]
 
 
         n_samples_leaf = np.zeros((n_samples, self.n_estimators), order="f")
+        volume = np.zeros((n_samples, self.n_estimators), order="f")
+        scores = np.zeros((n_samples, self.n_estimators), order="f")
         depths = np.zeros((n_samples, self.n_estimators), order="f")
 
-        for i, tree in enumerate(self.estimators_):
-            leaves_index = tree.apply(X)
-            node_indicator = tree.decision_path(X)
+        for i, (tree, features) in enumerate(zip(self.estimators_,
+                                                 self.estimators_features_)):
+            leaves_index = tree.apply(X[:, features])
+            node_indicator = tree.decision_path(X[:, features])
             n_samples_leaf[:, i] = tree.tree_.n_node_samples[leaves_index]
-            depths[:, i] = np.asarray(node_indicator.sum(axis=1)).reshape(-1) - 1
+            volume[:, i] = tree.tree_.volume[leaves_index]
+            #scores[:, i] = np.divide(n_samples_leaf[:, i], volume[:, i]) 
+        scores_av = - n_samples_leaf.mean(axis=1) / volume.mean(axis=1)
+        #scores_av = - scores.mean(axis=1)
+        print 'volume=', volume
+        print 'volume..mean(axis=1)=', volume.mean(axis=1)
+        print 'n_samples_leaf', n_samples_leaf
+        print 'n_samples_leaf.mean(axis=1)=', n_samples_leaf.mean(axis=1)
+        print 'scores_av', scores_av
 
-        depths += _average_path_length(n_samples_leaf)
+        # one has to detect observation outside the input cell self.lim_inf/sup
+        # (otherwise, can yields very normal score for them):
+        out_index = (X > self.lim_sup).any(axis=1) + (X < self.lim_inf).any(axis=1)
+        scores_av[out_index] = scores_av.max()
+        
+        return scores_av
 
-        scores = 2 ** (-depths.mean(axis=1) / _average_path_length(self.max_samples_))
+        # for i, tree in enumerate(self.estimators_):
+        #     leaves_index = tree.apply(X)
+        #     node_indicator = tree.decision_path(X)
+        #     n_samples_leaf[:, i] = tree.tree_.n_node_samples[leaves_index]
+        #     depths[:, i] = np.asarray(node_indicator.sum(axis=1)).reshape(-1) - 1
 
-        return scores
+        # depths += _average_path_length(n_samples_leaf)
 
+        # scores = 2 ** (-depths.mean(axis=1) / _average_path_length(self.max_samples_))
+
+        # return scores
+
+    
     def decision_function(self, X):
         """Average of the decision functions of the base classifiers.
 
@@ -248,6 +298,10 @@ class IsolationForest(BaseBagging):
         # minus as bigger is better (here less abnormal):
         return - self.predict(X)
 
+    def score(self, X, y):  # return the auROC score
+        """XXX missing docstring"""
+        scoring = self.predict(X)
+        return roc_auc_score(y, scoring)
 
 def _average_path_length(n_samples_leaf):
     """ The average path length in a n_samples iTree, which is equal to
