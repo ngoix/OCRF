@@ -17,7 +17,7 @@ from sklearn.metrics import roc_curve, precision_recall_curve, auc
 from sklearn.datasets import fetch_kddcup99, fetch_covtype, fetch_mldata
 from sklearn.datasets import fetch_spambase, fetch_annthyroid, fetch_arrhythmia
 from sklearn.datasets import fetch_pendigits, fetch_pima, fetch_wilt
-from sklearn.datasets import fetch_internet_ads
+from sklearn.datasets import fetch_internet_ads, fetch_adult
 from sklearn import grid_search  # let it for cv
 from scipy.interpolate import interp1d
 
@@ -33,25 +33,33 @@ nb_exp = 1
 # TODO: idem in bench_lof, bench_isolation_forest (to be launch from master)
 #       bench_ocsvm (to be created), bench_ocrf (to be created)
 
-# # datasets available:
+# datasets available:
 # datasets = ['http', 'smtp', 'SA', 'SF', 'shuttle', 'forestcover',
 #             'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
-#             'pendigits', 'pima', 'wilt', 'internet_ads']
+#             'pendigits', 'pima', 'wilt', 'internet_ads', 'adult']
 
 # # continuous datasets:
 # datasets = ['http', 'smtp', 'shuttle', 'forestcover',
 #             'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
-#             'pendigits', 'pima', 'wilt']
+#             'pendigits', 'pima', 'wilt', 'adult']
 # new: ['ionosphere', 'spambase', 'annthyroid', 'arrhythmia', 'pendigits',
-#       'pima', 'wilt']
+#       'pima', 'wilt', 'adult']
 
 datasets = ['ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
-            'pendigits', 'pima', 'wilt']
-
+            'pendigits', 'pima', 'wilt', 'adult']
 
 for dat in datasets:
+    print 'dataset:', dat
     # loading and vectorization
     print('loading data')
+
+    if dat == 'adult':
+        dataset = fetch_adult(shuffle=True)
+        X = dataset.data
+        y = dataset.target
+        # anormal data are those with label >50K:
+        y = np.all((y != ' <=50K', y != ' <=50K.'), axis=0).astype(int)
+        pdb.set_trace()
 
     if dat == 'internet_ads':  # not adapted to oneclassrf
         dataset = fetch_internet_ads(shuffle=True)
@@ -69,7 +77,6 @@ for dat in datasets:
         dataset = fetch_pima(shuffle=True)
         X = dataset.data
         y = dataset.target
-        # anomalies = class 4
 
     if dat == 'pendigits':
         dataset = fetch_pendigits(shuffle=True)
@@ -112,6 +119,7 @@ for dat in datasets:
         y = dataset.target
 
     if dat == 'shuttle':
+        # XXX TODO: test without removing class 4. To many anomalies?
         dataset = fetch_mldata('shuttle')
         X = dataset.data
         y = dataset.target
@@ -156,7 +164,7 @@ for dat in datasets:
 
     if dat == 'http' or dat == 'smtp':
         y = (y != 'normal.').astype(int)
-
+    pdb.set_trace()
     n_samples, n_features = np.shape(X)
     n_samples_train = n_samples // 2
     n_samples_test = n_samples - n_samples_train

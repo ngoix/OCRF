@@ -23,7 +23,7 @@ from scipy.interpolate import interp1d
 
 np.random.seed(1)
 
-nb_exp = 2
+nb_exp = 1
 
 # TODO: CV for OCSVM!
 
@@ -33,13 +33,14 @@ nb_exp = 2
 #             'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
 #             'pendigits', 'pima', 'wilt', 'internet_ads']
 
-# # continuous datasets:
-# datasets = ['http', 'smtp', 'shuttle', 'forestcover',
-#             'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
-#             'pendigits', 'pima', 'wilt']
+# continuous datasets:
+datasets = ['http', 'smtp', 'shuttle', 'forestcover',
+            'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
+            'pendigits', 'pima', 'wilt']
 
-datasets = ['ionosphere', 'spambase', 'annthyroid', 'arrhythmia', 'pendigits',
-            'pima', 'wilt']
+# # new datasets:
+# datasets = ['ionosphere', 'spambase', 'annthyroid', 'arrhythmia', 'pendigits',
+#             'pima', 'wilt']
 
 for dat in datasets:
     # loading and vectorization
@@ -99,7 +100,7 @@ for dat in datasets:
         y = (y != 1).astype(int)
 
     if dat in ['http', 'smtp', 'SA', 'SF']:
-        dataset = fetch_kddcup99(subset=dat, shuffle=True, percent10=True)
+        dataset = fetch_kddcup99(subset=dat, shuffle=True, percent10=False)
         X = dataset.data
         y = dataset.target
 
