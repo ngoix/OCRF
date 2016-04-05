@@ -30,10 +30,11 @@ nb_exp = 1
 # TODO: CV for OCSVM!
 
 
-# datasets available:
-# datasets = ['http', 'smtp', 'SA', 'SF', 'shuttle', 'forestcover',
-#             'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
-#             'pendigits', 'pima', 'wilt', 'internet_ads', 'adult']
+# # datasets available:
+
+datasets = ['http', 'smtp', 'SA', 'SF', 'shuttle', 'forestcover',
+            'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
+            'pendigits', 'pima', 'wilt', 'internet_ads', 'adult']
 
 # # continuous datasets:
 # datasets = ['http', 'smtp', 'shuttle', 'forestcover',
@@ -41,9 +42,6 @@ nb_exp = 1
 #             'pendigits', 'pima', 'wilt', 'adult']
 # new: ['ionosphere', 'spambase', 'annthyroid', 'arrhythmia', 'pendigits',
 #       'pima', 'wilt', 'adult']
-
-datasets = ['ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
-            'pendigits', 'pima', 'wilt', 'adult']
 
 for dat in datasets:
     print 'dataset:', dat
