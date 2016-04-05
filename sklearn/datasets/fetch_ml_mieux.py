@@ -374,3 +374,55 @@ def fetch_internet_ads(data_home=None, download_if_missing=True,
         y = y[ind]
 
     return Bunch(data=X, target=y, DESCR=__doc__)
+
+
+def fetch_adult(data_home=None, download_if_missing=True,
+                random_state=None, shuffle=False):
+    """Load the adult dataset, downloading it if necessary.
+    """
+    URL1 = ('http://archive.ics.uci.edu/ml/'
+            'machine-learning-databases/adult/adult.data')
+    URL2 = ('http://archive.ics.uci.edu/ml/'
+            'machine-learning-databases/adult/adult.test')
+
+    data_home = get_data_home(data_home=data_home)
+    adult_dir = join(data_home, "adult")
+    samples_path = _pkl_filepath(adult_dir, "samples")
+    targets_path = _pkl_filepath(adult_dir, "targets")
+    available = exists(samples_path)
+
+    if download_if_missing and not available:
+        makedirs(adult_dir, exist_ok=True)
+        logger.warning("Downloading %s" % URL1)
+        f = BytesIO(urlopen(URL1).read())
+        # ou X = np.load(f)
+        Xy1 = np.genfromtxt(f, delimiter=',', dtype=object)
+        # select continuous features:
+        Xy1 = Xy1[:, [0, 2, 4, 10, 11, 12, -1]]
+
+        logger.warning("Downloading %s" % URL2)
+        f = BytesIO(urlopen(URL2).read())
+        # idem that Xy1 but skip first line which contains instructions:
+        Xy2 = np.genfromtxt(f, delimiter=',', skip_header=1, dtype=object)
+        Xy2 = Xy2[:, [0, 2, 4, 10, 11, 12, -1]]
+
+        Xy = np.r_[Xy1, Xy2]
+        X = Xy[:, :-1].astype(float)
+        y = Xy[:, -1]
+        joblib.dump(X, samples_path, compress=9)
+        joblib.dump(y, targets_path, compress=9)
+
+    try:
+        X, y
+    except NameError:
+        X = joblib.load(samples_path)
+        y = joblib.load(targets_path)
+
+    if shuffle:
+        ind = np.arange(X.shape[0])
+        rng = check_random_state(random_state)
+        rng.shuffle(ind)
+        X = X[ind]
+        y = y[ind]
+
+    return Bunch(data=X, target=y, DESCR=__doc__)

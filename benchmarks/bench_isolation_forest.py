@@ -16,7 +16,7 @@ from sklearn.metrics import roc_curve, precision_recall_curve, auc
 from sklearn.datasets import fetch_kddcup99, fetch_covtype, fetch_mldata
 from sklearn.datasets import fetch_spambase, fetch_annthyroid, fetch_arrhythmia
 from sklearn.datasets import fetch_pendigits, fetch_pima, fetch_wilt
-from sklearn.datasets import fetch_internet_ads
+from sklearn.datasets import fetch_internet_ads, fetch_adult
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.utils import shuffle as sh
 from scipy.interpolate import interp1d
@@ -25,27 +25,37 @@ np.random.seed(1)
 
 nb_exp = 1
 
-# XXXXXXX Lauch without pythonpath (with python) after building on MASTER
+# XXXXXXX Launch without pythonpath (with python) on MASTER (after built)
 
 # TODO: CV for OCSVM!
 
 
-# # datasets available:
+# datasets available:
 # datasets = ['http', 'smtp', 'SA', 'SF', 'shuttle', 'forestcover',
 #             'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
-#             'pendigits', 'pima', 'wilt', 'internet_ads']
+#             'pendigits', 'pima', 'wilt', 'internet_ads', 'adult']
 
-# continuous datasets:
-datasets = ['http', 'smtp', 'shuttle', 'forestcover',
-            'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
-            'pendigits', 'pima', 'wilt']
+# # continuous datasets:
+# datasets = ['http', 'smtp', 'shuttle', 'forestcover',
+#             'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
+#             'pendigits', 'pima', 'wilt', 'adult']
+# new: ['ionosphere', 'spambase', 'annthyroid', 'arrhythmia', 'pendigits',
+#       'pima', 'wilt', 'adult']
 
-# datasets = ['ionosphere', 'spambase', 'annthyroid', 'arrhythmia', 'pendigits',
-#             'pima', 'wilt']
+datasets = ['ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
+            'pendigits', 'pima', 'wilt', 'adult']
 
 for dat in datasets:
+    print 'dataset:', dat
     # loading and vectorization
     print('loading data')
+
+    if dat == 'adult':
+        dataset = fetch_adult(shuffle=True)
+        X = dataset.data
+        y = dataset.target
+        # anormal data are those with label >50K:
+        y = np.all((y != ' <=50K', y != ' <=50K.'), axis=0).astype(int)
 
     if dat == 'internet_ads':  # not adapted to oneclassrf
         dataset = fetch_internet_ads(shuffle=True)
@@ -63,7 +73,6 @@ for dat in datasets:
         dataset = fetch_pima(shuffle=True)
         X = dataset.data
         y = dataset.target
-        # anomalies = class 4
 
     if dat == 'pendigits':
         dataset = fetch_pendigits(shuffle=True)
