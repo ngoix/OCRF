@@ -34,7 +34,7 @@ nb_exp = 1
 
 datasets = ['http', 'smtp', 'SA', 'SF', 'shuttle', 'forestcover',
             'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
-            'pendigits', 'pima', 'wilt', 'internet_ads', 'adult']
+            'pendigits', 'pima', 'wilt', 'adult', 'internet_ads']
 
 # # continuous datasets:
 # datasets = ['http', 'smtp', 'shuttle', 'forestcover',
