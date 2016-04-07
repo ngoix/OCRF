@@ -6,12 +6,17 @@ OneClassRF benchmark
 A test of OneClassRF on classical anomaly detection datasets.
 
 """
-import pdb
 print(__doc__)
 
 from time import time
 import numpy as np
-import matplotlib.pyplot as plt
+
+# import matplotlib.pyplot as plt
+# for the cluster to save the fig:
+import matplotlib
+matplotlib.use('Agg')
+from matplotlib import pyplot as plt
+
 from sklearn.ensemble import OneClassRF
 from sklearn.metrics import roc_curve, precision_recall_curve, auc
 from sklearn.datasets import fetch_kddcup99, fetch_covtype, fetch_mldata
@@ -34,9 +39,9 @@ nb_exp = 1
 #       bench_ocsvm (to be created), bench_ocrf (to be created)
 
 # datasets available:
-# datasets = ['http', 'smtp', 'SA', 'SF', 'shuttle', 'forestcover',
-#             'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
-#             'pendigits', 'pima', 'wilt', 'internet_ads', 'adult']
+datasets = ['http', 'smtp', 'SA', 'SF', 'shuttle', 'forestcover',
+            'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
+            'pendigits', 'pima', 'wilt', 'internet_ads', 'adult']
 
 # # continuous datasets:
 # datasets = ['http', 'smtp', 'shuttle', 'forestcover',
@@ -45,8 +50,10 @@ nb_exp = 1
 # new: ['ionosphere', 'spambase', 'annthyroid', 'arrhythmia', 'pendigits',
 #       'pima', 'wilt', 'adult']
 
-datasets = ['ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
-            'pendigits', 'pima', 'wilt', 'adult']
+# datasets = ['ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
+#             'pendigits', 'pima', 'wilt', 'adult']
+
+plt.figure(figsize=(22, 12))
 
 for dat in datasets:
     print 'dataset:', dat
@@ -59,7 +66,6 @@ for dat in datasets:
         y = dataset.target
         # anormal data are those with label >50K:
         y = np.all((y != ' <=50K', y != ' <=50K.'), axis=0).astype(int)
-        pdb.set_trace()
 
     if dat == 'internet_ads':  # not adapted to oneclassrf
         dataset = fetch_internet_ads(shuffle=True)
@@ -164,7 +170,6 @@ for dat in datasets:
 
     if dat == 'http' or dat == 'smtp':
         y = (y != 'normal.').astype(int)
-    pdb.set_trace()
     n_samples, n_features = np.shape(X)
     n_samples_train = n_samples // 2
     n_samples_test = n_samples - n_samples_train
@@ -249,6 +254,12 @@ for dat in datasets:
         tpr[0] = 0.
 
         precision_, recall_ = precision_recall_curve(y_test, scoring)[:2]
+
+        # cluster: old version of scipy -> interpol1d needs sorted x_input
+        arg_sorted = recall_.argsort()
+        recall_ = recall_[arg_sorted]
+        precision_ = precision_[arg_sorted]
+
         f = interp1d(recall_, precision_)
         precision += f(x_axis)
 
@@ -279,7 +290,7 @@ for dat in datasets:
     plt.ylim([-0.05, 1.05])
     plt.xlabel('False Positive Rate')
     plt.ylabel('True Positive Rate')
-    plt.title('Receiver operating characteristic')
+    plt.title('Receiver operating characteristic for OneClassRF')
     plt.legend(loc="lower right")
 
     plt.subplot(122)
@@ -292,4 +303,4 @@ for dat in datasets:
     plt.title('Precision-Recall curve')
     plt.legend(loc="lower right")
 
-plt.show()
+plt.savefig('bench_oneclassrf_roc_pr')

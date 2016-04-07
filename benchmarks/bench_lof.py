@@ -8,9 +8,16 @@ A test of LocalOutlierFactor on classical anomaly detection datasets.
 """
 print(__doc__)
 
+import pdb
 from time import time
 import numpy as np
-import matplotlib.pyplot as plt
+
+# import matplotlib.pyplot as plt
+# for the cluster to save the fig:
+import matplotlib
+matplotlib.use('Agg')
+from matplotlib import pyplot as plt
+
 from sklearn.neighbors import LocalOutlierFactor
 from sklearn.metrics import roc_curve, precision_recall_curve, auc
 from sklearn.datasets import fetch_kddcup99, fetch_covtype, fetch_mldata
@@ -31,7 +38,7 @@ nb_exp = 1
 # datasets available:
 datasets = ['http', 'smtp', 'SA', 'SF', 'shuttle', 'forestcover',
             'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
-            'pendigits', 'pima', 'wilt', 'adult', 'internet_ads']
+            'pendigits', 'pima', 'wilt','internet_ads', 'adult']
 
 # # continuous datasets:
 # datasets = ['http', 'smtp', 'shuttle', 'forestcover',
@@ -41,6 +48,8 @@ datasets = ['http', 'smtp', 'SA', 'SF', 'shuttle', 'forestcover',
 # # new datasets:
 # datasets = ['ionosphere', 'spambase', 'annthyroid', 'arrhythmia', 'pendigits',
 #             'pima', 'wilt', 'adult',]
+
+plt.figure(figsize=(22, 12))
 
 for dat in datasets:
     # loading and vectorization
@@ -156,7 +165,7 @@ for dat in datasets:
     X = X.astype(float)
 
     n_axis = 1000
-    x_axis = np.linspace(0, 1, n_axis)
+    x_axis = np.linspace(0.05, 1, n_axis)
     tpr = np.zeros(n_axis)
     precision = np.zeros(n_axis)
     fit_time = 0
@@ -194,6 +203,12 @@ for dat in datasets:
         tpr[0] = 0.
 
         precision_, recall_ = precision_recall_curve(y_test, scoring)[:2]
+
+        # cluster: old version of scipy -> interpol1d needs sorted x_input
+        arg_sorted = recall_.argsort()
+        recall_ = recall_[arg_sorted]
+        precision_ = precision_[arg_sorted]
+
         f = interp1d(recall_, precision_)
         precision += f(x_axis)
 
@@ -206,7 +221,7 @@ for dat in datasets:
     AUPR = auc(x_axis, precision)
 
     plt.subplot(121)
-    plt.plot(x_axis, tpr, lw=1, label='ROC for %s (area = %0.3f, train-time: %0.2fs, test-time: %0.2fs)' % (dat, AUC, fit_time, predict_time))
+    plt.plot(x_axis, tpr, lw=1, label='%s (area = %0.3f, train-time: %0.2fs, test-time: %0.2fs)' % (dat, AUC, fit_time, predict_time))
 
     plt.xlim([-0.05, 1.05])
     plt.ylim([-0.05, 1.05])
@@ -216,7 +231,7 @@ for dat in datasets:
     plt.legend(loc="lower right")
 
     plt.subplot(122)
-    plt.plot(x_axis, precision, lw=1, label='AUPR for %s (area = %0.3f)'
+    plt.plot(x_axis, precision, lw=1, label='%s (area = %0.3f)'
              % (dat, AUPR))
     plt.xlim([-0.05, 1.05])
     plt.ylim([-0.05, 1.05])
@@ -225,4 +240,4 @@ for dat in datasets:
     plt.title('Precision-Recall curve')
     plt.legend(loc="lower right")
 
-plt.show()
+plt.savefig('bench_lof_roc_pr')

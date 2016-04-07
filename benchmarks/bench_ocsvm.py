@@ -10,7 +10,10 @@ print(__doc__)
 
 from time import time
 import numpy as np
-import matplotlib.pyplot as plt
+import matplotlib  # for the cluster to save the fig
+matplotlib.use('Agg')  # idem
+
+from matplotlib import pyplot as plt
 from sklearn.svm import OneClassSVM
 from sklearn.metrics import roc_curve, precision_recall_curve, auc
 from sklearn.datasets import fetch_kddcup99, fetch_covtype, fetch_mldata
@@ -28,19 +31,21 @@ nb_exp = 1
 # TODO: CV for OCSVM!
 
 
-# # datasets available:
-# datasets = ['http', 'smtp', 'SA', 'SF', 'shuttle', 'forestcover',
-#             'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
-#             'pendigits', 'pima', 'wilt', 'internet_ads']
-
-# continuous datasets:
-datasets = ['http', 'smtp', 'shuttle', 'forestcover',
+# datasets available:
+datasets = ['http', 'smtp', 'SA', 'SF', 'shuttle', 'forestcover',
             'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
-            'pendigits', 'pima', 'wilt']
+            'pendigits', 'pima', 'wilt', 'internet_ads', 'adult']
+
+# # continuous datasets:
+# datasets = ['http', 'smtp', 'shuttle', 'forestcover',
+#             'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
+#             'pendigits', 'pima', 'wilt']
 
 # # new datasets:
 # datasets = ['ionosphere', 'spambase', 'annthyroid', 'arrhythmia', 'pendigits',
 #             'pima', 'wilt']
+
+plt.figure(figsize=(22, 12))
 
 for dat in datasets:
     # loading and vectorization
@@ -194,6 +199,12 @@ for dat in datasets:
         tpr[0] = 0.
 
         precision_, recall_ = precision_recall_curve(y_test, scoring)[:2]
+
+        # cluster: old version of scipy -> interpol1d needs sorted x_input
+        arg_sorted = recall_.argsort()
+        recall_ = recall_[arg_sorted]
+        precision_ = precision_[arg_sorted]
+
         f = interp1d(recall_, precision_)
         precision += f(x_axis)
 
@@ -225,4 +236,4 @@ for dat in datasets:
     plt.title('Precision-Recall curve')
     plt.legend(loc="lower right")
 
-plt.show()
+plt.savefig('bench_ocsvm_roc_pr')
