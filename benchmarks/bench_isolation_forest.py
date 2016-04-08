@@ -23,18 +23,17 @@ from scipy.interpolate import interp1d
 
 np.random.seed(1)
 
-nb_exp = 1
+nb_exp = 20
 
 # XXXXXXX Launch without pythonpath (with python) on MASTER (after built)
 
 # TODO: CV for OCSVM!
 
 
-# # datasets available:
-
+# datasets available:
 datasets = ['http', 'smtp', 'SA', 'SF', 'shuttle', 'forestcover',
             'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
-            'pendigits', 'pima', 'wilt', 'adult', 'internet_ads']
+            'pendigits', 'pima', 'wilt', 'internet_ads', 'adult']
 
 # # continuous datasets:
 # datasets = ['http', 'smtp', 'shuttle', 'forestcover',
@@ -42,6 +41,8 @@ datasets = ['http', 'smtp', 'SA', 'SF', 'shuttle', 'forestcover',
 #             'pendigits', 'pima', 'wilt', 'adult']
 # new: ['ionosphere', 'spambase', 'annthyroid', 'arrhythmia', 'pendigits',
 #       'pima', 'wilt', 'adult']
+
+plt.figure(figsize=(25, 20))
 
 for dat in datasets:
     print 'dataset:', dat
@@ -108,7 +109,7 @@ for dat in datasets:
         y = (y != 1).astype(int)
 
     if dat in ['http', 'smtp', 'SA', 'SF']:
-        dataset = fetch_kddcup99(subset=dat, shuffle=True, percent10=True)
+        dataset = fetch_kddcup99(subset=dat, shuffle=True, percent10=False)
         X = dataset.data
         y = dataset.target
 
@@ -182,9 +183,9 @@ for dat in datasets:
         y_train = y[:n_samples_train]
         y_test = y[n_samples_train:]
 
-        # training only on normal data:
-        X_train = X_train[y_train == 0]
-        y_train = y_train[y_train == 0]
+        # # training only on normal data:
+        # X_train = X_train[y_train == 0]
+        # y_train = y_train[y_train == 0]
 
         print('IsolationForest processing...')
         model = IsolationForest()
@@ -214,23 +215,24 @@ for dat in datasets:
     AUPR = auc(x_axis, precision)
 
     plt.subplot(121)
-    plt.plot(x_axis, tpr, lw=1, label='ROC for %s (area = %0.3f, train-time: %0.2fs, test-time: %0.2fs)' % (dat, AUC, fit_time, predict_time))
+    plt.plot(x_axis, tpr, lw=1, label='%s (area = %0.3f, train-time: %0.2fs, test-time: %0.2fs)' % (dat, AUC, fit_time, predict_time))
 
     plt.xlim([-0.05, 1.05])
     plt.ylim([-0.05, 1.05])
-    plt.xlabel('False Positive Rate')
-    plt.ylabel('True Positive Rate')
-    plt.title('Receiver operating characteristic for IsolationForest')
+    plt.xlabel('False Positive Rate', fontsize=20)
+    plt.ylabel('True Positive Rate', fontsize=20)
+    plt.title('Receiver operating characteristic for IsolationForest',
+              fontsize=20)
     plt.legend(loc="lower right")
 
     plt.subplot(122)
-    plt.plot(x_axis, precision, lw=1, label='AUPR for %s (area = %0.3f)'
+    plt.plot(x_axis, precision, lw=1, label='%s (area = %0.3f)'
              % (dat, AUPR))
     plt.xlim([-0.05, 1.05])
     plt.ylim([-0.05, 1.05])
-    plt.xlabel('Recall')
-    plt.ylabel('Precision')
-    plt.title('Precision-Recall curve')
+    plt.xlabel('Recall', fontsize=20)
+    plt.ylabel('Precision', fontsize=20)
+    plt.title('Precision-Recall curve', fontsize=20)
     plt.legend(loc="lower right")
 
-plt.show()
+plt.savefig('iforest_em_pr_unsupervised')
