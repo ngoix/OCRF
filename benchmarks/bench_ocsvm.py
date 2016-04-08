@@ -26,7 +26,7 @@ from scipy.interpolate import interp1d
 
 np.random.seed(1)
 
-nb_exp = 1
+nb_exp = 20
 
 # TODO: CV for OCSVM!
 
@@ -45,7 +45,7 @@ datasets = ['http', 'smtp', 'SA', 'SF', 'shuttle', 'forestcover',
 # datasets = ['ionosphere', 'spambase', 'annthyroid', 'arrhythmia', 'pendigits',
 #             'pima', 'wilt']
 
-plt.figure(figsize=(22, 12))
+plt.figure(figsize=(22, 20))
 
 for dat in datasets:
     # loading and vectorization
@@ -105,7 +105,7 @@ for dat in datasets:
         y = (y != 1).astype(int)
 
     if dat in ['http', 'smtp', 'SA', 'SF']:
-        dataset = fetch_kddcup99(subset=dat, shuffle=True, percent10=True)
+        dataset = fetch_kddcup99(subset=dat, shuffle=True, percent10=False)
         X = dataset.data
         y = dataset.target
 
@@ -156,7 +156,9 @@ for dat in datasets:
         y = (y != 'normal.').astype(int)
 
     n_samples, n_features = np.shape(X)
-    n_samples_train = n_samples // 2
+    # n_samples_train = n_samples // 2
+    # OCSVM training on max 100000 data:
+    n_samples_train = max(n_samples // 2, 100000)
     n_samples_test = n_samples - n_samples_train
     X = X.astype(float)
 
@@ -179,12 +181,12 @@ for dat in datasets:
         y_train = y[:n_samples_train]
         y_test = y[n_samples_train:]
 
-        # training only on normal data:
-        X_train = X_train[y_train == 0]
-        y_train = y_train[y_train == 0]
+        # # training only on normal data:
+        # X_train = X_train[y_train == 0]
+        # y_train = y_train[y_train == 0]
 
         print('OneClassSVM processing...')
-        model = OneClassSVM()
+        model = OneClassSVM(cache_size = 500)
         tstart = time()
         model.fit(X_train)
         fit_time += time() - tstart
@@ -221,9 +223,9 @@ for dat in datasets:
 
     plt.xlim([-0.05, 1.05])
     plt.ylim([-0.05, 1.05])
-    plt.xlabel('False Positive Rate')
-    plt.ylabel('True Positive Rate')
-    plt.title('Receiver operating characteristic for OneClassSVM')
+    plt.xlabel('False Positive Rate', fontsize=20)
+    plt.ylabel('True Positive Rate', fontsize=20)
+    plt.title('Receiver operating characteristic for OneClassSVM', fontsize=20)
     plt.legend(loc="lower right")
 
     plt.subplot(122)
@@ -231,9 +233,9 @@ for dat in datasets:
              % (dat, AUPR))
     plt.xlim([-0.05, 1.05])
     plt.ylim([-0.05, 1.05])
-    plt.xlabel('Recall')
-    plt.ylabel('Precision')
-    plt.title('Precision-Recall curve')
+    plt.xlabel('Recall', fontsize=20)
+    plt.ylabel('Precision', fontsize=20)
+    plt.title('Precision-Recall curve', fontsize=20)
     plt.legend(loc="lower right")
 
-plt.savefig('bench_ocsvm_roc_pr')
+plt.savefig('bench_ocsvm_roc_pr_subset_unsupervised')

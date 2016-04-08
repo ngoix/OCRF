@@ -29,19 +29,19 @@ from scipy.interpolate import interp1d
 from sklearn.preprocessing import LabelBinarizer, scale
 from sklearn.utils import shuffle as sh
 
-np.random.seed(42)
+np.random.seed(1)
 
 nb_exp = 1
 
 # TODO: find good default parameters for every datasets
-# TODO: make an average of ROC curves over 10 experiments
+# TODO: make an average of ROC curves over 20 experiments
 # TODO: idem in bench_lof, bench_isolation_forest (to be launch from master)
 #       bench_ocsvm (to be created), bench_ocrf (to be created)
 
 # datasets available:
-datasets = ['http', 'smtp', 'SA', 'SF', 'shuttle', 'forestcover',
-            'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
-            'pendigits', 'pima', 'wilt', 'internet_ads', 'adult']
+# datasets = ['http', 'smtp', 'SA', 'SF', 'shuttle', 'forestcover',
+#             'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
+#             'pendigits', 'pima', 'wilt', 'internet_ads', 'adult']
 
 # # continuous datasets:
 # datasets = ['http', 'smtp', 'shuttle', 'forestcover',
@@ -50,10 +50,10 @@ datasets = ['http', 'smtp', 'SA', 'SF', 'shuttle', 'forestcover',
 # new: ['ionosphere', 'spambase', 'annthyroid', 'arrhythmia', 'pendigits',
 #       'pima', 'wilt', 'adult']
 
-# datasets = ['ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
-#             'pendigits', 'pima', 'wilt', 'adult']
+datasets = ['ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
+            'pendigits', 'pima', 'wilt', 'adult']
 
-plt.figure(figsize=(22, 12))
+plt.figure(figsize=(25, 20))
 
 for dat in datasets:
     print 'dataset:', dat
@@ -288,9 +288,9 @@ for dat in datasets:
 
     plt.xlim([-0.05, 1.05])
     plt.ylim([-0.05, 1.05])
-    plt.xlabel('False Positive Rate')
-    plt.ylabel('True Positive Rate')
-    plt.title('Receiver operating characteristic for OneClassRF')
+    plt.xlabel('False Positive Rate', fontsize=20)
+    plt.ylabel('True Positive Rate', fontsize=20)
+    plt.title('Receiver operating characteristic for OneClassRF', fontsize=20)
     plt.legend(loc="lower right")
 
     plt.subplot(122)
@@ -298,9 +298,9 @@ for dat in datasets:
              % (dat, AUPR))
     plt.xlim([-0.05, 1.05])
     plt.ylim([-0.05, 1.05])
-    plt.xlabel('Recall')
-    plt.ylabel('Precision')
-    plt.title('Precision-Recall curve')
+    plt.xlabel('Recall', fontsize=20)
+    plt.ylabel('Precision', fontsize=20)
+    plt.title('Precision-Recall curve', fontsize=20)
     plt.legend(loc="lower right")
 
 plt.savefig('bench_oneclassrf_roc_pr')

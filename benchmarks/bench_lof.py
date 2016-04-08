@@ -30,7 +30,7 @@ from scipy.interpolate import interp1d
 
 np.random.seed(1)
 
-nb_exp = 1
+nb_exp = 20
 
 # TODO: CV for OCSVM!
 
@@ -49,7 +49,7 @@ datasets = ['http', 'smtp', 'SA', 'SF', 'shuttle', 'forestcover',
 # datasets = ['ionosphere', 'spambase', 'annthyroid', 'arrhythmia', 'pendigits',
 #             'pima', 'wilt', 'adult',]
 
-plt.figure(figsize=(22, 12))
+plt.figure(figsize=(25, 20))
 
 for dat in datasets:
     # loading and vectorization
@@ -183,9 +183,9 @@ for dat in datasets:
         y_train = y[:n_samples_train]
         y_test = y[n_samples_train:]
 
-        # training only on normal data:
-        X_train = X_train[y_train == 0]
-        y_train = y_train[y_train == 0]
+        # # training only on normal data:
+        # X_train = X_train[y_train == 0]
+        # y_train = y_train[y_train == 0]
 
         print('LocalOutlierFactor processing...')
         model = LocalOutlierFactor(n_neighbors=20)
@@ -225,9 +225,9 @@ for dat in datasets:
 
     plt.xlim([-0.05, 1.05])
     plt.ylim([-0.05, 1.05])
-    plt.xlabel('False Positive Rate')
-    plt.ylabel('True Positive Rate')
-    plt.title('Receiver operating characteristic for LocalOutlierFactor')
+    plt.xlabel('False Positive Rate', fontsize=20)
+    plt.ylabel('True Positive Rate', fontsize=20)
+    plt.title('Receiver operating characteristic for LocalOutlierFactor', fontsize=20)
     plt.legend(loc="lower right")
 
     plt.subplot(122)
@@ -235,9 +235,9 @@ for dat in datasets:
              % (dat, AUPR))
     plt.xlim([-0.05, 1.05])
     plt.ylim([-0.05, 1.05])
-    plt.xlabel('Recall')
-    plt.ylabel('Precision')
-    plt.title('Precision-Recall curve')
+    plt.xlabel('Recall', fontsize=20)
+    plt.ylabel('Precision', fontsize=20)
+    plt.title('Precision-Recall curve', fontsize=20)
     plt.legend(loc="lower right")
 
-plt.savefig('bench_lof_roc_pr')
+plt.savefig('bench_lof_roc_pr_unsupervised')
