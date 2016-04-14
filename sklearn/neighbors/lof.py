@@ -161,7 +161,7 @@ class LocalOutlierFactor(NeighborsBase, KNeighborsMixin, UnsupervisedMixin):
         """
         check_is_fitted(self, ["threshold_", "decision_function_train_",
                                "_k_distance_value_fit_X_",
-                               "neighbors_indices_fit_X_" ])
+                               "neighbors_indices_fit_X_"])
 
         if X is not None:
             X = check_array(X, accept_sparse='csr')
@@ -197,7 +197,7 @@ class LocalOutlierFactor(NeighborsBase, KNeighborsMixin, UnsupervisedMixin):
         """
         check_is_fitted(self, ["threshold_", "decision_function_train_",
                                "_k_distance_value_fit_X_",
-                               "neighbors_indices_fit_X_" ])
+                               "neighbors_indices_fit_X_"])
 
         # if X is None, make prediction on X=X_train without considered each
         # query point as its own neighbor.
@@ -237,7 +237,7 @@ class LocalOutlierFactor(NeighborsBase, KNeighborsMixin, UnsupervisedMixin):
 
         neighbors_indices : array-like of shape (n_samples, self.n_neighbors)
             neighbors indices of X (or of self._fit_X if X is None)
-            Added as a parameter to avoid re-computing it with 
+            Added as a parameter to avoid re-computing it with
             self._k_distance(X)[1] when X is not None (if X is None, it is
             equal to self.neighbors_indices_fit_X_)
 
@@ -254,15 +254,17 @@ class LocalOutlierFactor(NeighborsBase, KNeighborsMixin, UnsupervisedMixin):
 
         for j in range(n_samples):
             neighbors_number = -1
-            dist_j = pairwise_distances(X[j,:],
-                                    self._fit_X[neighbors_indices[j, :],:],
-                                    metric=self.effective_metric_)[0]
+            dist_j = pairwise_distances(
+                X[j, :].reshape((1, -1)),
+                self._fit_X[neighbors_indices[j, :], :],
+                metric=self.effective_metric_)[0]
             for cpt, i in enumerate(neighbors_indices[j, :]):
                 neighbors_number += 1
                 reach_dist_array[j, neighbors_number] = np.max(
                     [self._k_distance_value_fit_X_[i], dist_j[cpt]])
 
-        return 1. / np.mean(reach_dist_array, axis=1)
+        #  1e-10 to avoid `nan' when when nb of duplicates > n_neighbors:
+        return 1. / (np.mean(reach_dist_array, axis=1) + 1e-10)
 
     def _local_outlier_factor(self, X=None):
         """Compute local outlier factor (LOF)
@@ -293,15 +295,16 @@ class LocalOutlierFactor(NeighborsBase, KNeighborsMixin, UnsupervisedMixin):
             n_samples = self._fit_X.shape[0]
             neighbors_indices_X = self.neighbors_indices_fit_X_
         else:
-            n_samples =  X.shape[0]
+            n_samples = X.shape[0]
             neighbors_indices_X = self._k_distance(X)[1]
-            
+
         # Compute the local_reachibility_density of samples X:
         X_lrd = self._local_reachability_density(X, neighbors_indices_X)
         lrd_ratios_array = np.zeros((n_samples, self.n_neighbors))
 
         # Avoid re-computing X_lrd if X is None:
-        lrd = X_lrd if X is None else self._local_reachability_density(None, self.neighbors_indices_fit_X_)
+        lrd = X_lrd if X is None else self._local_reachability_density(
+            None, self.neighbors_indices_fit_X_)
 
         for j in range(n_samples):
             neighbors_number = -1
