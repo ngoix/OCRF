@@ -62,7 +62,7 @@ for dat in datasets:
     model = OneClassRF()
     clf = grid_search.GridSearchCV(model, parameters, refit=False,cv=2)
     clf.fit(X_train, y_train)
-    print 'clf.best_params_', clf.best_params_
+    print('clf.best_params_', clf.best_params_)
     model.set_params(**clf.best_params_)
 
     

@@ -254,11 +254,11 @@ class OneClassRF(BaseBagging):
             #scores[:, i] = np.divide(n_samples_leaf[:, i], volume[:, i]) 
         scores_av = - n_samples_leaf.mean(axis=1) / volume.mean(axis=1)
         #scores_av = - scores.mean(axis=1)
-        print 'volume=', volume
-        print 'volume..mean(axis=1)=', volume.mean(axis=1)
-        print 'n_samples_leaf', n_samples_leaf
-        print 'n_samples_leaf.mean(axis=1)=', n_samples_leaf.mean(axis=1)
-        print 'scores_av', scores_av
+        # print 'volume=', volume
+        # print 'volume..mean(axis=1)=', volume.mean(axis=1)
+        # print 'n_samples_leaf', n_samples_leaf
+        # print 'n_samples_leaf.mean(axis=1)=', n_samples_leaf.mean(axis=1)
+        # print 'scores_av', scores_av
 
         # one has to detect observation outside the input cell self.lim_inf/sup
         # (otherwise, can yields very normal score for them):
@@ -279,7 +279,7 @@ class OneClassRF(BaseBagging):
 
         # return scores
 
-    
+
     def decision_function(self, X):
         """Average of the decision functions of the base classifiers.
 
