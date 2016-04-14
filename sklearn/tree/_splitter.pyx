@@ -910,15 +910,38 @@ cdef class RandomSplitter(BaseDenseSplitter):
             # ou equivalent mais + couteux: = (lim_sup_left - lim_inf_left).prod()
 
             # want to do best.lim_inf_left = lim_inf but making copies: (done by memcpy, but need good memory size before)
-            ptr = realloc(best.lim_inf_left, n_features * sizeof(DTYPE_t))
-            best.lim_inf_left = <DTYPE_t*> ptr
-            ptr = realloc(best.lim_inf_right, n_features * sizeof(DTYPE_t))
-            best.lim_inf_right = <DTYPE_t*> ptr
-            ptr = realloc(best.lim_sup_left, n_features * sizeof(DTYPE_t))
-            best.lim_sup_left = <DTYPE_t*> ptr
-            ptr = realloc(best.lim_sup_right, n_features * sizeof(DTYPE_t))
-            best.lim_sup_right = <DTYPE_t*> ptr
+            if best.lim_inf_left == NULL:
+                best.lim_inf_left = <DTYPE_t*> malloc(n_features * sizeof(DTYPE_t))
+            else:
+                ptr = realloc(best.lim_inf_left, n_features * sizeof(DTYPE_t))
+            #best.lim_inf_left = <DTYPE_t*> ptr
+            if best.lim_inf_right == NULL:
+                best.lim_inf_right = <DTYPE_t*> malloc(n_features * sizeof(DTYPE_t))
+            else:
+                ptr = realloc(best.lim_inf_right, n_features * sizeof(DTYPE_t))
+            # best.lim_inf_right = <DTYPE_t*> ptr
+
+            if best.lim_sup_left == NULL:
+                best.lim_sup_left = <DTYPE_t*> malloc(n_features * sizeof(DTYPE_t))
+            else:
+                ptr = realloc(best.lim_sup_left, n_features * sizeof(DTYPE_t))
+            # best.lim_sup_left = <DTYPE_t*> ptr
+            if best.lim_sup_right == NULL:
+                best.lim_sup_right = <DTYPE_t*> malloc(n_features * sizeof(DTYPE_t))
+            else:
+                ptr = realloc(best.lim_sup_right, n_features * sizeof(DTYPE_t))
+            # best.lim_sup_right = <DTYPE_t*> ptr
             #free(ptr)
+            # # want to do best.lim_inf_left = lim_inf but making copies: (done by memcpy, but need good memory size before)
+            # ptr = realloc(best.lim_inf_left, n_features * sizeof(DTYPE_t))
+            # best.lim_inf_left = <DTYPE_t*> ptr
+            # ptr = realloc(best.lim_inf_right, n_features * sizeof(DTYPE_t))
+            # best.lim_inf_right = <DTYPE_t*> ptr
+            # ptr = realloc(best.lim_sup_left, n_features * sizeof(DTYPE_t))
+            # best.lim_sup_left = <DTYPE_t*> ptr
+            # ptr = realloc(best.lim_sup_right, n_features * sizeof(DTYPE_t))
+            # best.lim_sup_right = <DTYPE_t*> ptr
+            # #free(ptr)
             
             memcpy(best.lim_inf_left, lim_inf, sizeof(DTYPE_t) * n_features)
             memcpy(best.lim_inf_right, lim_inf, sizeof(DTYPE_t) * n_features)
