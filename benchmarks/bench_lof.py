@@ -183,9 +183,9 @@ for dat in datasets:
         y_train = y[:n_samples_train]
         y_test = y[n_samples_train:]
 
-        # # training only on normal data:
-        # X_train = X_train[y_train == 0]
-        # y_train = y_train[y_train == 0]
+        # training only on normal data:
+        X_train = X_train[y_train == 0]
+        y_train = y_train[y_train == 0]
 
         print('LocalOutlierFactor processing...')
         model = LocalOutlierFactor(n_neighbors=20)
@@ -240,4 +240,4 @@ for dat in datasets:
     plt.title('Precision-Recall curve', fontsize=20)
     plt.legend(loc="lower right")
 
-plt.savefig('bench_lof_roc_pr_unsupervised')
+plt.savefig('bench_lof_roc_pr')

@@ -10,7 +10,13 @@ print(__doc__)
 
 from time import time
 import numpy as np
-import matplotlib.pyplot as plt
+
+# import matplotlib.pyplot as plt
+# for the cluster to save the fig:
+import matplotlib
+matplotlib.use('Agg')
+from matplotlib import pyplot as plt
+
 from sklearn.ensemble import IsolationForest
 from sklearn.metrics import roc_curve, precision_recall_curve, auc
 from sklearn.datasets import fetch_kddcup99, fetch_covtype, fetch_mldata
@@ -33,14 +39,17 @@ nb_exp = 20
 # datasets available:
 datasets = ['http', 'smtp', 'SA', 'SF', 'shuttle', 'forestcover',
             'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
-            'pendigits', 'pima', 'wilt', 'internet_ads', 'adult']
+            'pendigits', 'pima', 'wilt','internet_ads', 'adult']
 
 # # continuous datasets:
 # datasets = ['http', 'smtp', 'shuttle', 'forestcover',
 #             'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
 #             'pendigits', 'pima', 'wilt', 'adult']
-# new: ['ionosphere', 'spambase', 'annthyroid', 'arrhythmia', 'pendigits',
-#       'pima', 'wilt', 'adult']
+
+# # new datasets:
+# datasets = ['ionosphere', 'spambase', 'annthyroid', 'arrhythmia', 'pendigits',
+#             'pima', 'wilt', 'adult',]
+# datasets available:
 
 plt.figure(figsize=(25, 20))
 
@@ -203,6 +212,12 @@ for dat in datasets:
         tpr[0] = 0.
 
         precision_, recall_ = precision_recall_curve(y_test, scoring)[:2]
+
+        # cluster: old version of scipy -> interpol1d needs sorted x_input
+        arg_sorted = recall_.argsort()
+        recall_ = recall_[arg_sorted]
+        precision_ = precision_[arg_sorted]
+
         f = interp1d(recall_, precision_)
         precision += f(x_axis)
 
@@ -235,4 +250,4 @@ for dat in datasets:
     plt.title('Precision-Recall curve', fontsize=20)
     plt.legend(loc="lower right")
 
-plt.savefig('iforest_em_pr_unsupervised')
+plt.savefig('bench_iforest_roc_pr_unsupervised')

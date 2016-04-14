@@ -45,7 +45,7 @@ datasets = ['http', 'smtp', 'SA', 'SF', 'shuttle', 'forestcover',
 # datasets = ['ionosphere', 'spambase', 'annthyroid', 'arrhythmia', 'pendigits',
 #             'pima', 'wilt']
 
-plt.figure(figsize=(22, 20))
+plt.figure(figsize=(25, 20))
 
 for dat in datasets:
     # loading and vectorization
@@ -156,9 +156,9 @@ for dat in datasets:
         y = (y != 'normal.').astype(int)
 
     n_samples, n_features = np.shape(X)
-    # n_samples_train = n_samples // 2
-    # OCSVM training on max 100000 data:
-    n_samples_train = max(n_samples // 2, 100000)
+    n_samples_train = n_samples // 2
+    # # OCSVM training on max 100000 data:
+    # n_samples_train = min(n_samples // 2, 100000)
     n_samples_test = n_samples - n_samples_train
     X = X.astype(float)
 
@@ -181,9 +181,9 @@ for dat in datasets:
         y_train = y[:n_samples_train]
         y_test = y[n_samples_train:]
 
-        # # training only on normal data:
-        # X_train = X_train[y_train == 0]
-        # y_train = y_train[y_train == 0]
+        # training only on normal data:
+        X_train = X_train[y_train == 0]
+        y_train = y_train[y_train == 0]
 
         print('OneClassSVM processing...')
         model = OneClassSVM(cache_size = 500)
@@ -219,7 +219,7 @@ for dat in datasets:
     AUPR = auc(x_axis, precision)
 
     plt.subplot(121)
-    plt.plot(x_axis, tpr, lw=1, label='ROC for %s (area = %0.3f, train-time: %0.2fs, test-time: %0.2fs)' % (dat, AUC, fit_time, predict_time))
+    plt.plot(x_axis, tpr, lw=1, label='%s (area = %0.3f, train-time: %0.2fs, test-time: %0.2fs)' % (dat, AUC, fit_time, predict_time))
 
     plt.xlim([-0.05, 1.05])
     plt.ylim([-0.05, 1.05])
@@ -229,7 +229,7 @@ for dat in datasets:
     plt.legend(loc="lower right")
 
     plt.subplot(122)
-    plt.plot(x_axis, precision, lw=1, label='AUPR for %s (area = %0.3f)'
+    plt.plot(x_axis, precision, lw=1, label='%s (area = %0.3f)'
              % (dat, AUPR))
     plt.xlim([-0.05, 1.05])
     plt.ylim([-0.05, 1.05])
@@ -238,4 +238,4 @@ for dat in datasets:
     plt.title('Precision-Recall curve', fontsize=20)
     plt.legend(loc="lower right")
 
-plt.savefig('bench_ocsvm_roc_pr_subset_unsupervised')
+plt.savefig('bench_ocsvm_roc_pr')
