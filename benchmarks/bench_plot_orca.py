@@ -89,7 +89,7 @@ for dat in datasets:
     print('Orca processing...')
     model = Orca()
     tstart = time()
-    model.fit-predict(X_train)
+    model.fit_predict(X_train,X_test)
     fit_time = time() - tstart
     tstart = time()
 
