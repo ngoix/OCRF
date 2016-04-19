@@ -6,6 +6,7 @@ OneClassRF benchmark
 A test of OneClassRF on classical anomaly detection datasets.
 
 """
+import pdb
 print(__doc__)
 import sys
 sys.path.append('~/Bureau/OCRF')
@@ -65,7 +66,6 @@ for dat in datasets:
     print('clf.best_params_', clf.best_params_)
     model.set_params(**clf.best_params_)
 
-    
     print('OneClassRF processing...')
     # weird: without CV but with same parameters, no error:
     #model = OneClassRF(max_depth=1000, max_samples=.1, max_features=min(10, n_features), n_estimators=50, random_state=rng,  n_jobs=-1)  #commented since cross val
@@ -78,8 +78,10 @@ for dat in datasets:
     model.fit(X_train)
     fit_time = time() - tstart
     tstart = time()
+    pdb.set_trace()
 
     scoring = model.predict(X_test)  # the lower, the more normal
     predict_time = time() - tstart
     fpr, tpr, thresholds = roc_curve(y_test, scoring)
     AUC = auc(fpr, tpr)
+    print (AUC)

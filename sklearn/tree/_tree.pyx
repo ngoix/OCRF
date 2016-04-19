@@ -20,6 +20,7 @@ from cpython cimport Py_INCREF, PyObject
 from libc.stdlib cimport free
 from libc.stdlib cimport realloc
 from libc.stdlib cimport malloc
+# from libc.stdio cimport printf
 
 from libc.string cimport memcpy
 from libc.string cimport memset
@@ -195,7 +196,7 @@ cdef class DepthFirstTreeBuilder(TreeBuilder):
         cdef SIZE_t X_feature_stride = <SIZE_t> X.strides[1] / <SIZE_t> X.itemsize  #splitter.X_feature_stride
 
    
-        cdef DTYPE_t x
+        cdef double x = 0.
         cdef SIZE_t i, j
         cdef double weighted_n_samples = splitter.weighted_n_samples
         cdef double weighted_n_node_samples
@@ -207,7 +208,7 @@ cdef class DepthFirstTreeBuilder(TreeBuilder):
         if not lim_inf:
             raise MemoryError()
         cdef DTYPE_t* lim_sup = <DTYPE_t*> malloc(n_features * sizeof(DTYPE_t))
-        if not lim_inf:
+        if not lim_sup:
             raise MemoryError()
         # cdef np.ndarray[ndim=n_features, dtype=DTYPE_t] lim_inf = np.zeros((n_features))
         # cdef np.ndarray[ndim=n_features, dtype=DTYPE_t] lim_sup = np.zeros((n_features))
@@ -236,7 +237,7 @@ cdef class DepthFirstTreeBuilder(TreeBuilder):
             raise MemoryError()
 
         with nogil:
-        #if True: # to not re-indent the following due to commenting with nogil
+        # if True: # to not re-indent the following due to commenting with nogil
             while not stack.is_empty():
                 stack.pop(&stack_record)
 
@@ -261,19 +262,28 @@ cdef class DepthFirstTreeBuilder(TreeBuilder):
 
                 if first:
                     for j in range(n_features):
-                        lim_inf[j] = INFINITY
-                        lim_sup[j] = -INFINITY
-                        for i in range(n_samples): #ou alors splitter.n_samples et pas end - start?? (idem l. 470)
+                        lim_inf[j] = 1000.#INFINITY
+                        lim_sup[j] = -1000.#-INFINITY
+                        # printf('n_samples: %d \n', n_samples)
+                        # printf('splitter.n_samples: %d \n', splitter.n_samples)
+                        for i in range(splitter.n_samples):#(n_samples): #ou alors splitter.n_samples et pas end - start?? (idem l. 470)
                             x = XX[X_sample_stride * samples[i] + X_feature_stride * j]
                             if x < lim_inf[j]:
+                                # printf('\n %f \n', x)
+                                # printf('%d, %d \n', j, n_features)
                                 lim_inf[j] = x
                             if x > lim_sup[j]:
+                                # printf('\n %f \n', x)
+                                # printf('sup %d, %d \n', j, n_features)
                                 lim_sup[j] = x
-                        volume *= lim_sup[j] - lim_inf[j]
+                    for j in range(n_features):
+                        # printf('%f \n', lim_sup[j] - lim_inf[j])
+                        # printf('%f \n', volume)
+                        volume *= (lim_sup[j] - lim_inf[j])
 #                    volume = (lim_sup - lim_inf).prod()
                     impurity = splitter.node_impurity()
                     first = 0
-
+                # printf('%f \n', volume)
                 is_leaf = is_leaf or (impurity <= MIN_IMPURITY_SPLIT) or volume==0
 
                 if not is_leaf:

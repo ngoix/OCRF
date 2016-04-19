@@ -51,7 +51,8 @@ nb_exp = 1
 #       'pima', 'wilt', 'adult']
 
 datasets = ['ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
-            'pendigits', 'pima', 'wilt', 'adult']
+             'pendigits', 'pima', 'wilt', 'adult']
+# datasets = ['wilt']
 
 plt.figure(figsize=(25, 20))
 
