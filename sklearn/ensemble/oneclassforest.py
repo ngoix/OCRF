@@ -239,46 +239,26 @@ class OneClassRF(BaseBagging):
         X = check_array(X, accept_sparse='csr')
         n_samples = X.shape[0]
 
-
         n_samples_leaf = np.zeros((n_samples, self.n_estimators), order="f")
         volume = np.zeros((n_samples, self.n_estimators), order="f")
-        scores = np.zeros((n_samples, self.n_estimators), order="f")
-        depths = np.zeros((n_samples, self.n_estimators), order="f")
+        # scores = np.zeros((n_samples, self.n_estimators), order="f")
 
         for i, (tree, features) in enumerate(zip(self.estimators_,
                                                  self.estimators_features_)):
             leaves_index = tree.apply(X[:, features])
-            node_indicator = tree.decision_path(X[:, features])
             n_samples_leaf[:, i] = tree.tree_.n_node_samples[leaves_index]
             volume[:, i] = tree.tree_.volume[leaves_index]
-            #scores[:, i] = np.divide(n_samples_leaf[:, i], volume[:, i]) 
+            # scores[:, i] = np.divide(n_samples_leaf[:, i], volume[:, i])
         scores_av = - n_samples_leaf.mean(axis=1) / volume.mean(axis=1)
-        #scores_av = - scores.mean(axis=1)
-        # print 'volume=', volume
-        # print 'volume..mean(axis=1)=', volume.mean(axis=1)
-        # print 'n_samples_leaf', n_samples_leaf
-        # print 'n_samples_leaf.mean(axis=1)=', n_samples_leaf.mean(axis=1)
-        # print 'scores_av', scores_av
+        # scores_av = - scores.mean(axis=1)
 
         # one has to detect observation outside the input cell self.lim_inf/sup
         # (otherwise, can yields very normal score for them):
-        out_index = (X > self.lim_sup).any(axis=1) + (X < self.lim_inf).any(axis=1)
+        out_index = (X > self.lim_sup).any(axis=1) + (X < self.lim_inf).any(
+            axis=1)
         scores_av[out_index] = scores_av.max()
-        
+
         return scores_av
-
-        # for i, tree in enumerate(self.estimators_):
-        #     leaves_index = tree.apply(X)
-        #     node_indicator = tree.decision_path(X)
-        #     n_samples_leaf[:, i] = tree.tree_.n_node_samples[leaves_index]
-        #     depths[:, i] = np.asarray(node_indicator.sum(axis=1)).reshape(-1) - 1
-
-        # depths += _average_path_length(n_samples_leaf)
-
-        # scores = 2 ** (-depths.mean(axis=1) / _average_path_length(self.max_samples_))
-
-        # return scores
-
 
     def decision_function(self, X):
         """Average of the decision functions of the base classifiers.
@@ -303,6 +283,7 @@ class OneClassRF(BaseBagging):
         scoring = self.predict(X)
         return roc_auc_score(y, scoring)
 
+
 def _average_path_length(n_samples_leaf):
     """ The average path length in a n_samples iTree, which is equal to
     the average path length of an unsuccessful BST search since the
@@ -312,7 +293,7 @@ def _average_path_length(n_samples_leaf):
     n_samples_leaf : array-like of shape (n_samples, n_estimators), or int.
         The number of training samples in each test sample leaf, for
         each estimators.
-    
+
     Returns
     -------
     average_path_length : array, same shape as n_samples_leaf
