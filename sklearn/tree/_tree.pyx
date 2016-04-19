@@ -263,7 +263,7 @@ cdef class DepthFirstTreeBuilder(TreeBuilder):
                     for j in range(n_features):
                         lim_inf[j] = INFINITY
                         lim_sup[j] = -INFINITY
-                        for i in range(n_samples): #ou alors splitter.n_samples et pas end - start?? (idem l. 470)
+                        for i in range(splitter.n_samples):#(n_samples): #ou alors splitter.n_samples et pas end - start?? (idem l. 470)
                             x = XX[X_sample_stride * samples[i] + X_feature_stride * j]
                             if x < lim_inf[j]:
                                 lim_inf[j] = x
