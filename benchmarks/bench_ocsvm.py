@@ -39,11 +39,11 @@ datasets = ['http', 'smtp', 'SA', 'SF', 'shuttle', 'forestcover',
 # # continuous datasets:
 # datasets = ['http', 'smtp', 'shuttle', 'forestcover',
 #             'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
-#             'pendigits', 'pima', 'wilt']
+#             'pendigits', 'pima', 'wilt', 'adult']
 
 # # new datasets:
 # datasets = ['ionosphere', 'spambase', 'annthyroid', 'arrhythmia', 'pendigits',
-#             'pima', 'wilt']
+#             'pima', 'wilt', 'adult']
 
 plt.figure(figsize=(25, 20))
 
@@ -157,8 +157,9 @@ for dat in datasets:
 
     n_samples, n_features = np.shape(X)
     n_samples_train = n_samples // 2
-    # # OCSVM training on max 100000 data:
-    # n_samples_train = min(n_samples // 2, 100000)
+    # OCSVM training on max 100000 data:
+    n_samples_train = min(n_samples // 2, 100000)
+
     n_samples_test = n_samples - n_samples_train
     X = X.astype(float)
 
@@ -238,4 +239,4 @@ for dat in datasets:
     plt.title('Precision-Recall curve', fontsize=20)
     plt.legend(loc="lower right")
 
-plt.savefig('bench_ocsvm_roc_pr')
+plt.savefig('results_thesis/bench_ocsvm_roc_pr_supervised')

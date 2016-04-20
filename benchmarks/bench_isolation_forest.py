@@ -36,15 +36,15 @@ nb_exp = 20
 # TODO: CV for OCSVM!
 
 
-# datasets available:
-datasets = ['http', 'smtp', 'SA', 'SF', 'shuttle', 'forestcover',
-            'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
-            'pendigits', 'pima', 'wilt','internet_ads', 'adult']
-
-# # continuous datasets:
-# datasets = ['http', 'smtp', 'shuttle', 'forestcover',
+# # datasets available:
+# datasets = ['http', 'smtp', 'SA', 'SF', 'shuttle', 'forestcover',
 #             'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
-#             'pendigits', 'pima', 'wilt', 'adult']
+#             'pendigits', 'pima', 'wilt','internet_ads', 'adult']
+
+# continuous datasets:
+datasets = ['http', 'smtp', 'shuttle', 'forestcover',
+            'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
+            'pendigits', 'pima', 'wilt', 'adult']
 
 # # new datasets:
 # datasets = ['ionosphere', 'spambase', 'annthyroid', 'arrhythmia', 'pendigits',
@@ -192,9 +192,9 @@ for dat in datasets:
         y_train = y[:n_samples_train]
         y_test = y[n_samples_train:]
 
-        # # training only on normal data:
-        # X_train = X_train[y_train == 0]
-        # y_train = y_train[y_train == 0]
+        # training only on normal data:
+        X_train = X_train[y_train == 0]
+        y_train = y_train[y_train == 0]
 
         print('IsolationForest processing...')
         model = IsolationForest()
@@ -250,4 +250,4 @@ for dat in datasets:
     plt.title('Precision-Recall curve', fontsize=20)
     plt.legend(loc="lower right")
 
-plt.savefig('bench_iforest_roc_pr_unsupervised')
+plt.savefig('results_workshop/bench_iforest_roc_pr_supervised_continuous')
