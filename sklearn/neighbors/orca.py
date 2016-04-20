@@ -4,98 +4,105 @@
 
 from ..utils import check_array
 
+import subprocess as sub
+import pandas as pd
+import csv
+
 __all__ = ["Orca"]
 
 
 class Orca():
-    """Unsupervised Outlier Detection using Local Outlier Factor (LOF)
-
-    The anomaly score of each sample is called Local Outlier Factor.
-    It measures the local deviation of density of a given sample with
-    respect to its neighbors.
-    It is local in that the degree depends on how isolated the object is
-    with respect to the surrounding neighborhood.
-    More precisely, locality is given by k-nearest neighbors, whose distance
-    is used to estimate the local density.
-    By comparing the local density of a sample to the local densities of
-    its neighbors, one can identify samples that have a substantially lower
-    density than their neighbors. These are considered as outliers.
+    """Orca is a data-driven, unsupervised anomaly detection algorithm 
+    that uses a distance-based approach. 
+    It uses a novel pruning rule that allows it to run in nearly linear time. 
+    Orca was co-developed by Stephen Bay of ISLE and Mark Schwabacher of NASA ARC.
 
     Parameters
     ----------
-    n_neighbors : int, optional (default = 5)
-        Number of neighbors to use by default for :meth:`k_neighbors` queries.
 
-    algorithm : {'auto', 'ball_tree', 'kd_tree', 'brute'}, optional
-        Algorithm used to compute the nearest neighbors:
-
-        - 'ball_tree' will use :class:`BallTree`
-        - 'kd_tree' will use :class:`KDtree`
-        - 'brute' will use a brute-force search.
-        - 'auto' will attempt to decide the most appropriate algorithm
-          based on the values passed to :meth:`fit` method.
-
-        Note: fitting on sparse input will override the setting of
-        this parameter, using brute force.
-
-    leaf_size : int, optional (default = 30)
-        Leaf size passed to BallTree or KDTree. This can affect the
-        speed of the construction and query, as well as the memory
-        required to store the tree. The optimal value depends on the
-        nature of the problem.
-
-    p: integer, optional (default = 2)
-        Parameter for the Minkowski metric from
-        sklearn.metrics.pairwise.pairwise_distances. When p = 1, this is
-        equivalent to using manhattan_distance (l1), and euclidean_distance
-        (l2) for p = 2. For arbitrary p, minkowski_distance (l_p) is used.
-
-    metric : string or callable, default 'minkowski'
-        metric to use for distance computation. Any metric from scikit-learn
-        or scipy.spatial.distance can be used.
-
-        If metric is a callable function, it is called on each
-        pair of instances (rows) and the resulting value recorded. The callable
-        should take two arrays as input and return one value indicating the
-        distance between them. This works for Scipy's metrics, but is less
-        efficient than passing the metric name as a string.
-
-        Distance matrices are not supported.
-
-        Valid values for metric are:
-
-        - from scikit-learn: ['cityblock', 'cosine', 'euclidean', 'l1', 'l2',
-          'manhattan']
-
-        - from scipy.spatial.distance: ['braycurtis', 'canberra', 'chebyshev',
-          'correlation', 'dice', 'hamming', 'jaccard', 'kulsinski',
-          'mahalanobis', 'matching', 'minkowski', 'rogerstanimoto',
-          'russellrao', 'seuclidean', 'sokalmichener', 'sokalsneath',
-          'sqeuclidean', 'yule']
-
-        See the documentation for scipy.spatial.distance for details on these
-        metrics.
-
-    metric_params : dict, optional (default = None)
-        Additional keyword arguments for the metric function.
-
-    contamination : float in (0., 0.5), optional (default=0.1)
-        The amount of contamination of the data set, i.e. the proportion
-        of outliers in the data set. When fitting it is used to define the
-        threshold on the decision function.
-
-    n_jobs : int, optional (default = 1)
-        The number of parallel jobs to run for neighbors search.
-        If ``-1``, then the number of jobs is set to the number of CPU cores.
-        Affects only :meth:`k_neighbors` and :meth:`kneighbors_graph` methods.
+    no_param : no, parameter, is, available (default = always)
+        No parameter is available for the moment (we may add one for weights).
     """
     def __init__(self):
-	print "coucou"
+	   print "initialization (nothing)"
 
     def fit_predict(self, Xtrain, Xtest):
-	Xtrain=check_array(Xtrain);
-	Xtest=check_array(Xtrain);
-	print "coucou"
+        Xtrain=check_array(Xtrain)
+        print "Xtrain checked"
+        Xtest=check_array(Xtest)
+        print "Xtest checked"
+
+        print "write data in 'Xtrain' and 'Xtest'"
+
+        # CREATION OF THE XTRAIN FILE FOR DPREP
+        dfXtrain = pd.DataFrame(data=Xtrain[0:,0:])
+        dfXtrain.to_csv("orca_linux_bin_static/Xtrain", header=False, index=False, index_label=False)
+
+        # IDEM EN PLUS LOURD
+        # fileXtrain = open('Xtrain', 'w')
+        # print "Xtrain opened"
+        # print fileXtrain
+        # for i in range(Xtrain.shape[0]):
+        #     for j in range(Xtrain.shape[1]):
+        #         fileXtrain.write(str(Xtrain[i,j]))
+        #         if j==Xtrain.shape[1]-1:
+        #             fileXtrain.write('\n')
+        #         else:
+        #             fileXtrain.write(', ')
+
+        # CREATION OF THE XTEST FILE FOR DPREP 
+        dfXtest = pd.DataFrame(data=Xtest[0:,0:])
+        dfXtest.to_csv("orca_linux_bin_static/Xtest", header=False, index=False, index_label=False)
+
+        # IDEM EN PLUS LOURD
+        # fileXtest = open('Xtest', 'w')
+        # print "Xtest opened"
+        # print fileXtest
+
+        # for i in range(Xtest.shape[0]):
+        #     for j in range(Xtest.shape[1]):
+        #         fileXtest.write(str(Xtest[i,j]))
+        #         if j==Xtest.shape[1]-1:
+        #             fileXtest.write('\n')
+        #         else:
+        #             fileXtest.write(', ')
+
+        # CREATION OF THE FIELD FILE FOR DPREP
+        fileFields = open('orca_linux_bin_static/Fields', 'w')
+        print "Fields opened"
+        print fileFields
+        for j in range(Xtest.shape[1]):
+            line = "feature" + str(j) + ": continuous.\n"
+            fileFields.write(line)
+        fileFields.close()
+
+        print "Calling Dprep for Xtrain"
+        p = sub.Popen(['./orca_linux_bin_static/dprep','orca_linux_bin_static/Xtrain','orca_linux_bin_static/Fields','orca_linux_bin_static/Xtrain.bin'],stdout=sub.PIPE,stderr=sub.PIPE)
+        output, errors = p.communicate()
+        p.wait()
+        print output
+        print errors
+
+        print "Calling Dprep for Xtest"
+        p2 = sub.Popen(['./orca_linux_bin_static/dprep','orca_linux_bin_static/Xtest','orca_linux_bin_static/Fields','orca_linux_bin_static/Xtest.bin'],stdout=sub.PIPE,stderr=sub.PIPE)
+        output2, errors2 = p2.communicate()
+        p2.wait()
+        print output2
+        print errors2
+
+        print "Calling ORCA"
+        p3 = sub.Popen(['./orca_linux_bin_static/orca','orca_linux_bin_static/Xtest.bin','orca_linux_bin_static/Xtrain.bin','weights'],stdout=sub.PIPE,stderr=sub.PIPE)
+        #../data/adult.bin','../data/adult.bin','../data/adult.weights'],stdout=sub.PIPE,stderr=sub.PIPE)
+        output3, errors3 = p3.communicate()
+        print output3
+        print errors3
+
+        # MR PROPRE
+        p4 = sub.Popen(['rm','orca_linux_bin_static/Xtrain','orca_linux_bin_static/Xtrain.bin','orca_linux_bin_static/Xtest','orca_linux_bin_static/Xtest.bin','orca_linux_bin_static/Fields','weights'],stdout=sub.PIPE,stderr=sub.PIPE)
+        output4, errors4 = p4.communicate()
+        print output4
+        print errors4
+
 	return self
 
         """Fit the model using X as training data
