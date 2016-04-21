@@ -89,20 +89,20 @@ for dat in datasets:
     print('Orca processing...')
     model = Orca()
     tstart = time()
-    model.fit_predict(X_train,X_test)
+    scoring = model.fit_predict(X_train,X_test)
     fit_time = time() - tstart
     tstart = time()
 
-#    scoring = model.predict(X_test)  # the lower, the more normal
-#    predict_time = time() - tstart
-#    fpr, tpr, thresholds = roc_curve(y_test, scoring)
-#    AUC = auc(fpr, tpr)
-#    plt.plot(fpr, tpr, lw=1, label='ROC for %s (area = %0.3f, train-time: %0.2fs, test-time: %0.2fs)' % (dat, AUC, fit_time, predict_time))
+    scoring = model.predict(X_test)  # the lower, the more normal
+    # predict_time = time() - tstart
+    fpr, tpr, thresholds = roc_curve(y_test, scoring)
+    AUC = auc(fpr, tpr)
+    plt.plot(fpr, tpr, lw=1, label='ROC for %s (area = %0.3f, train-time: %0.2fs, test-time: %0.2fs)' % (dat, AUC, fit_time, predict_time))
 
-#plt.xlim([-0.05, 1.05])
-#plt.ylim([-0.05, 1.05])
-#plt.xlabel('False Positive Rate')
-#plt.ylabel('True Positive Rate')
-#plt.title('Receiver operating characteristic')
-#plt.legend(loc="lower right")
-#plt.show()
+plt.xlim([-0.05, 1.05])
+plt.ylim([-0.05, 1.05])
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('Receiver operating characteristic')
+plt.legend(loc="lower right")
+plt.show()

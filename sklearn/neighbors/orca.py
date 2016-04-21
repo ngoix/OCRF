@@ -8,6 +8,8 @@ import subprocess as sub
 import pandas as pd
 import csv
 
+import numpy as np
+
 __all__ = ["Orca"]
 
 
@@ -80,24 +82,67 @@ class Orca():
         p = sub.Popen(['./orca_linux_bin_static/dprep','orca_linux_bin_static/Xtrain','orca_linux_bin_static/Fields','orca_linux_bin_static/Xtrain.bin'],stdout=sub.PIPE,stderr=sub.PIPE)
         output, errors = p.communicate()
         p.wait()
-        print output
-        print errors
+        # print output
+        # print errors
 
         print "Calling Dprep for Xtest"
         p2 = sub.Popen(['./orca_linux_bin_static/dprep','orca_linux_bin_static/Xtest','orca_linux_bin_static/Fields','orca_linux_bin_static/Xtest.bin'],stdout=sub.PIPE,stderr=sub.PIPE)
         output2, errors2 = p2.communicate()
         p2.wait()
-        print output2
-        print errors2
+        # print output2
+        # print errors2
 
         print "Calling ORCA"
-        nbOutlierOption = str(Xtest.shape[0]) # '-n',nbOutlierOption,
-        p3 = sub.Popen(['./orca_linux_bin_static/orca','orca_linux_bin_static/Xtest.bin','orca_linux_bin_static/Xtrain.bin','weights', '-n', nbOutlierOption],stdout=sub.PIPE,stderr=sub.PIPE)
-        #../data/adult.bin','../data/adult.bin','../data/adult.weights'],stdout=sub.PIPE,stderr=sub.PIPE)
+        nbOutlierOption = str(Xtest.shape[0]/8)  # as in paper "isolation forest" 
+        nbNN = str(5)
+        p3 = sub.Popen(['./orca_linux_bin_static/orca','orca_linux_bin_static/Xtest.bin','orca_linux_bin_static/Xtrain.bin','weights', '-n', nbOutlierOption, '-k', nbNN],stdout=sub.PIPE,stderr=sub.PIPE)
         output3, errors3 = p3.communicate()
         p3.wait()
-        print output3
-        print errors3
+        # print output3
+        # print errors3
+
+
+        topOutlierString = "Top outliers:"
+        firstLetterIndex = output3.find(topOutlierString)
+        recordString = "Record:"
+        scoreString = "Score:"
+        stringOutliersORCA = output3[firstLetterIndex+len(topOutlierString):len(output3)-1]
+        outlierRank = 1;
+
+        outliersIndexes = np.zeros(Xtest.shape[0]/8)
+        outliersScores = np.zeros(Xtest.shape[0]/8)
+        scoring = np.zeros(Xtest.shape[0])
+
+        #  BOUCLE
+        for i in range(Xtest.shape[0]/8-1):
+            firstLetterIndex = stringOutliersORCA.find(recordString)
+            firstLetterIndex = firstLetterIndex + len(recordString)
+            lastLetterIndex = stringOutliersORCA.find(scoreString)
+
+            #print "RECORD:" 
+            #print stringOutliersORCA[firstLetterIndex:lastLetterIndex]
+            oind = int(stringOutliersORCA[firstLetterIndex:lastLetterIndex])
+            outliersIndexes[i] = oind
+
+            firstLetterIndex = lastLetterIndex + len(scoreString)
+            outlierRank = outlierRank + 1
+            outlierRankString = str(outlierRank) + "."
+            lastLetterIndex = stringOutliersORCA.find(outlierRankString)
+            
+            #print "SCORE:" 
+           # print stringOutliersORCA[firstLetterIndex:lastLetterIndex]
+            osco = float(stringOutliersORCA[firstLetterIndex:lastLetterIndex])
+            outliersScores[i] = osco
+
+            stringOutliersORCA = stringOutliersORCA[lastLetterIndex+len(outlierRankString):len(output3)-1]
+        # FIN BOUCLE
+
+        scoring[list(outliersIndexes)] = outliersScores
+
+        # print scoring
+
+        # for i in range(scoring.shape[0]):
+            # print scoring[i]
 
         # MR PROPRE
         p4 = sub.Popen(['rm','orca_linux_bin_static/Xtrain','orca_linux_bin_static/Xtrain.bin','orca_linux_bin_static/Xtest','orca_linux_bin_static/Xtest.bin','orca_linux_bin_static/Fields','weights'],stdout=sub.PIPE,stderr=sub.PIPE)
@@ -106,7 +151,7 @@ class Orca():
         print output4
         print errors4
 
-	return self
+	return scoring
 
         """Fit the model using X as training data
 
