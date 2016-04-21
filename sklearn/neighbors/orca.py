@@ -91,15 +91,18 @@ class Orca():
         print errors2
 
         print "Calling ORCA"
-        p3 = sub.Popen(['./orca_linux_bin_static/orca','orca_linux_bin_static/Xtest.bin','orca_linux_bin_static/Xtrain.bin','weights'],stdout=sub.PIPE,stderr=sub.PIPE)
+        nbOutlierOption = str(Xtest.shape[0]) # '-n',nbOutlierOption,
+        p3 = sub.Popen(['./orca_linux_bin_static/orca','orca_linux_bin_static/Xtest.bin','orca_linux_bin_static/Xtrain.bin','weights', '-n', nbOutlierOption],stdout=sub.PIPE,stderr=sub.PIPE)
         #../data/adult.bin','../data/adult.bin','../data/adult.weights'],stdout=sub.PIPE,stderr=sub.PIPE)
         output3, errors3 = p3.communicate()
+        p3.wait()
         print output3
         print errors3
 
         # MR PROPRE
         p4 = sub.Popen(['rm','orca_linux_bin_static/Xtrain','orca_linux_bin_static/Xtrain.bin','orca_linux_bin_static/Xtest','orca_linux_bin_static/Xtest.bin','orca_linux_bin_static/Fields','weights'],stdout=sub.PIPE,stderr=sub.PIPE)
         output4, errors4 = p4.communicate()
+        p4.wait()
         print output4
         print errors4
 
