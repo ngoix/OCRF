@@ -24,18 +24,18 @@ from sklearn.datasets import fetch_kddcup99, fetch_covtype, fetch_mldata
 from sklearn.datasets import fetch_spambase, fetch_annthyroid, fetch_arrhythmia
 from sklearn.datasets import fetch_pendigits, fetch_pima, fetch_wilt
 from sklearn.datasets import fetch_internet_ads
-from sklearn.preprocessing import LabelBinarizer
+from sklearn.preprocessing import LabelBinarizer, scale
 from sklearn.utils import shuffle as sh
 from scipy.interpolate import interp1d
 
 np.random.seed(1)
 
-nb_exp = 20
+nb_exp = 10
 
 # TODO: CV for OCSVM!
 
 
-# datasets available:
+# # datasets available:
 # datasets = ['http', 'smtp', 'SA', 'SF', 'shuttle', 'forestcover',
 #             'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
 #             'pendigits', 'pima', 'wilt','internet_ads', 'adult']
@@ -49,7 +49,7 @@ datasets = ['http', 'smtp', 'shuttle', 'forestcover',
 # datasets = ['ionosphere', 'spambase', 'annthyroid', 'arrhythmia', 'pendigits',
 #             'pima', 'wilt', 'adult',]
 
-plt.figure(figsize=(25, 20))
+plt.figure(figsize=(25, 17))
 
 for dat in datasets:
     # loading and vectorization
@@ -159,11 +159,25 @@ for dat in datasets:
     if dat == 'http' or dat == 'smtp':
         y = (y != 'normal.').astype(int)
 
+    # ### 10 % of abnormal max: ###
+    index_normal = (y == 0)
+    index_abnormal = (y == 1)
+    if index_abnormal.sum() > 0.1 * index_normal.sum():
+        X_normal = X[index_normal]
+        X_abnormal = X[index_abnormal]
+        n_anomalies = X_abnormal.shape[0]
+        n_anomalies_max = int(0.1 * index_normal.sum())
+        r = sh(np.arange(n_anomalies))[:n_anomalies_max]
+        X = np.r_[X_normal, X_abnormal[r]]
+        y = np.array([0] * X_normal.shape[0] + [1] * n_anomalies_max)
+    # ######
+
     n_samples, n_features = np.shape(X)
     n_samples_train = n_samples // 2
     n_samples_test = n_samples - n_samples_train
     X = X.astype(float)
-
+    X = scale(X)
+    
     n_axis = 1000
     x_axis = np.linspace(0, 1, n_axis)
     tpr = np.zeros(n_axis)
@@ -173,19 +187,20 @@ for dat in datasets:
 
     for ne in range(nb_exp):
         print 'exp num:', ne
-        indices = np.arange(X.shape[0])
-        np.random.shuffle(indices)  # shuffle the dataset
-        X = X[indices]
-        y = y[indices]
+        X, y = sh(X, y)
+        # indices = np.arange(X.shape[0])
+        # np.random.shuffle(indices)  # shuffle the dataset
+        # X = X[indices]
+        # y = y[indices]
 
         X_train = X[:n_samples_train, :]
         X_test = X[n_samples_train:, :]
         y_train = y[:n_samples_train]
         y_test = y[n_samples_train:]
 
-        # # training only on normal data:
-        # X_train = X_train[y_train == 0]
-        # y_train = y_train[y_train == 0]
+        # training only on normal data:
+        X_train = X_train[y_train == 0]
+        y_train = y_train[y_train == 0]
 
         print('LocalOutlierFactor processing...')
         model = LocalOutlierFactor(n_neighbors=20)
@@ -240,4 +255,4 @@ for dat in datasets:
     plt.title('Precision-Recall curve', fontsize=20)
     plt.legend(loc="lower right")
 
-plt.savefig('results_workshop/bench_lof_roc_pr_unsupervised')
+plt.savefig('results_workshop/bench_lof_roc_pr_supervised_with_scale')
