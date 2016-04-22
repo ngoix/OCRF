@@ -8,6 +8,8 @@ import subprocess as sub
 import pandas as pd
 import csv
 
+import pdb
+
 import numpy as np
 
 __all__ = ["Orca"]
@@ -101,9 +103,21 @@ class Orca():
         # print output2
         # print errors2
 
+
         print "Calling ORCA"
-        nbOutlierOption = str(Xtest.shape[0]/8)  # as in paper "ilation forest"
+
+        # ================
+        #|| ORCA OPTIONS ||
+        # ================
+        # nbOutlier computed
+        nbOutlier = Xtest.shape[0] # maybe ./8 as in paper "ilation forest"
+        nbOutlierOption = str(nbOutlier) 
+        # nb of nearest neighbors considered by orca
         nbNN = str(5)
+        # ======================
+        #|| EN OF ORCA OPTIONS ||
+        # ======================
+
         p3 = sub.Popen(['./orca_linux_bin_static/orca',
                         'orca_linux_bin_static/Xtest.bin',
                         'orca_linux_bin_static/Xtrain.bin', 'weights', '-n',
@@ -113,6 +127,10 @@ class Orca():
         # print output3
         # print errors3
 
+
+        # ==========
+        #|| PARSER ||
+        # ==========
         topOutlierString = "Top outliers:"
         firstLetterIndex = output3.find(topOutlierString)
         recordString = "Record:"
@@ -120,40 +138,37 @@ class Orca():
         stringOutliersORCA = output3[firstLetterIndex+len(topOutlierString):len(output3)-1]
         outlierRank = 1
 
-        outliersIndexes = np.zeros(Xtest.shape[0]/8)
-        outliersScores = np.zeros(Xtest.shape[0]/8)
+        outliersIndexes = np.zeros(nbOutlier)
+        outliersScores = np.zeros(nbOutlier)
         scoring = np.zeros(Xtest.shape[0])
 
-        #  BOUCLE
-        for i in range(Xtest.shape[0]/8-1):
+            #PARSING LOOP
+        for i in range(nbOutlier-1):
             firstLetterIndex = stringOutliersORCA.find(recordString)
             firstLetterIndex = firstLetterIndex + len(recordString)
             lastLetterIndex = stringOutliersORCA.find(scoreString)
-
             # print "RECORD:"
             # print stringOutliersORCA[firstLetterIndex:lastLetterIndex]
             oind = int(stringOutliersORCA[firstLetterIndex:lastLetterIndex])
-            outliersIndexes[i] = oind
+            outliersIndexes[i] = oind-1
 
             firstLetterIndex = lastLetterIndex + len(scoreString)
             outlierRank = outlierRank + 1
-            outlierRankString = str(outlierRank) + "."
+            outlierRankString = str(outlierRank) + ". "
             lastLetterIndex = stringOutliersORCA.find(outlierRankString)
-
             # print "SCORE:"
             # print stringOutliersORCA[firstLetterIndex:lastLetterIndex]
             osco = float(stringOutliersORCA[firstLetterIndex:lastLetterIndex])
             outliersScores[i] = osco
 
             stringOutliersORCA = stringOutliersORCA[lastLetterIndex+len(outlierRankString):len(output3)-1]
-        # FIN BOUCLE
+            # END OF PARSING LOOP
+
+        # =================
+        #|| END OF PARSER ||
+        # =================
 
         scoring[list(outliersIndexes)] = outliersScores
-
-        # print scoring
-
-        # for i in range(scoring.shape[0]):
-            # print scoring[i]
 
         # MR PROPRE
         p4 = sub.Popen(['rm',

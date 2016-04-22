@@ -29,7 +29,7 @@ from scipy.interpolate import interp1d
 
 np.random.seed(1)
 
-nb_exp = 2
+nb_exp = 100
 
 # XXXXXXX Launch without pythonpath (with python) on MASTER (after built)
 
@@ -216,8 +216,11 @@ for dat in datasets:
         tstart = time()
         # fit_time += time() - tstart
         # tstart = time()
-
+        # if ne==7:
         scoring = -model.fit_predict(X_train, X_test)  # the lower,the more normal
+        # else:
+            # scoring = np.zeros(X_test.shape[0])
+        
         fit_predict_time += time() - tstart
         fpr_, tpr_, thresholds_ = roc_curve(y_test, scoring)
 
