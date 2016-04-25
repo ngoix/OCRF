@@ -15,7 +15,7 @@ __all__ = ["one_class_data"]
 
 
 def one_class_data(dat, anomaly_max=0.1, percent10_kdd=False, scaling=True,
-                   shuffle=True):
+                   shuffle=True, continuous=True):
     '''
     Parameters
     ----------
@@ -42,6 +42,8 @@ def one_class_data(dat, anomaly_max=0.1, percent10_kdd=False, scaling=True,
     shuffle : bool, default=True
         Whether to shuffle dataset.
 
+    continuous: bool, default=True
+        Whether to remove discontinuous attributes.
     '''
 
     print('loading data' + dat)
@@ -83,6 +85,13 @@ def one_class_data(dat, anomaly_max=0.1, percent10_kdd=False, scaling=True,
         y = dataset.target
         # rm 5 features containing some '?' (XXX to be mentionned in paper)
         X = np.delete(X, [10, 11, 12, 13, 14], axis=1)
+        # rm non-continuous features:
+        if continuous is True:
+            l = []
+            for j in range(X.shape[1]):
+                if len(set(X[:, j])) < 10:
+                    l += [j]
+            X = np.delete(X, l, axis=1)
         y = (y != 1).astype(int)
         # normal data are then those of class 1
 
@@ -90,6 +99,9 @@ def one_class_data(dat, anomaly_max=0.1, percent10_kdd=False, scaling=True,
         dataset = fetch_annthyroid(shuffle=False)
         X = dataset.data
         y = dataset.target
+        # rm 1-15 features taking only 2 values:
+        if continuous is True:
+            X = np.delete(X, range(1, 16), axis=1)
         y = (y != 3).astype(int)
         # normal data are then those of class 3
 
@@ -103,7 +115,8 @@ def one_class_data(dat, anomaly_max=0.1, percent10_kdd=False, scaling=True,
         X = dataset.data
         y = dataset.target
         # rm first two features which are not continuous (take only 2 values):
-        X = np.delete(X, [0, 1], axis=1)
+        if continuous is True:
+            X = np.delete(X, [0, 1], axis=1)
         y = (y != 1).astype(int)
 
     if dat in ['http', 'smtp', 'SA', 'SF']:
@@ -132,6 +145,14 @@ def one_class_data(dat, anomaly_max=0.1, percent10_kdd=False, scaling=True,
         s = (y == 2) + (y == 4)
         X = X[s, :]
         y = y[s]
+        # rm discontinnuous features:
+        if continuous is True:
+            l = []
+            for j in range(X.shape[1]):
+                if len(set(X[:, j])) < 10:
+                    l += [j]
+            X = np.delete(X, l, axis=1)
+        # X = np.delete(X, [28, 50], axis=1)
         y = (y != 2).astype(int)
 
     print('vectorizing data')
