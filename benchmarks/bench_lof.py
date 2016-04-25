@@ -126,4 +126,4 @@ for dat in datasets:
     plt.title('Precision-Recall curve', fontsize=20)
     plt.legend(loc="lower right")
 
-plt.savefig('results_workshop/bench_lof_roc_pr_supervised_with_scale')
+plt.savefig('results_workshop/bench_lof_roc_pr_supervised_factorized')

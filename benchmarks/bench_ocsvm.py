@@ -23,6 +23,7 @@ from scipy.interpolate import interp1d
 np.random.seed(1)
 
 nb_exp = 10
+ocsvm_max_train = 10000
 
 # TODO: CV for OCSVM!
 
@@ -49,8 +50,8 @@ for dat in datasets:
 
     n_samples, n_features = np.shape(X)
     n_samples_train = n_samples // 2
-    # OCSVM training on max 100000 data:
-    n_samples_train = min(n_samples // 2, 100000)
+    # OCSVM training on max ocsvm_max_train data:
+    n_samples_train = min(n_samples // 2, ocsvm_max_train)
     n_samples_test = n_samples - n_samples_train
 
     n_axis = 1000
@@ -73,9 +74,9 @@ for dat in datasets:
         y_train = y[:n_samples_train]
         y_test = y[n_samples_train:]
 
-        # # training only on normal data:
-        # X_train = X_train[y_train == 0]
-        # y_train = y_train[y_train == 0]
+        # training only on normal data:
+        X_train = X_train[y_train == 0]
+        y_train = y_train[y_train == 0]
 
         print('OneClassSVM processing...')
         model = OneClassSVM(cache_size=500)
@@ -130,4 +131,4 @@ for dat in datasets:
     plt.title('Precision-Recall curve', fontsize=20)
     plt.legend(loc="lower right")
 
-plt.savefig('results_workshop/bench_ocsvm_roc_pr_unsupervised_with_scale')
+plt.savefig('results_workshop/bench_ocsvm_roc_pr_supervised_factorized')

@@ -123,7 +123,7 @@ def one_class_data(dat, anomaly_max=0.1, percent10_kdd=False, scaling=True,
 
     if dat in ['http', 'smtp', 'SA', 'SF']:
         dataset = fetch_kddcup99(subset=dat, shuffle=False,
-                                 percent10_kdd=percent10_kdd)
+                                 percent10=percent10_kdd)
         X = dataset.data
         y = dataset.target
 

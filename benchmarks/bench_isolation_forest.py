@@ -38,14 +38,14 @@ nb_exp = 10
 #             'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
 #             'pendigits', 'pima', 'wilt','internet_ads', 'adult']
 
-# # continuous datasets:
-# datasets = ['http', 'smtp', 'shuttle', 'forestcover',
-#             'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
-#             'pendigits', 'pima', 'wilt', 'adult']
-
-# new datasets:
-datasets = ['ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
+# continuous datasets:
+datasets = ['http', 'smtp', 'shuttle', 'forestcover',
+            'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
             'pendigits', 'pima', 'wilt', 'adult']
+
+# # new datasets:
+# datasets = ['ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
+#             'pendigits', 'pima', 'wilt', 'adult']
 
 plt.figure(figsize=(25, 17))
 
@@ -135,4 +135,4 @@ for dat in datasets:
     plt.title('Precision-Recall curve', fontsize=20)
     plt.legend(loc="lower right")
 
-plt.savefig('results_workshop/bench_iforest_roc_pr_supervised_with_scale')
+plt.savefig('results_workshop/bench_iforest_roc_pr_supervised_factorized')
