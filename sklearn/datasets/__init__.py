@@ -17,6 +17,7 @@ from .base import load_sample_images
 from .base import load_sample_image
 from .covtype import fetch_covtype
 from .kddcup99 import fetch_kddcup99
+from .one_class_data import one_class_data
 from .mlcomp import load_mlcomp
 from .lfw import load_lfw_pairs
 from .lfw import load_lfw_people
@@ -78,6 +79,7 @@ __all__ = ['clear_data_home',
            'fetch_covtype',
            'fetch_rcv1',
            'fetch_kddcup99',
+           'one_class_data',
            'get_data_home',
            'load_boston',
            'load_diabetes',
