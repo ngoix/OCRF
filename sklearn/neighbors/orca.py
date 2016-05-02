@@ -1,6 +1,3 @@
-# Authors: Nicolas Goix <nicolas.goix@telecom-paristech.fr>
-#          Alexandre Gramfort <alexandre.gramfort@telecom-paristech.fr>
-# License: BSD 3 clause
 
 from ..utils import check_array
 
@@ -110,7 +107,7 @@ class Orca():
         #|| ORCA OPTIONS ||
         # ================
         # nbOutlier computed
-        nbOutlier = Xtest.shape[0] # maybe ./8 as in paper "ilation forest"
+        nbOutlier = int(Xtest.shape[0] / 8.) # maybe ./8 as in paper "ilation forest"
         nbOutlierOption = str(nbOutlier) 
         # nb of nearest neighbors considered by orca
         nbNN = str(5)

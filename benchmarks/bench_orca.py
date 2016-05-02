@@ -7,7 +7,7 @@ A test of Orca on classical anomaly detection datasets.
 
 """
 print(__doc__)
-
+import pdb
 from time import time
 import numpy as np
 
@@ -26,6 +26,8 @@ from scipy.interpolate import interp1d
 np.random.seed(1)
 
 nb_exp = 10
+orca_max_train = 1000000
+orca_max_test = 100000
 
 # XXXXXXX Launch without pythonpath (with python) on MASTER (after built)
 
@@ -38,15 +40,14 @@ nb_exp = 10
 #             'pendigits', 'pima', 'wilt','internet_ads', 'adult']
 
 # continuous datasets:
-# datasets = ['http', 'smtp', 'shuttle', 'forestcover',
-#             'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
-#             'pendigits', 'pima', 'wilt', 'adult']
+datasets = ['http', 'smtp', 'shuttle', 'forestcover',
+            'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
+            'pendigits', 'pima', 'wilt', 'adult']
 
 # # new datasets:
 # datasets = ['ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
 #             'pendigits', 'pima', 'wilt', 'adult']
-# datasets available:
-datasets = ['wilt']
+# datasets = ['adult']
 
 plt.figure(figsize=(25, 17))
 
@@ -56,7 +57,9 @@ for dat in datasets:
 
     n_samples, n_features = np.shape(X)
     n_samples_train = n_samples // 2
-    n_samples_test = n_samples - n_samples_train
+    # OCSVM training on max ocsvm_max_train data:
+    n_samples_train = min(n_samples // 2, orca_max_train)
+    n_samples_test = min(n_samples - n_samples_train, orca_max_test)
 
     n_axis = 1000
     x_axis = np.linspace(0, 1, n_axis)
@@ -73,9 +76,9 @@ for dat in datasets:
         # y = y[indices]
 
         X_train = X[:n_samples_train, :]
-        X_test = X[n_samples_train:, :]
+        X_test = X[n_samples_train:(n_samples_train + n_samples_test), :]
         y_train = y[:n_samples_train]
-        y_test = y[n_samples_train:]
+        y_test = y[n_samples_train:(n_samples_train + n_samples_test)]
 
         # training only on normal data:
         X_train = X_train[y_train == 0]
@@ -89,7 +92,7 @@ for dat in datasets:
         # if ne==7:
 
         # the lower,the more normal:
-        scoring = -model.fit_predict(X_train, X_test)
+        scoring = model.fit_predict(X_train, X_test)
         # else:
         #     scoring = np.zeros(X_test.shape[0])
 
@@ -122,20 +125,20 @@ for dat in datasets:
 
     plt.xlim([-0.05, 1.05])
     plt.ylim([-0.05, 1.05])
-    plt.xlabel('False Positive Rate', fontsize=20)
-    plt.ylabel('True Positive Rate', fontsize=20)
+    plt.xlabel('False Positive Rate', fontsize=25)
+    plt.ylabel('True Positive Rate', fontsize=25)
     plt.title('Receiver operating characteristic for Orca',
-              fontsize=20)
-    plt.legend(loc="lower right")
+              fontsize=25)
+    plt.legend(loc="lower right", prop={'size': 15})
 
     plt.subplot(122)
     plt.plot(x_axis, precision, lw=1, label='%s (area = %0.3f)'
              % (dat, AUPR))
     plt.xlim([-0.05, 1.05])
     plt.ylim([-0.05, 1.05])
-    plt.xlabel('Recall', fontsize=20)
-    plt.ylabel('Precision', fontsize=20)
-    plt.title('Precision-Recall curve', fontsize=20)
-    plt.legend(loc="lower right")
+    plt.xlabel('Recall', fontsize=25)
+    plt.ylabel('Precision', fontsize=25)
+    plt.title('Precision-Recall curve', fontsize=25)
+    plt.legend(loc="lower right", prop={'size': 15})
 
-plt.savefig('bench_orca_roc_pr_unsupervised_with_scale')
+plt.savefig('bench_orca_roc_pr_supervised_factorized')
