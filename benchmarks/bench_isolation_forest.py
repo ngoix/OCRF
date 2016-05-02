@@ -77,9 +77,9 @@ for dat in datasets:
         y_train = y[:n_samples_train]
         y_test = y[n_samples_train:]
 
-        # training only on normal data:
-        X_train = X_train[y_train == 0]
-        y_train = y_train[y_train == 0]
+        # # training only on normal data:
+        # X_train = X_train[y_train == 0]
+        # y_train = y_train[y_train == 0]
 
         print('IsolationForest processing...')
         model = IsolationForest()
@@ -119,20 +119,20 @@ for dat in datasets:
 
     plt.xlim([-0.05, 1.05])
     plt.ylim([-0.05, 1.05])
-    plt.xlabel('False Positive Rate', fontsize=20)
-    plt.ylabel('True Positive Rate', fontsize=20)
+    plt.xlabel('False Positive Rate', fontsize=25)
+    plt.ylabel('True Positive Rate', fontsize=25)
     plt.title('Receiver operating characteristic for IsolationForest',
-              fontsize=20)
-    plt.legend(loc="lower right")
+              fontsize=25)
+    plt.legend(loc="lower right", prop={'size': 15})
 
     plt.subplot(122)
     plt.plot(x_axis, precision, lw=1, label='%s (area = %0.3f)'
              % (dat, AUPR))
     plt.xlim([-0.05, 1.05])
     plt.ylim([-0.05, 1.05])
-    plt.xlabel('Recall', fontsize=20)
-    plt.ylabel('Precision', fontsize=20)
-    plt.title('Precision-Recall curve', fontsize=20)
-    plt.legend(loc="lower right")
+    plt.xlabel('Recall', fontsize=25)
+    plt.ylabel('Precision', fontsize=25)
+    plt.title('Precision-Recall curve', fontsize=25)
+    plt.legend(loc="lower right", prop={'size': 15})
 
-plt.savefig('results_workshop/bench_iforest_roc_pr_supervised_factorized')
+plt.savefig('results_ocrf/bench_iforest_roc_pr_unsupervised_factorized')
