@@ -39,16 +39,16 @@ nb_exp = 10
 #             'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
 #             'pendigits', 'pima', 'wilt', 'internet_ads', 'adult']
 
-# # continuous datasets:
-# datasets = ['http', 'smtp', 'shuttle', 'forestcover',
-#             'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
-#             'pendigits', 'pima', 'wilt', 'adult']
+# continuous datasets:
+datasets = ['http', 'smtp', 'shuttle', 'forestcover',
+            'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
+            'pendigits', 'pima', 'wilt', 'adult']
 # new: ['ionosphere', 'spambase', 'annthyroid', 'arrhythmia', 'pendigits',
 #       'pima', 'wilt', 'adult']
 
 # datasets = ['ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
 #             'pendigits', 'pima', 'wilt', 'adult']
-datasets = ['wilt']
+# datasets = ['wilt']
 plt.figure(figsize=(25, 17))
 
 for dat in datasets:
@@ -121,9 +121,9 @@ for dat in datasets:
         model = OneClassRF(max_depth='auto', max_samples=.1, max_features=3,
                            n_estimators=100)
 
-        # training only on normal data: (not supported in cv)
-        X_train = X_train[y_train == 0]
-        y_train = y_train[y_train == 0]
+        # # training only on normal data: (not supported in cv)
+        # X_train = X_train[y_train == 0]
+        # y_train = y_train[y_train == 0]
 
         tstart = time()
         model.fit(X_train)
@@ -190,4 +190,4 @@ for dat in datasets:
     plt.title('Precision-Recall curve', fontsize=25)
     plt.legend(loc="lower right", prop={'size': 15})
 
-plt.savefig('bench_oneclassrf_roc_pr_supervised_factorized')
+plt.savefig('results_ocrf/bench_oneclassrf_roc_pr_unsupervised_factorized')

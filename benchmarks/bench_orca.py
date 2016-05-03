@@ -27,7 +27,7 @@ np.random.seed(1)
 
 nb_exp = 10
 orca_max_train = 1000000
-orca_max_test = 100000
+orca_max_test = 1000000
 
 # XXXXXXX Launch without pythonpath (with python) on MASTER (after built)
 
@@ -39,15 +39,15 @@ orca_max_test = 100000
 #             'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
 #             'pendigits', 'pima', 'wilt','internet_ads', 'adult']
 
-# continuous datasets:
-datasets = ['http', 'smtp', 'shuttle', 'forestcover',
-            'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
-            'pendigits', 'pima', 'wilt', 'adult']
+# # continuous datasets:
+# datasets = ['http', 'smtp', 'shuttle', 'forestcover',
+#             'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
+#             'pendigits', 'pima', 'wilt', 'adult']
 
 # # new datasets:
 # datasets = ['ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
 #             'pendigits', 'pima', 'wilt', 'adult']
-# datasets = ['adult']
+datasets = ['wilt']
 
 plt.figure(figsize=(25, 17))
 
@@ -141,4 +141,4 @@ for dat in datasets:
     plt.title('Precision-Recall curve', fontsize=25)
     plt.legend(loc="lower right", prop={'size': 15})
 
-plt.savefig('bench_orca_roc_pr_supervised_factorized')
+plt.savefig('results_ocrf/bench_orca_roc_pr_supervised_factorized')
