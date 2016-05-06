@@ -1,0 +1,5 @@
+de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.quality.WithinClusterVarianceQualityMeasure
+de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.quality.WithinClusterMeanDistanceQualityMeasure
+de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.quality.AkaikeInformationCriterion
+de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.quality.BayesianInformationCriterion
+de.lmu.ifi.dbs.elki.algorithm.clustering.kmeans.quality.BayesianInformationCriterionZhao

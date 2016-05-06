@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: de.lmu.ifi.dbs.elki.algorithm.KNNJoinTest
+-------------------------------------------------------------------------------
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.017 sec - in de.lmu.ifi.dbs.elki.algorithm.KNNJoinTest
