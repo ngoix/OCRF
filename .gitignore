@@ -7,6 +7,7 @@
 *.swp
 *.swo
 .DS_Store
+*.arff
 
 build
 sklearn/datasets/__config__.py
