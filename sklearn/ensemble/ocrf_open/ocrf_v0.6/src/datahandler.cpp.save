@@ -1,0 +1,618 @@
+
+#include "../include/datahandler.h"
+
+/* ********************************************************
+ * Constructor
+ * param
+ * 		dataset : the dataset to be handled
+ *		cl : an index that gives the class position in the attribute vector
+ * 		full : a boolean that indicate if the subset has to be fully handled. Set to true by default
+ */
+DataHandler::DataHandler(DataSet * dataset, u_int cl, bool full){
+
+//cerr<<"debug cons handler delete 1"<<endl;
+	filename = "";
+//cerr<<"debug cons handler delete 2"<<endl;
+	set = dataset;//new DataSet(*dataset);
+	//set = new DataSet(dataset);
+
+//	cerr<<"debug cons handler delete 3"<<endl;
+	set->nbRef++;
+    classInd = cl;
+	u_int nbClass = getNbClass();
+	distrib = new double[nbClass];
+
+iter=0;
+//cerr<<"debug cons handler delete 4"<<endl;
+
+//subset=new vector<Instance*>();
+//weights=NULL;
+	for(u_int i=0;i<nbClass;i++) distrib[i] = 0.0;
+	if(full)
+	{
+
+	   // Instance * inst;
+		for(u_int i=0;i<set->size();i++)
+		{
+
+Instance*  inst = set->getInstance(i);
+			//inst = set->getInstance(i);
+
+			subset.push_back(inst);
+
+int indC=getClass(inst);
+int idInst=(inst)->getId();
+			weights.insert(pair<int,double>(idInst,1));
+			distrib[indC]++;
+
+//delete inst;
+//   try {
+//			delete inst;
+//	}
+//   catch( char * str ) {
+//      cout << "impossible de supprimer inst dans datahandler: " << str <<endl;
+//   }
+
+
+
+
+		}
+
+//cerr<<"construction set size:"<<size()<<endl;cin.get();
+	}
+
+//cerr<<"data handler created "<<endl;
+
+}
+
+/* ********************************************************
+ * Destructor
+ */
+DataHandler::~DataHandler()
+{
+
+
+
+//cerr<<"del handler:"<<subset.size()<<endl;//cin.get();
+
+//for(v_inst_it it=subset.begin();it<subset.end();it++){
+////cerr<<"data delete:"<<set->nbRef<<endl;
+//////(*it)->toString();
+//delete *it;
+//////
+//}
+subset.clear();
+
+//cerr<<"del handler:"<<subset.size()<<endl;//cin.get();
+
+//	for(int i=0;i<subset.size();i++){
+//
+////cerr<<"data:"<<i<<endl;
+////subset[i]->toString();
+//delete[] subset[i];
+
+//subset.erase(subset.begin()+i);
+
+//		delete subset[i];
+//		//subset.clear();
+//	}
+//	cerr<<subset[0]->toString();
+//	subset.clear();
+//	cerr<<subset[0]->toString();
+		delete[] distrib;
+	set->nbRef--;
+
+//cerr<<"delete set handler:"<<set->nbRef<<endl;
+	if(set->nbRef== 0) {
+	    delete set;
+	    //cout << "destruction set datahandler\n";
+	}
+//cin.get();
+
+//weights.erase(weights.begin(),weights.end());
+weights.clear();
+
+
+//delete set;
+
+//delete set;
+
+//	for(map<int,double>::iterator it=weights.begin(); it != weights.end();it++){
+//	for(int i=0;i<weights->size();i++){
+//
+////cerr<<"data:"<<i<<endl;
+////subset[i]->toString();
+//delete it;
+//		weights.erase(it);
+
+		//weights.erase(weights.begin()+i);
+//		//subset.clear();
+//	}
+//
+//	//delete set;
+//	weights.clear();
+
+//cerr<<"delete datahandler !"<<endl;
+
+//cerr<<"data handler deleted "<<endl;
+
+}
+
+
+vector<double>	DataHandler::normalize(double **minmax,vector<double>moyenne,bool calcMoy){
+
+	int nbAttrib=set->getNBAttribute()-1;
+	vector<Instance> dataTemp=set->getData();
+	vector<Instance> dataTempNorm=set->getData();
+
+	vector<double> moy((int)nbAttrib,0);
+	vector<double> moyTemp((int)nbAttrib,0);
+	vector<double> stdDev((int)nbAttrib,0);
+	double valMax=0;
+	double val=0;
+
+	int nbData=dataTemp.size();
+
+//cout<<"#nbData:"<<nbData<<"#nbAttrib:"<<nbAttrib<<endl;
+
+ofstream fichier("./resultats/temp.arff",ios::out);
+ofstream fichierNorm("./resultats/tempNorm.arff",ios::out);
+
+//	for(int j=0;j<nbAttrib;j++){
+//		moy[j]=0;
+//	}
+if(!calcMoy){
+	moy=moyenne;
+}
+else{
+	for(int i=0;i<nbData;i++){
+		moyTemp=dataTemp[i].getVectSimple();
+
+		for(int j=0;j<nbAttrib;j++){
+			moy[j]+=moyTemp[j]/nbData;
+
+			val+=moyTemp[j]*moyTemp[j];
+
+			stdDev[j]+=val/nbData;
+//cout<<i<<"/"<<j<<":"<<val<<":"<<stdDev[j]<<":"<<moyTemp[j]<<":"<<moy[j]<<"#nbData:"<<nbData<<"#nbAttrib:"<<nbAttrib<<endl;
+
+			fichier<<moyTemp[j]<<",";
+		}
+		fichier<<"\n";
+
+
+		if(val>valMax) valMax=val;
+//cout<<"val:"<<val<<"/valMax:"<<valMax<<endl;
+		val=0;
+	}
+valMax=sqrt(valMax);
+
+//cout<<"stdDev:\n";
+		for(int j=0;j<nbAttrib;j++){
+			stdDev[j]-=moy[j]*moy[j];
+			stdDev[j]=sqrt(stdDev[j]);
+//cout<<j<<":"<<stdDev[j]<<"/"<<moy[j]<<endl;
+		}
+
+}
+
+	for(int i=0;i<nbData;i++){
+		moyTemp=dataTemp[i].getVectSimple();
+
+		for(int j=0;j<nbAttrib;j++){
+			moyTemp[j]-=moy[j];
+			moyTemp[j]/=minmax[1][j];//valMax;//stdDev[j];//valMax;
+
+			fichierNorm<<moyTemp[j]<<",";
+		}
+		fichierNorm<<"\n";
+		dataTempNorm[i].setVect(moyTemp);
+//cout<<i<<":fill data"<<endl;
+	}
+
+set->setData(dataTempNorm);
+//moy.clear();
+moyTemp.clear();
+stdDev.clear();
+
+dataTemp.clear();
+dataTempNorm.clear();//atention a erreur seg
+
+return moy;
+}
+
+
+double** DataHandler::computeMinMaxOutlier(){
+
+//cerr<<"init minmax 1"<<endl;
+	u_int nbCarac = set->dim()-1;//getNbAttributes();
+
+//cerr<<"nbCarac:"<<nbCarac<<endl;cin.get();
+//cerr<<"init minmax 2"<<endl;
+
+	    double **minmaxvaloutlier = new double*[2];
+
+    minmaxvaloutlier[0] = new double [nbCarac];//min max pour chacune des dimensions
+    minmaxvaloutlier[1] = new double [nbCarac];
+
+//cerr<<"init minmax 3"<<endl;
+//cerr << "1";
+
+    for (int c=0;c<nbCarac;c++){
+    for (int j=0;j<set->size();j++){
+
+    	if(set->getInstance(j)->getClass()==OUTLIER){
+        minmaxvaloutlier[0][c] = (double)set->getInstance(j)->at(c);
+        minmaxvaloutlier[1][c] = (double)set->getInstance(j)->at(c);
+        break;
+    	}
+
+    }
+    }
+
+//cerr<<"init minmax 4"<<endl;
+//cerr << "2";
+
+//remplissage minmax
+    for (int i=0;i<set->size();i++) {
+
+//    	cerr<<"init minmax 41"<<endl;
+    	if(set->getInstance(i)->getClass()==OUTLIER){
+
+    	Instance* inst=set->getInstance(i);
+
+//    	cerr<<"init minmax 42"<<endl;
+        for (int c =0;c<nbCarac;c++) {
+
+//        	cerr<<"init minmax 43:"<<c<<endl;
+            if( (double)inst->at(c) < minmaxvaloutlier[0][c] ) {
+                minmaxvaloutlier[0][c] = (double)inst->at(c);
+            }
+            if( (double)inst->at(c) > minmaxvaloutlier[1][c] ) {
+                minmaxvaloutlier[1][c] = (double)inst->at(c);
+            }
+        }
+//        cerr<<"init minmax 44:"<<i<<endl;
+        //delete inst;
+//        cerr<<"init minmax 45:"<<i<<endl;
+    }
+
+    }
+
+//    cerr<<"init minmax 5"<<endl;
+
+	return minmaxvaloutlier;
+
+}
+
+double** DataHandler::computeMinMax(){
+
+//cerr<<"init minmax 1"<<endl;
+	u_int nbCarac = set->dim()-1;//trainSet->getNbAttributes();
+//cerr<<"nbCarac:"<<nbCarac<<endl;cin.get();
+//cerr<<"init minmax 2"<<endl;
+	    double **minmaxval = new double*[2];
+
+    minmaxval[0] = new double [nbCarac];//min max pour chacune des dimensions
+    minmaxval[1] = new double [nbCarac];
+
+//cerr<<"init minmax 3"<<endl;
+//cerr << "1";
+
+    for (int c=0;c<nbCarac;c++){
+    	if(c==getClassInd()) continue;
+        minmaxval[0][c] = (double)set->getInstance(0)->at(c);
+        minmaxval[1][c] = (double)set->getInstance(0)->at(c);
+    }
+
+//cerr<<"init minmax 4"<<endl;
+//cerr << "2";
+//remplissage minmax
+    for (int i=0;i<set->size();i++) {
+
+//    	cerr<<"init minmax 41:"+set->size()<<endl;
+
+    	Instance* inst=set->getInstance(i);
+
+//cerr<<"init minmax 42:"<<i<<":inst_id:"<<inst->getId()<<endl;
+        for (int c =0;c<nbCarac;c++) {
+if(c==getClassInd()) continue;
+//        	cerr<<"init minmax 43:"<<c<<endl;
+            if( (double)inst->at(c) < minmaxval[0][c] ) {
+                minmaxval[0][c] = (double)inst->at(c);
+            }
+            else if( (double)inst->at(c) >= minmaxval[1][c] ) {
+                minmaxval[1][c] = (double)inst->at(c);
+            }
+
+//cerr<<"\nVal:"<<c<<":"<<minmaxval[0][c]<<"#"<<minmaxval[1][c]<<endl;
+        }
+//        cerr<<"init minmax 44:"<<i<<endl;
+        //delete inst;
+//        cerr<<"init minmax 45:"<<i<<endl;
+    }
+
+//    cerr<<"init minmax 5"<<endl;
+
+	return minmaxval;
+
+}
+
+double** DataHandler::computeMinMaxClass(int cl){
+
+//cerr<<"init minmax 1"<<endl;
+	u_int nbCarac = set->dim()-1;//trainSet->getNbAttributes();
+//cerr<<"nbCarac class:"<<nbCarac<<endl;cin.get();
+//cerr<<"init minmax 2"<<endl;
+
+	    double **minmaxvalclass = new double*[2];
+
+    minmaxvalclass[0] = new double [nbCarac];//min max pour chacune des dimensions
+    minmaxvalclass[1] = new double [nbCarac];
+
+//cerr<<"init minmax 3"<<endl;
+//cerr << "1";
+
+    for (int c=0;c<nbCarac;c++){
+if(c==getClassInd()) continue;
+    for (int j=0;j<set->size();j++){
+
+    	if(set->getInstance(j)->getClass()==cl){
+        minmaxvalclass[0][c] = (double)set->getInstance(j)->at(c);
+        minmaxvalclass[1][c] = (double)set->getInstance(j)->at(c);
+        break;
+    	}
+
+    }
+    }
+
+//cerr<<"init minmax 4"<<endl;
+//cerr << "2";
+
+//remplissage minmax
+    for (int i=0;i<set->size();i++) {
+
+//    	cerr<<"init minmax 41"<<endl;
+    	if(set->getInstance(i)->getClass()==cl){
+
+    	Instance* inst=set->getInstance(i);
+
+//    	cerr<<"init minmax 42"<<endl;
+        for (int c =0;c<nbCarac;c++) {
+if(c==getClassInd()) continue;
+//        	cerr<<"init minmax 43:"<<c<<endl;
+            if( (double)inst->at(c) < minmaxvalclass[0][c] ) {
+                minmaxvalclass[0][c] = (double)inst->at(c);
+            }
+            if( (double)inst->at(c) > minmaxvalclass[1][c] ) {
+                minmaxvalclass[1][c] = (double)inst->at(c);
+            }
+        }
+//        cerr<<"init minmax 44:"<<i<<endl;
+        //delete inst;
+//        cerr<<"init minmax 45:"<<i<<endl;
+    }
+
+    }
+
+//    cerr<<"init minmax 5"<<endl;
+
+	return minmaxvalclass;
+
+}
+
+
+/* ********************************************************
+ * Adds an instance of the dataset as a member of the subset handled. If the instance has already been added to the subset, its weight is just increase by the given weight value.
+ * param :
+ * 		inst : the instance to be added
+ *		w : the weight of the given instance
+ */
+void		DataHandler::addInstance(Instance * inst, double w){
+	if(weights.find(inst->getId()) != weights.end()){
+		weights[inst->getId()] += w;
+//		cerr<<inst->getId()<<"\t"<<w<<endl;
+//		cerr<<"example found !"<<endl;
+//		cin.get();
+	}
+	else
+	{
+		subset.push_back(inst);
+		weights.insert(pair<int,double>(inst->getId(),w));
+
+//		cerr<<"inst added:"<<++iter<<endl;
+	}
+
+//cerr<<"add instance subset size:"<<size()<<endl;cin.get();
+	distrib[getClass(inst)] += w;
+//cerr<<inst->getId()<<"\t"<<w<<endl;
+	//delete inst;
+}
+
+/* ********************************************************
+ * Gives the number of instance in the subset
+ */
+u_int 		DataHandler::size(){ return subset.size(); }
+
+/* ********************************************************
+ * Gives the size of the subset, according to instance weights
+ */
+double		DataHandler::w_size()
+{
+	double res= 0.0;
+	for(v_inst_it it=subset.begin();it!=subset.end();it++)
+		res += weights[(*it)->getId()];
+	return res;
+}
+
+/* ********************************************************
+ * Gives the dimensionality of the feature space.
+ */
+u_int		DataHandler::dim(){ return set->dim(); }
+
+u_int		DataHandler::getSize(){ return set->size(); }
+
+/* ********************************************************
+ * Indicates weather or not the subset is empty
+ */
+bool 		DataHandler::empty() { return subset.empty(); }
+
+/* ********************************************************
+ * Gives a begin iterator to the subset vector of instance pointers.
+ */
+v_inst_it	DataHandler::begin() { return subset.begin(); }
+
+/* ********************************************************
+ * Gives an end iterator to the subset vector of instance pointers.
+ */
+v_inst_it	DataHandler::end() { return subset.end(); }
+
+/* ********************************************************
+ * Gives a pointer to the dataset
+ */
+DataSet * 	DataHandler::getDataSet(){ return set; }
+
+/* ********************************************************
+ * Gives the number of class modalities
+ */
+u_int		DataHandler::getNbClass() { return set->getNbModal(classInd); }
+
+/* ********************************************************
+ * Gives the number of attributes
+ */
+u_int		DataHandler::getNbAttributes() { return (dim()-1); }
+
+/* ********************************************************
+ * Gives the class value of a given instances of the subset
+ * param :
+ * 		inst : a pointer to an instance. It is supposed to be in the dataset.
+ */
+u_int 		DataHandler::getClass(Instance * inst) { return (u_int) (inst->at(classInd)); }
+
+/* ********************************************************
+ * Gives a pointer to an instance from a given index
+ * param :
+ * 		ii : an index of an instance in the subset. Indicates the position of the instance to be returned in the subset container.
+ */
+Instance *	DataHandler::getInstance(u_int instInd)
+{
+	if(instInd<0 || instInd>=subset.size()) return NULL;
+	return subset[instInd];
+}
+
+/* ********************************************************
+ * Gives a pointer to an attribute object
+ * param :
+ * 		ii : an index of an attribute in the dataset attribute vector
+ */
+Attribute * 	DataHandler::getAttribute(u_int attInd)
+{
+	if(attInd<0 || attInd>=dim()) return NULL;
+	return set->getAttribute(attInd);
+}
+
+/* ********************************************************
+ * Gives the number of instances in the subset that belong to the class corresponding to the given index
+ * param :
+ * 		ii : an index of a class value
+ */
+double		DataHandler::getDistrib(u_int clasInd)
+{
+	if(clasInd<0 || clasInd>=getNbClass()) return 0.0;
+	return distrib[clasInd];
+}
+
+/* ********************************************************
+ * Gives the distribution array, containing all the class distributions in the subset
+ */
+double * 	DataHandler::getDistrib(){ return distrib; }
+
+/* ********************************************************
+ * Gives the class index in the attribute vector
+ */
+u_int		DataHandler::getClassInd(){ return classInd; }
+
+/* ********************************************************
+ * Gives the weight of the given instance.
+ *	param :
+ * 		inst : a pointer to the instance of which the weight is returned.
+ */
+double		DataHandler::getWeight(Instance * inst)
+{
+	int instId = inst->getId();
+	if(weights.find(instId) != weights.end())
+		return weights[instId];
+	else
+		return 1.0;
+}
+
+double      DataHandler::getWeight(u_int Id) {
+    if(weights.find(Id) != weights.end())
+		return weights[Id];
+	else
+		return 1.0;
+}
+
+/* ********************************************************
+ * Gives the name of the the filename used to load the dataset
+ */
+string		DataHandler::getFileName(){ return filename; }
+
+/* ********************************************************
+ * Set the class position in the attribute vector of the dataset.
+ *	param :
+ *		cl : the position of the class in the attribute vector.
+ */
+void		DataHandler::setClassInd(u_int cl)
+{
+	if(set->getAttribute(cl)->is_nominal()) classInd = cl;
+	//else cl = 0;//classInd remain unchanged
+}
+
+/* ********************************************************
+ * Set the name of the file used to load the dataset.
+ *	param :
+ *		file : the name of the file
+ */
+void 		DataHandler::setFileName(string file){ filename = file; }
+
+
+/* ********************************************************
+ * Gives a "string" description of the subset.
+ */
+string		DataHandler::toString()
+{
+
+	string out = "";
+	out += "\tTaille de la base : ";
+	out += Utils::to_string((int)w_size());
+
+	out += "\n\tNombre d'attributs : ";
+	out += Utils::to_string((int)dim()-1);
+
+	out += "\n\tNombre de classes : ";
+
+
+	out += Utils::to_string((int)getNbClass());
+	out += "\n\tDistribution des classes : \n";
+
+	for(u_int i=0;i<getNbClass();i++)
+	{
+		out += Utils::to_string(distrib[i]);
+		out += "\t";
+	}
+
+	return out;
+}
+
+void DataHandler::changeClass(u_int indInst, u_int newClass) {
+    (set->getInstance(indInst))->modClass(newClass);
+}
+
+void DataHandler::afficheBase() {
+
+    for (int i=0;i<(int)size();i++) {
+        cout << getInstance(i)->toString()<<" poids : "<<getWeight(getInstance(i))<<"\n";
+    }
+
+}

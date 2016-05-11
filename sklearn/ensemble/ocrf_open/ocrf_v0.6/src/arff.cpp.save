@@ -1,0 +1,287 @@
+
+#include "../include/arff.h"
+
+
+/* **********************************************
+ * Load arff Data from the arff file pointed by "arffFile"
+ */
+DataHandler * Arff::load(const char * arffFile)
+{
+	string filename(arffFile);
+	// creation of an empty dataset
+//	cout<<"Arff recu:"<<arffFile<<endl;
+
+	DataSet * dataset = new DataSet();
+	try
+	{
+
+//		cerr<<"debug arff 1"<<endl;
+		// file openning
+		ifstream arff(arffFile, ios_base::in);
+//		cerr<<"debug arff 2"<<endl;
+		if(arff.is_open())
+		{
+			string line;
+
+//cout<<"debug arff 3"<<endl;
+
+			// ignore comment lines : read the stream till finding a line that is not empty
+			// or that does not begin by a '%' (comment character)
+			do {getline(arff,line,'\n');}
+			while(line.empty() || line.find("%") == 0);
+
+//cout<<"debug arff 4"<<endl;
+			// read arff formatted data if a '@relation' keyword is found.
+			// For any error find in the format of arff data, the loading process is stopped
+			if((line.find("@relation") == 0) || (line.find("@Relation") == 0))
+			{
+
+				//cout<<"debug arff 5:"<<line<<endl;
+
+				readArffMeta(arff, dataset);
+
+				//cout<<"debug arff 51"<<endl;
+
+				readArffData(arff, dataset);
+			}
+			else throw ARFFFormatException("@relation keyword expected here");
+
+			//cout<<"debug arff 6"<<endl;
+
+		}
+		else {
+
+//			cerr<<"debug arff 7"<<endl;
+			throw ARFFFileException();
+
+		//cout<<"debug arff 7"<<endl;
+		}
+
+		arff.close();
+	}
+	catch(RFException &ex){ throw ex; }
+
+//cerr<<"debug arff 8"<<endl;
+
+	// by default, the class position in the attributes vector is set to the last element.
+	u_int cl = 0;
+	if(dataset->getAttribute(dataset->dim()-1)->is_nominal()) cl = (dataset->dim()-1);
+
+//cerr<<"debug arff 9"<<endl;
+
+	DataHandler * handler = new DataHandler(dataset,cl);
+	//delete dataset;
+
+	//cout<<"debug arff 10"<<endl;
+
+	handler->setFileName(filename);
+
+	//cout<<"debug arff 11"<<endl;
+	return handler;
+}
+
+
+/* **********************************************
+ * This function reads arff information about attributes, to save them in our structure.
+ * param :
+ * 		arff : the input stream
+ *		data : a pointer to the final dataset structure
+ */
+int Arff::readArffMeta(ifstream & arff, DataSet * dataset)
+{
+
+	//cout<<"debug readArffMeta arff 1"<<endl;
+
+	string line = "";
+	bool noAtt = true;
+	bool attFound = false;
+
+	// The only valid lines here, are those that begin by a '%' (comment) or by '@attribute'.
+	// Empty lines or also ignored.
+	do
+	{
+		attFound = false;
+		getline(arff,line,'\n');
+//cout<<"debug readArffMeta arff 2:"<<line<<endl;
+		if((line.find("@attribute") == 0) || (line.find("@Attribute") == 0))
+		{
+			noAtt = false;
+			attFound = true;
+			line.erase(0,11);		// erase the '@attribute' keyword
+
+//cout<<"debug readArffMeta arff 3"<<endl;
+			// have the position of the '{' character in the line.
+			// if the position returned is equal to 'npos', meaning that the character has not been found,
+			// the attribute is numeric.
+			size_t pos = line.find_first_of('{');
+			if(pos == string::npos)
+			{	// no '{' have been found : this a numerical attribute
+				pos = line.find_first_of(' ');
+				string name = line.substr(0,pos);	// just keep the name
+				dataset->addAttribute(name,NUMERIC);
+				//cout<<"debug readArffMeta arff 4"<<endl;
+			}
+			else
+			{	// this a nominal attribute
+				//cout<<"debug readArffMeta arff 5"<<endl;
+				string name = line.substr(0,pos-1);
+				line.erase(0,pos);			// keep the name and erase it from the string
+
+				// have a vector to store every modality of the nominal attribute.
+				vector<string> tokens;
+				string tmp = "";
+				for(u_int i=1;i<line.size();i++)
+				{
+					if(line[i]==' ' || line[i] == '\'') continue;
+					if(line[i]=='}')
+					{
+						tokens.push_back(tmp);
+						break;
+					}
+					if(line[i]==',')
+					{
+						tokens.push_back(tmp);
+						tmp = "";
+					}
+					else tmp += line[i];
+				}
+
+				dataset->addAttribute(name,NOMINAL,&tokens);
+			}
+		}
+	}
+	while(line.empty() || line.find("%") == 0 || attFound);
+
+//cout<<"debug readArffMeta arff 6"<<endl;
+
+	if(noAtt) throw ARFFFormatException("no @attribute declaration found");
+
+//cout<<"debug readArffMeta arff 7"<<endl;
+	if((line.find("@data") != 0) && (line.find("@Data") != 0)) throw ARFFFormatException("@Data keyword expected here");
+//cout<<"debug readArffMeta arff 8"<<endl;
+	return 0;
+}
+
+
+/* **********************************************
+ * This function reads arff information about data to save them in our structure.
+ * param :
+ * 		arff : the input stream
+ *		data : a pointer to the final dataset structure
+ */
+int Arff::readArffData(ifstream & arff, DataSet * dataset)
+{
+	string line;
+	do
+	{
+		getline(arff,line,'\n');
+		if(!line.empty() && !(line.find("%") == 0))
+		{	// empty lines are ignored
+
+			vector<string> tokens;
+			Utils::tokenize(line, tokens, ",");
+
+			vector<double> vals;
+
+			u_int i = 0;
+			for(vector<string>::iterator it=tokens.begin();it<tokens.end();it++)
+			{
+
+				double v;
+				if(dataset->getAttribute(i)->is_nominal())
+				{
+					for(u_int j=0;j<dataset->getAttribute(i)->getNbModal();j++) {
+						string temp = (string)(*it);
+						string temp2 = (string)dataset->getAttribute(i)->getModal(j);
+						temp = temp.substr(0,temp2.length());
+						cerr<<"te"
+						if(temp.compare(temp2) == 0) {
+							v = (double) j;
+						}
+					}
+				}
+				else {
+					 v = Utils::from_string(*it);
+				}
+
+				vals.push_back(v);
+				i++;
+			}
+
+			dataset->addInstance(&vals);
+		}
+	}
+	while(!arff.eof());
+	return 0;
+}
+
+
+
+
+/* **********************************************
+*  This function save data into an arff format file
+*/
+void Arff::save(const char * arffFile, DataHandler * datahandler)
+{
+	string filename(arffFile);
+	DataSet * dataset = datahandler->getDataSet();
+	ofstream file(arffFile);
+	file << "@relation " << arffFile << "\n\n";
+
+printf("Debug Arff::save for(u_int i=0;i<dataset->dim();i++)...\n");
+
+	for(u_int i=0;i<dataset->dim();i++)
+	{
+		file << "@attribute ";
+		file << dataset->getAttribute(i)->getName() << " ";
+
+
+printf("Debug dataset...\n");
+		if(dataset->getAttribute(i)->is_nominal())
+		{
+			file << "{";
+printf("Debug dataset getAttribute...\n");
+			file << dataset->getAttribute(i)->getModal(0);
+printf("Debug dataset getAttribute file...\n");
+
+
+
+			for(u_int j=1;j<dataset->getAttribute(i)->getNbModal();j++)
+			{
+				file << ",";
+				file << dataset->getAttribute(i)->getModal(j);
+			}
+printf("Debug dataset getAttribute...OK\n");
+
+			file << "}\n";
+		}
+		else
+		file << "real" << "\n";
+printf("Debug dataset...OK\n");
+
+	}
+
+printf("Debug Arff::save for(u_int i=0;i<dataset->dim();i++)...OK\n");
+
+
+	file << "\n@data\n";
+	for(u_int k=0;k<dataset->size();k++)
+	{
+		for(u_int l=0;l<dataset->dim()-1;l++)
+		{
+			if(dataset->getAttribute(l)->is_nominal())
+				file << dataset->getAttribute(l)->getModal((u_int)(dataset->getValue(k,l))) << ",";
+			else
+				file << dataset->getValue(k,l) << ",";
+		}
+
+		if(dataset->getAttribute(dataset->dim()-1)->is_nominal())
+			file << dataset->getAttribute(dataset->dim()-1)->getModal((u_int)(dataset->getValue(k,dataset->dim()-1)));
+		else
+			file << dataset->getValue(k,dataset->dim()-1);
+
+		file << "\n";
+	}
+	file.close();
+	datahandler->setFileName(filename);
+}

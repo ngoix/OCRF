@@ -1,0 +1,22 @@
+@relation iris_virginica
+@attribute 1 REAL
+@attribute 2 REAL
+@attribute 3 REAL
+@attribute 4 REAL
+@attribute class {outlier,target}
+@data
+6.7,3.3,5.7,2.5,target
+7.2,3.2,6,1.8,target
+7.6,3,6.6,2.1,target
+6,3,4.8,1.8,target
+6.3,3.3,6,2.5,target
+6.1,2.8,4.7,1.2,outlier
+6.4,2.9,4.3,1.3,outlier
+4.8,3.1,1.6,0.2,outlier
+6.8,2.8,4.8,1.4,outlier
+5,3.6,1.4,0.2,outlier
+5.1,3.4,1.5,0.2,outlier
+4.6,3.4,1.4,0.3,outlier
+6.2,2.9,4.3,1.3,outlier
+6.7,3.1,4.4,1.4,outlier
+6.3,2.5,4.9,1.5,outlier

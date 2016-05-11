@@ -1,0 +1,1335 @@
+#include "../include/outliergenerator.h"
+#include "../include/utils.h"
+#include "../include/specialfunctions.h"
+
+
+
+
+
+OutlierGenerator::OutlierGenerator(bool amontGenTemp,bool baggy, bool randsm, double bsize, u_int nbsub, u_int nbO, double tz,bool optimize_gen_temp) {
+
+optimize_gen=optimize_gen_temp;
+    amontGen=amontGenTemp;
+    bag = baggy;
+    rsm = randsm;
+    bagsize = bsize;
+    nbsubspace = nbsub;
+    nbOutlier = nbO;
+    taillezone = tz;
+    vecteursubspace = new u_int[nbsub];
+
+//cerr<<"debug rand 1"<<endl;
+srand((unsigned)time(0));//initialisation de rand
+//cerr<<"debug rand 2"<<endl;
+
+	if(bsize<=0 || bsize>100) bagsize = 100;
+
+//newData= new DataSet();
+
+//cerr<<"outlier generator created "<<endl;
+
+}
+
+OutlierGenerator::~OutlierGenerator() {
+    delete[] vecteursubspace;
+
+    for(int i=0;i<data.size();i++) data.erase(data.begin()+i);
+    data.clear();
+
+//    for(int i=0;i<histoOutlier.size();i++) histoOutlier.erase(histoOutlier.begin()+i);
+//    histoOutlier.clear();
+//
+//    for(int i=0;i<boundsInterTarget.size();i++) boundsInterTarget.erase(boundsInterTarget.begin()+i);
+//    boundsInterTarget.clear();
+
+listRSM.clear();
+    //delete newData;
+    //cerr<<"generateur deleted !"<<endl;
+
+//    cerr<<"outlier generator deleted "<<endl;
+}
+
+
+DataHandler * OutlierGenerator::generateOCB(DataHandler * base, u_int **tabRSM, const vector<vector<int> >& histoOutlierTemp, const vector<vector<double> >& boundsInterTargetTemp) {
+
+//cerr<<"debug rsm ocb 1"<<endl;
+//cout << "bagging\n";
+
+histoOutlier=histoOutlierTemp;
+boundsInterTarget=boundsInterTargetTemp;
+//cerr<<"save bounds"<<endl;
+//cerr<<"dataset size:"<<base->getDataSet()->size()<<endl;
+//
+//DataSet * dset_temp=base->getDataSet();
+//cerr<<"\n\n data 1"<<endl;
+//vector<Instance> temp=dset_temp->getData();
+//cerr<<"\n\n data 2"<<endl;
+//
+//data=base->getDataSet()->getData();
+//
+//cerr<<"\n\n data reçu:";
+//cerr<<data.size()<<"\n\n"<<endl;
+
+    DataHandler * dataPostBag=NULL;
+DataHandler * dataOutliergen=NULL;
+//bool amontGen=true;
+
+/*
+generation d'outlier en amont
+*/
+if(amontGen) {
+//cout<<"gen en amont methode de ref !"<<endl;
+//        dataPostBag = new DataHandler(base->getDataSet(),base->getClassInd(), false);//not fully handled ?
+////cout<<"debug rsm ocb 5"<<endl;
+//        u_int size = base->size();
+//
+//        for(int i=0;i<size;i++){
+//            Instance * inst = base->getInstance(i);
+//            dataPostBag->addInstance(inst);
+//        }
+//
+//	dataOutliergen = genereOutlier(dataPostBag);//modif
+}
+
+    if (bag) {//bagging
+    	//cout<<"######################### debug bagg ocb 2 =>"<<base->size()<<endl;
+//cerr<<"outliergen ocb:bagging"<<endl;cin.get();
+        dataPostBag = bagg(base);
+
+//    	cout<<"######################### debug bagg ocb 2 =>"<<dataPostBag->size()<<endl;
+        //cout<<"debug rsm ocb 3"<<endl;
+    }
+    else {
+
+//cerr<<"outliergen ocb: no bagging"<<endl;cin.get();
+
+if(!amontGen){//pas de bag ni de ref (rsm ou autres)
+//cerr<<"outliergen ocb:no bagging no ref => rsm or other"<<endl;cin.get();
+//cout<<"debug rsm ocb 4"<<endl;
+//        dataPostBag = new DataHandler(base->getDataSet(),base->getClassInd(), false);//not fully handled ?
+        dataPostBag = new DataHandler(base->getDataSet(),base->getClassInd(), true);//not fully handled ?//TODO:attention
+//cout<<"debug rsm ocb 5"<<endl;
+        u_int size = base->size();
+
+//cerr<<"################## base size datapostbag:"<<size<<endl;
+
+        for(int i=0;i<size;i++){
+            //Instance * inst = base->getInstance(i);
+            dataPostBag->addInstance(base->getInstance(i));
+           //dataPostBag->addInstance(inst);
+
+            //delete inst;
+        }
+
+}
+    }
+
+//cout<<"debug rsm ocb 6"<<endl;
+//cout << "generation outlier\n";
+
+//DataHandler * dataOutliergen = genereOutlier(dataPostBag);//modif
+
+//cout << "destruction datapostbag\n";
+
+//    delete dataPostBag;//modif
+
+//dataOutliergen->afficheBase();
+//system("pause");
+
+//cout << "rsm\n";
+    DataHandler * datafinal=dataPostBag;
+    if (rsm) {
+
+//cerr<<"outliergen ocb:rsm"<<endl;cin.get();
+
+//    	cout<<"debug rsm ocb 7"<<endl;
+//        datafinal = randomsubspacemethod(dataOutliergen,tabRSM);
+        //dataPostBag = randomsubspacemethod(dataPostBag,tabRSM);
+        datafinal = randomsubspacemethod(dataPostBag,tabRSM);
+
+
+//for(int j=0;j<dataPostBag->size();j++){
+//	Instance * inst=dataPostBag->getInstance(j);
+//cerr<<"original id rsm:"<<inst->getOriginalId()<<":"<<inst->getId()<<endl;cin.get();
+//
+//}
+
+//cout << "\nespace selectionne : ";
+//for (int i = 0;i<nbsubspace;i++) {
+//    cout << (*tabRSM)[i] << " ";
+//}
+//cout << "\n";
+//cout << "destruction dataoutliergen\n";
+
+//cout<<"debug rsm ocb 8"<<endl;
+//        delete dataOutliergen;//modif
+    }
+    else {
+
+//cerr<<"outliergen ocb:no rsm"<<endl;cin.get();
+
+//cout<<"debug rsm ocb 9"<<endl;
+//        datafinal = dataOutliergen;//modif
+        //datafinal = dataPostBag;
+        //cout<<"debug rsm ocb 10"<<endl;
+    }
+
+//cout<<"debug rsm ocb 11:"<<amontGen<<endl;
+
+/*
+generation d'outlier dans le bootstrap projete du rsm
+*/
+if(!amontGen){//bagrsm
+
+//cerr<<"outliergen ocb:bagrsm genereoutlier"<<endl;cin.get();
+
+//    cout<<"debug rsm ocb 11 amontGen:"<<amontGen<<endl;
+
+//dataOutliergen = new DataHandler(*genereOutlier(dataPostBag));//modif
+//dataOutliergen = genereOutlier(dataPostBag);//modif
+dataOutliergen = genereOutlier(datafinal);//modif
+
+//    cout<<"debug rsm ocb 11 amontGen 2:"<<amontGen<<endl;
+}
+//cout<<"debug rsm ocb 12"<<endl;
+delete datafinal;
+delete dataPostBag;
+//cout<<"debug rsm ocb 13"<<endl;
+//datafinal->afficheBase();
+//system("pause");
+
+//    return datafinal;
+    return dataOutliergen;
+}
+
+DataHandler * OutlierGenerator::genereOutlier(DataHandler * base,const vector<vector<int> >& histoOutlierTemp, const vector<vector<double> >& boundsInterTargetTemp){
+
+//cerr<<"outliergen ocb:genereoutlier from ref methode"<<endl;cin.get();
+
+histoOutlier=histoOutlierTemp;
+boundsInterTarget=boundsInterTargetTemp;
+
+return genereOutlier(base);
+}
+
+
+
+DataHandler * OutlierGenerator::genereOutlier(DataHandler * base) {
+
+//cerr << "debug genereoutlier 00"<<endl;
+
+data=base->getDataSet()->getData();
+//cerr << "debug genereoutlier 01"<<endl;
+//cerr<<"\n\n############################# data reçu:";
+//cerr<<data.size()<<"\n\n"<<endl;
+
+    u_int nbCarac = base->getNbAttributes();
+
+//cerr << "01"<<endl;
+//    double **minmaxval = new double*[2];
+//    double **minmaxval = base->computeMinMax();//modification:chesner
+
+
+//    minmaxval[0] = new double [nbCarac];//min max pour chacune des dimensions
+//    minmaxval[1] = new double [nbCarac];
+//
+//cerr << "1"<<endl;
+//
+//    for (int c=0;c<nbCarac;c++){
+//        minmaxval[0][c] = (double)base->getInstance(0)->at(c);
+//        minmaxval[1][c] = (double)base->getInstance(0)->at(c);
+//    }
+//
+//cerr << "2";
+
+//remplissage minmax
+//    for (int i=0;i<base->size();i++) {
+//    	Instance* inst=new Instance(*base->getInstance(i));
+//        for (int c =0;c<nbCarac;c++) {
+//            if( (double)inst->at(c) < minmaxval[0][c] ) {
+//                minmaxval[0][c] = (double)inst->at(c);
+//            }
+//            if( (double)inst->at(c) > minmaxval[1][c] ) {
+//                minmaxval[1][c] = (double)inst->at(c);
+//            }
+//        }
+//        delete inst;
+//    }
+
+
+//    for (int c=0;c<nbCarac;c++){
+//        cerr<<"min ("<<c<<"):"<<minmaxval[0][c]<<endl;// = (double)base->getInstance(0)->at(c);
+//        cerr<<"max ("<<c<<"):"<<minmaxval[1][c]<<endl;// = (double)base->getInstance(0)->at(c);
+//    }
+
+//cerr << "3";
+
+    //************************************************************************************************
+    // recopie des données dans le nouveau dataset
+// TODO (Chesner DESIR#1#):verifier la ponderation//ajout des data target
+
+    DataSet * newData= new DataSet();
+    //newData= new DataSet();
+//newData=NULL;
+//generation des outliers par roulette wheel
+
+
+//cerr << "debug genereoutlier 02"<<endl;
+
+    for (int i=0;i<base->size();i++) {
+
+    	Instance* inst=base->getInstance(i);//TODO:conserver Id
+//    	cerr<<"original id genere outlier:"<<inst->getOriginalId()<<":"<<inst->getId()<<endl;cin.get();
+    	u_int origId=inst->getOriginalId();
+    	vector<double> vect=inst->getVectSimple();
+        for (int w=0;w<base->getWeight(inst->getId());w++) {//recopie en fonction de la ponderation ?
+
+            newData->addInstance(&vect,origId);
+        }
+vect.clear();
+        //delete inst;
+    }
+
+
+//traitement des effectifs par dimension pour la generation des outliers par roulette wheel
+//bool alea_biais=true;
+//
+//if(alea_biais){//roue de la fortune biaisée
+//
+//
+//int nb_partition=50;//50;sqrt(nbData);//10;//10:valeur conseillée max par aggarwal et al. ref?;\sqrt{n} a voir
+//double largeurborne=0;//mesure de l'intervalle
+//
+//int nbData=base->size();
+////double **
+//minmaxval=base->computeMinMax();
+////int nbCarac=base->dim();
+//
+//vector<vector<int> > histoTargetTemp(nbCarac,vector<int>(nb_partition,0));
+//vector<vector<int> > histoOutlierTemp(nbCarac,vector<int>(nb_partition,0));
+//vector<vector<double> > boundsInterTargetTemp(nbCarac,vector<double>(nb_partition+1,0));
+//
+////double largeurborne_alpha=largeurborne+taillezone;
+//
+////cerr << "debug genereoutlier 03";
+//
+//        for (int c=0;c<nbCarac;c++) {
+//            largeurborne = minmaxval[1][c] - minmaxval[0][c];
+//double largeurborne_alpha=largeurborne*(1+taillezone);
+//int volume_inter=largeurborne_alpha/nb_partition;
+//
+////cerr << "\ndebug genereoutlier 030:"<<c<<endl;
+//
+//for(int k=0;k<nb_partition+1;k++){
+//	//curval = ranval*(1+taillezone)*largeurborne + minmaxval[0][c] - taillezone/2*largeurborne;//on genere dans l'enveloppe pour la dimension c une valeur
+//
+////cerr << "\ndebug genereoutlier 0301:"<<k<<endl;
+//
+//	double inter_min=(double)k/(nb_partition)*largeurborne_alpha+minmaxval[0][c]-taillezone/2*largeurborne;
+//
+//	//inter.at(k)=inter_min;
+//boundsInterTargetTemp.at(c).at(k)=inter_min;
+////cerr << "\ndebug genereoutlier 0302:"<<k<<endl;
+////cerr<<"dim:"<<c<<" iter:"<<k<<"/\\:"<<inter_min<<endl;
+//}
+//
+////cerr << "debug genereoutlier 04:"<<c<<endl;
+//
+////    for (int i=0;i<base->size();i++) {
+//
+////            cout <<"debug inst "<<c<<"\n";
+//
+//
+//double max_val=0;
+//int somme_effectifs=0;
+//int somme_effectifs_derivative=0;
+//
+////vector<double> temp=Utils::getMatCol(data);
+//vector<double> temp;
+//	for(int i=0;i<nbData;i++){
+//		double val=data.at(i).at(c);
+//temp.push_back(val);//vecteur colonne c
+////cerr<<val<<";";
+//	}
+////cerr<<endl;
+//
+////cerr << "debug genereoutlier 05"<<endl;
+//std::sort (temp.begin(), temp.end());
+////cerr << "debug genereoutlier 06"<<endl;
+//
+////for(int i=0;i<nbData;i++){
+////	cerr<<temp.at(i)<<";";
+////}
+////cerr<<endl;
+////cin.get();
+//
+//int k=0;
+//for(int j=0;j<nb_partition;j++){
+//	int eff=0;
+//	int iter_nb=0;
+//
+////cerr<<"debug part 1"<<endl;
+//	double t=temp.at(0);
+////cerr<<"debug part 2"<<endl;
+//	double a1=boundsInterTargetTemp.at(c).at(j);
+////cerr<<"debug part 3"<<endl;
+//	double a2=boundsInterTargetTemp.at(c).at(j+1);
+////cerr<<"debug part 4"<<endl;
+//	while(t<a1 && k<nbData){
+//		iter_nb++;
+//		t=temp.at(k);k++;
+//	}
+//
+////cerr<<"debug part 5"<<endl;
+//	while(t<a2 && k<nbData){
+//		iter_nb++;
+//		t=temp.at(k);k++;eff++;
+//	}
+//
+//
+////cerr << "debug genereoutlier 07:"<<a1<<"\t"<<a2<<"\t"<<eff<<endl;
+////
+////	for(int i=0;i<nbData;i++){
+////		double val=data.at(i).at(c);
+////
+//////		cerr<<"val trouvee:"<<val<<endl;
+////		if(val>=inter.at(j) && val<inter.at(j+1)) eff++;
+////	}
+////	effectifs.at(j)=eff;
+//	histoTargetTemp.at(c).at(j)=eff;
+//	histoOutlierTemp.at(c).at(j)=-eff;
+////somme_effectifs+=eff;
+//	if(eff>max_val) max_val=eff;
+////cerr<<"dimension:"<<c<<" eff:"<<eff<<endl;
+//
+////cerr << "debug genereoutlier 08:"<<c<<"/"<<j<<"/"<<nb_partition<<endl;
+//}
+//
+////cerr << "debug genereoutlier 09"<<endl;
+//
+//for(int j=0;j<nb_partition;j++){
+//	histoOutlierTemp.at(c).at(j)+=max_val;
+//}
+//
+//
+//
+//
+//
+////        }
+//
+//}
+//
+//
+////histoTarget=histoTargetTemp;
+//histoOutlier=histoOutlierTemp;
+//boundsInterTarget=boundsInterTargetTemp;
+//
+//
+//histoOutlierTemp.clear();
+//histoTargetTemp.clear();
+//boundsInterTargetTemp.clear();
+//
+//}
+///fin calcul histo roue de la fortune biaisée
+
+
+//DataHandler * handler = new DataHandler(base->getDataSet(),base->getClassInd(),true);
+
+//newData->affbase();
+
+//cerr << "genere out 4"<<endl;
+
+    //************************************************************************************************
+    // generation des outliers et ajout dans le dataSet
+//generation dans une hypersphere
+    u_int id = base->size();
+
+time_t start,end;
+double dif;
+time(&start);
+float t_test_0_gen=clock();//time
+
+int nbNull=0;
+
+double **minmaxval = base->computeMinMax();
+
+//if(!optimize_gen){
+//	minmaxval=base->computeMinMax();
+//}
+
+    for (int i=0; i< nbOutlier; i++){
+
+//cerr << "genere outlier 4:"<<i<<endl;
+//Instance * curinst = new Instance(*genereInstance((u_int)(id+i),base->getNbAttributes(),minmaxval,taillezone,base->getClassInd()));
+								Instance * curinst = genereInstance((u_int)(id+i),base->getNbAttributes(),minmaxval,taillezone,base->getClassInd());
+
+//Instance * curinst = genereInstanceBoule((u_int)(id+i),base->getNbAttributes(),minmaxval,taillezone,base->getClassInd());
+
+//cerr << "41:"<<i<<endl;
+
+if(curinst!=NULL){
+       newData->addInstance(curinst->getVect());
+}
+else{//continue
+	nbNull++;
+//	cerr<<"cur inst null:"<<i<<"/"<<nbNull<<endl;
+}
+//        handler->addInstance(curinst);
+
+//cerr<<"\ngenere ok"<<endl;
+        delete curinst;
+
+//cerr<<"\ngenere delete ok"<<endl;
+//cerr << "outlier generated:"<<i<<"/"<<nbOutlier<<endl;
+
+
+    }
+// cerr<<"fin genere outlier"<<endl;
+
+time(&end);
+dif = difftime(end,start);
+
+//ofstream time_calc("./resultats/res/time.txt",ios::out|ios::app);
+
+
+float t_test_1_gen=clock();//time
+float time_test_gen=(t_test_1_gen-t_test_0_gen)/(CLOCKS_PER_SEC);
+
+
+//time_calc<<nbOutlier<<"\t"<<dif<<"\t"<<time_test_gen<<endl;
+//time_calc.close();
+
+//cin.get();
+//cerr<<"delete minmax"<<endl;
+    delete[] minmaxval[0];
+    delete[] minmaxval[1];
+    delete[] minmaxval;
+//cerr<<"delete minmax ok"<<endl;
+
+//newData->affbase();
+//cerr << "genere out debug 5"<<endl;
+
+    //************************************************************************************************
+    // ajout des attributs
+//cerr<<"nbCarac genereoutlier:"<<nbCarac<<endl;cin.get();
+    for (int c=0;c<nbCarac;c++) {
+        newData->addAttribute(Utils::to_string(c),NUMERIC);
+//        handler->getDataSet()->addAttribute(Utils::to_string(c),NUMERIC);
+    }
+    vector<string> modal(2);
+    modal[TARGET] = "target";
+    modal[OUTLIER] = "outlier";
+    newData->addAttribute("class",NOMINAL,&modal);
+//handler->getDataSet()->addAttribute("class",NOMINAL,&modal);
+//cerr << " genere out debug 6"<<endl;
+
+    //************************************************************************************************
+    // definition du handler
+
+DataHandler * handler = new DataHandler(newData,base->getClassInd(),true);
+modal.clear();
+
+//cerr << "genere out debug 7"<<endl;
+//delete newData;
+    return handler;
+//    return new DataHandler(newData,base->getClassInd(),true);
+}
+
+
+Instance * OutlierGenerator::genereInstanceBoule(u_int id, u_int nbCarac, double ** minmaxval, double taillezone, u_int placeCarac) {
+
+    Instance * inst;
+    vector<double> vals(nbCarac+1);
+    vector<double> valsOutlier(nbCarac+1);
+    double largeurborne;
+    double curval;
+    double ranval;
+
+ofstream fichGauss("./resultats/gauss.txt",ios::out|ios::app);
+ofstream fichBoule("./resultats/boule.txt",ios::out|ios::app);
+double rayon =1.0+taillezone;
+
+double norme_vals=0;
+for(int i=0;i<nbCarac;i++){
+	vals[i]=Utils::randgauss(0,1);
+	norme_vals+=vals[i]*vals[i];
+	fichGauss<<vals[i]<<"\t";
+}
+fichGauss<<"\n";
+vals[nbCarac]=1;//outlier
+valsOutlier[nbCarac]=1;//outlier
+
+norme_vals=sqrt(norme_vals);
+
+double z=alglib::chisquaredistribution((double)nbCarac, norme_vals*norme_vals);
+double r1=pow(z,(double)1.0/nbCarac);
+//cout<<"val r1##################:"<<r1<<endl;
+for(int i=0;i<nbCarac;i++){
+
+//double val=Utils::randBoule(,(int)nbCarac);
+
+valsOutlier[i]=vals[i]/norme_vals*r1*rayon;
+//cout<<"boule:"<<val<<endl;
+
+fichBoule<<valsOutlier[i]<<"\t";
+}
+fichBoule<<"\n";
+
+
+inst = new Instance(id,&valsOutlier);
+vals.clear();
+//distribution gaussienne
+//somme des carres
+//fonction de repartition de la loi normale
+//normalisation
+
+
+return inst;
+
+}
+
+DataHandler ** OutlierGenerator::transformeBaseOC(DataHandler * base, u_int target, u_int pourcentApp) {
+
+    DataSet * newData=new DataSet();
+    vector<double> vals(base->getNbAttributes()+1);
+    int ind;
+
+    for (int i=0;i<base->size();i++) {
+        ind =0;
+        for (int c=0;c<base->getNbAttributes();c++) {
+            vals[ind] = base->getInstance(i)->at(c);
+
+            ind++;
+        }
+
+        if (target == base->getInstance(i)->getClass()) {
+            vals[base->getNbAttributes()] = 0;
+        }
+        else {
+            vals[base->getNbAttributes()] = 1;
+        }
+        newData->addInstance(&vals);
+    }
+
+    for (int c=0;c<base->getNbAttributes();c++) {
+        newData->addAttribute(Utils::to_string(c),NUMERIC);
+    }
+
+    vector<string> modal(2);
+    modal[TARGET] = "target";
+    modal[OUTLIER] = "outlier";
+    newData->addAttribute("class",NOMINAL,&modal);
+
+    DataHandler ** retour = new DataHandler*[2];
+    retour[0] = new DataHandler(newData,base->getClassInd(),false);
+    retour[1] = new DataHandler(newData,base->getClassInd(),false);
+
+
+    int randnum;
+    for (int i=0;i<base->size();i++) {
+        if(newData->getInstance(i)->getClass() == 0) {
+            randnum = Utils::randInt(100);
+            if (randnum <= pourcentApp) {
+                retour[0]->addInstance(newData->getInstance(i));
+            }
+            else {
+                retour[1]->addInstance(newData->getInstance(i));
+            }
+        }
+        else {
+            retour[1]->addInstance(newData->getInstance(i));
+        }
+    }
+    return retour;
+
+}
+
+DataSet * OutlierGenerator::transformeBaseOC(DataHandler * base, u_int target) {
+
+    DataSet * newData;
+    newData = new DataSet();
+    vector<double> vals(base->getNbAttributes()+1);
+    int ind;
+
+    for (int i=0;i<base->size();i++) {
+        ind =0;
+        for (int c=0;c<base->getNbAttributes();c++) {
+            vals[ind] = base->getInstance(i)->at(c);
+
+            ind++;
+        }
+
+        if (target == base->getInstance(i)->getClass()) {
+            vals[base->getNbAttributes()] = 0;
+        }
+        else {
+            vals[base->getNbAttributes()] = 1;
+        }
+        newData->addInstance(&vals);
+    }
+
+    for (int c=0;c<base->getNbAttributes();c++) {
+        newData->addAttribute(Utils::to_string(c),NUMERIC);
+    }
+
+    vector<string> modal(2);
+    modal[TARGET] = "target";
+    modal[OUTLIER] = "outlier";
+    newData->addAttribute("class",NOMINAL,&modal);
+
+
+    return newData;
+
+}
+
+
+DataHandler ** OutlierGenerator::genere10folds(DataHandler * handlerbase) {
+
+    DataHandler ** retour = new DataHandler*[20];
+
+    u_int nbTargetperfolds = handlerbase->getDistrib(0)/10;
+    u_int nbEchant = handlerbase->size();
+    u_int nbTarget = handlerbase->getDistrib(0);
+
+    for (int i=0;i<20;i++) {
+        retour[i] = new DataHandler(handlerbase->getDataSet(),handlerbase->getClassInd(),false);
+    }
+
+    u_int* listrand = Utils::tiragesansremise(nbEchant,nbEchant);
+
+    int nbtargettrouve;
+    for (int fold =0;fold<10;fold++) {
+        nbtargettrouve = 0;
+        for (int ech=0;ech<nbEchant;ech++) {
+            if (handlerbase->getClass(handlerbase->getInstance(listrand[ech])) == 1) {
+                retour[fold*2+1]->addInstance(handlerbase->getInstance(listrand[ech]),1);
+            }
+            else {
+                nbtargettrouve++;
+                if ((nbtargettrouve > fold*nbTargetperfolds) && (nbtargettrouve <= (fold+1)*nbTargetperfolds)) {
+                     retour[fold*2+1]->addInstance(handlerbase->getInstance(listrand[ech]),1);
+                }
+                else {
+                     retour[fold*2]->addInstance(handlerbase->getInstance(listrand[ech]),1);
+                }
+            }
+        }
+    }
+
+    return retour;
+
+}
+
+
+DataHandler * OutlierGenerator::bagg(DataHandler * base) {
+//cerr<<"bagging"<<endl;
+//cerr<<"outliergen:bagging"<<endl;cin.get();
+//        DataHandler * handlerfinal = new DataHandler(base->getDataSet(),base->getClassInd(), true);
+        DataHandler * handlerfinal = new DataHandler(base->getDataSet(),base->getClassInd(), false);//fully handled false
+
+        u_int s = base->size();
+        u_int size = (u_int) (((double) (s*bagsize))/100.0);
+
+//cerr<<"bagging debug 1"<<endl;
+//cerr<<"bagging:db size:"<<base->size()<<endl;
+        for(int i=0;i<size;i++)
+        {
+
+//cerr<<"bagging debug 2:"<<i<<"/"<<size<<endl;
+
+            int ind = Utils::randInt(s);
+
+//cerr<<"bagging debug 3:"<<ind<<endl;
+
+            //Instance * inst = (new Instance(*base->getInstance(ind)));
+            Instance * inst = base->getInstance(ind);
+//cerr<<inst->toString()<<endl;
+//cerr<<"bagging debug 3:"<<inst->getId()<<endl;
+//cerr<<"bagging debug string:"<<inst->toString()<<endl;
+//cerr<<"bagging debug 4"<<endl;
+
+            handlerfinal->addInstance(inst);
+
+//cerr<<"bagging debug 5"<<endl;
+
+            //delete inst;
+        }
+//cerr<<"bagging:db final size:"<<handlerfinal->size()<<endl;cin.get();
+//cerr<<"fin bagging"<<endl;
+
+//free(inst);
+        return handlerfinal;
+}
+
+
+DataHandler * OutlierGenerator::randomsubspacemethod(DataHandler * handler, u_int ** tabRSM){
+//cerr<<"outliergen: rsm"<<endl;cin.get();
+//cerr<<"debut rsm"<<endl;
+//cout << "tirage du sous espace\n";
+//cout << "class ind : "<<nbsubspace<<"\n";cin.get();
+        (*tabRSM) = Utils::tiragesansremise(nbsubspace,handler->getNbAttributes());
+
+        DataSet * newDataRSM = new DataSet();
+        int ind;
+        vector<double> vals(nbsubspace+1);
+//cout << "remplissage dataset rsm\n";
+
+vector<int> listRSM_temp;
+            for (int c=0;c<handler->getNbAttributes();c++) {
+                if (Utils::contient((*tabRSM),c,nbsubspace)){
+	listRSM_temp.push_back(c);
+                }
+            }
+
+//cerr<<"debug rsm list 1"<<endl;
+listRSM=listRSM_temp;
+//cerr<<"debug rsm list 2"<<endl;
+listRSM_temp.clear();
+//cerr<<"debug rsm list 3"<<endl;
+//cerr<<"size handler:"<<handler->size()<<endl;
+//cerr<<"debug rsm temp 3"<<endl;
+        for (int i=0;i<handler->size();i++) {
+            ind =0;
+
+
+Instance * inst=handler->getInstance(i);
+//cerr<<"original id rsm gen:"<<inst->getOriginalId()<<":"<<inst->getId()<<endl;cin.get();
+//cout << "\nnouvelle instance rsm : "<<inst->getId()<<endl;
+            for (int c=0;c<handler->getNbAttributes();c++) {
+                if (Utils::contient((*tabRSM),c,nbsubspace)) {
+                    vals[ind] = inst->at(c);
+//cout <<"("<<c<<"=>"<<ind<<":"<< vals[ind]<<") ";
+
+
+
+                    ind++;
+                }
+            }
+
+
+//cerr<<"debug rsm"<<endl;
+//backup tabRSM:
+//int nbCarac=handler->getNbAttributes();
+//
+//cout<<"\nliste subspaces non trie:"<<endl;
+//for(int j=0;j<nbCarac;j++){
+//	cout<<listRSM_temp[j]<<"\t";
+//}
+
+
+//std::sort (listRSM_temp.begin(), listRSM_temp.end());
+//
+//listRSM=listRSM_temp;
+//
+//cout<<"\nliste subspaces sorted:"<<endl;
+//for(int j=0;j<nbCarac;j++){
+//	cout<<listRSM[j]<<"\t";
+//}
+
+
+
+            vals[nbsubspace] = inst->getClass();
+
+//cout << vals[nbsubspace] << "\n";
+            //newDataRSM->addInstance(&vals);
+//            cerr<<"########### add instance:"<<inst->getOriginalId()<<endl;
+            newDataRSM->addInstance(&vals,inst->getOriginalId());
+//            cerr<<"########### add instance ok"<<endl;
+            //vals.clear();
+        }
+//cout << "ajout des attributs rsm\n";
+        for (int c=0;c<nbsubspace;c++) {
+            newDataRSM->addAttribute(Utils::to_string(c),NUMERIC);
+        }
+//cout << "ajout de la classe\n";
+        vector<string> modal(2);
+    modal[TARGET] = "target";
+    modal[OUTLIER] = "outlier";
+        newDataRSM->addAttribute("class",NOMINAL,&modal);
+//cout << "creation handler final rsm\n";
+        DataHandler * handlerfinal = new DataHandler(newDataRSM,nbsubspace, true);
+
+
+//for(int j=0;j<handlerfinal->size();j++){
+//	Instance * inst=handlerfinal->getInstance(j);
+//cerr<<"original id inside:"<<inst->getOriginalId()<<":"<<inst->getId()<<endl;cin.get();
+//
+//}
+
+vals.clear();
+
+        //delete(newDataRSM);//TODO
+        //return new DataHandler(newDataRSM,nbsubspace, true);
+
+//cerr<<"fin rsm"<<endl;cin.get();
+
+        return handlerfinal;
+}
+
+
+
+double OutlierGenerator::parzenKernelValue(double x, int d){
+
+//double h=1.0;//window
+
+double somme=0;
+
+double z=0;//au lieu de sqrt(2*PI);
+
+int nb=data.size();
+
+double h=1.0/sqrt(nb);//window
+
+//double maxi=0.000000000000000000000001;
+//double mini=0.000000000000000000000001;
+////cerr<<"taille data:"<<nb<<endl;
+//for(int i=0;i<nb;i++){
+//double x_i=fabs(data[i].at(d));
+//if(x_i>maxi) maxi=x_i;
+////if(x_i<mini) mini=x_i;
+//
+//}
+
+//for(int i=0;i<nb;i++){
+//double x_i=data[i].at(d);
+////z+=1.0*exp(-pow(((x_i-mini)/((maxi-mini)*h)),2)/2);
+////z+=1.0*exp(-pow(((x_i)/((maxi)*h)),2)/2);
+//z+=1.0*exp(-pow(((x_i)/((maxi)*h)),2)/2);
+////cerr<<"x_i="<<x_i<<" z="<<z<<" maxi="<<maxi<<";";
+//}
+//
+//cerr<<"\nz="<<z<<" | classique="<<sqrt(2*PI)<<endl;
+
+for(int i=0;i<nb;i++){
+double x_i=data[i].at(d);
+//somme+=1.0/(z)*exp(-pow((x-x_i)/((maxi-mini)*h),2)/2);
+//somme+=1.0/(z*h)*exp(-pow((x-x_i)/((maxi)*h),2)/2);
+somme+=1.0/(sqrt(2*PI)*h)*exp(-pow((x-x_i)/h,2)/2);
+}
+
+return somme/nb;
+
+}
+
+Instance * OutlierGenerator::optimizeGeneration(u_int placeCarac,u_int id,u_int nbCarac,double taillezone,double ** minmaxval){
+
+
+    int nbData=data.size();
+
+    vector<double> vals(nbCarac+1);
+
+Instance * inst=NULL;
+
+//cerr << "nb data: "<<data.size()<<"\n";
+
+//cerr<<"optimize generation 1"<<endl;
+
+double largeurborne=0;//mesure de l'intervalle
+double curval=0;//valeur de l'attribut
+double ranval=0;//random generator
+
+
+bool proba_estim=false;
+
+bool alea_biais=true;//roue de la fortune biaisée
+bool roulette_wheel=true;
+bool alea_derivative=false;//generation proche des données
+
+/*
+parametres pour proba_estim
+*/
+double seuil=0.5;//seuil sur proba_estim
+int iterMax=10;//nb iter max sur proba_estim
+int iter=0;
+double eps=0.01;//precision
+
+/*
+parametres pour alea_biais
+*/
+
+//cerr<<"optimize generation 2"<<endl;
+
+int nb_partition=histoOutlier.at(0).size();//50;sqrt(nbData);//10;//10:valeur conseillée max par aggarwal et al. ref?;\sqrt{n} a voir
+
+//cerr<<"optimize generation 3"<<endl;
+
+//cerr<<"debug rand 3:"<<nb_partition<<endl;
+//cin.get();
+//ranval = (double)(rand()%11)/10;
+ranval = ((double)Utils::randInt(100000))/100000.0;//fraction de 1
+
+//cerr<<"debug rand 4"<<endl;
+iter=0;
+
+
+    if (placeCarac !=0) {
+        for (int c=0;c<nbCarac;c++) {
+
+///faire le mapping avec le RSM
+//cerr<<"mapping RSM"<<endl;
+int cRSM=c;
+if(rsm){
+	cRSM=listRSM[c];
+}
+//cerr<<"mapping RSM ok"<<endl;
+//cout<<"current carac:"<<c<<" associated RSM:"<<cRSM<<endl;
+
+//            cout <<"debug inst "<<c<<"\n";
+            //largeurborne = minmaxval[1][c] - minmaxval[0][c];
+            largeurborne = boundsInterTarget.at(cRSM).at(nb_partition)-boundsInterTarget.at(cRSM).at(0);
+
+            //cerr<<"partition:"<<c<<"/"<<largeurborne<<"#"<<cRSM<<"/"<<largeurborne_bounds<<endl;
+iter=0;
+
+if(proba_estim){//estimation de proba par sommation de gaussienne
+
+	do{
+
+//cerr<<"debug 1:"<<curval<<"/lar:"<<largeurborne<<"/taillezone:"<<taillezone<<"/dim:"<<c<<endl;
+//
+//curval = ranval*(largeurborne+2*taillezone*largeurborne) + minmaxval[0][c] - taillezone*largeurborne;//on genere dans l'enveloppe pour la dimension c une valeur
+curval = ranval*(1+taillezone)*largeurborne + minmaxval[0][c] - taillezone/2*largeurborne;//on genere dans l'enveloppe pour la dimension c une valeur
+	//            curval = ranval;//*(largeurborne+2*taillezone*largeurborne);// + minmaxval[0][c] - taillezone*largeurborne;//on genere dans l'enveloppe pour la dimension c une valeur aleatoire
+//	cerr<<"iter:"<<iter<<" taille zone:"<<taillezone<<" largeur:"<<largeurborne<<" min:"<<minmaxval[0][c]<<" max:"<<minmaxval[1][c]<<" curval:"<<curval<<" dimension:"<<c<<endl;//<<" dim orig:"<<list_dim[c]<<endl;
+//	cin.get();
+//cerr<<"debug 2:"<<curval<<endl;
+
+double proba=parzenKernelValue(curval,c);
+//cerr<<"val proba:"<<proba<<"/nbData:"<<nbData<<" curval:"<<curval<<"/dimension:"<<c<<"/rand:"<<ranval<<"/iter:"<<iter<<endl;
+
+//cerr<<"############ val proba:"<<proba<<"/curval:"<<curval<<c<<"/rand:"<<ranval<<"/iter:"<<iter<<endl;
+if(proba<seuil) {
+//cerr<<"yeaaah ############ val proba:"<<proba<<"/curval:"<<curval<<" dim:"<<c<<"/iter:"<<iter<<endl;
+	break;
+}
+iter++;
+
+//cerr<<"######################################################### val proba:"<<proba<<"/curval:"<<curval<<c<<"/rand:"<<ranval<<"/iter:"<<iter<<endl;
+
+            ranval = ((double)Utils::randInt(100000))/100000.0;//fraction de 1
+
+
+}while(iter<iterMax);
+
+if(iter>=iterMax){
+
+//	cerr<<"###################### iterMax atteint....Val:";
+//	curval = ranval*(largeurborne+2*taillezone*largeurborne) + minmaxval[0][c] - taillezone*largeurborne;//on genere dans l'enveloppe pour la dimension c une valeur aleatoire
+curval = ranval*(1+taillezone)*largeurborne + minmaxval[0][c] - taillezone/2*largeurborne;//on genere dans l'enveloppe pour la dimension c une valeur
+	//cerr<<curval<<"/d="<<c<<endl;
+
+}
+
+vals[c] = curval;
+
+        }
+
+if(alea_biais){//roue de la fortune biaisée
+
+int somme_effectifs=0;
+for(int i=0;i<nb_partition;i++){
+	somme_effectifs+=histoOutlier.at(cRSM).at(i);
+}
+
+//tirage aleatoire dans [0;somme_effectifs]
+ranval = ((double)Utils::randInt(100000))/100000.0;//fraction de 1
+int eff_alea=(int)((float)ranval*somme_effectifs);//valeur aleatoire de la partition de generation outlier
+//cerr<<"eff alea:"<<eff_alea<<" ranval:"<<ranval<<" somme:"<<somme_effectifs<<endl;
+//reperage dans effectifs l'intervalle correspondant
+//cerr<<"eff out:"<<somme_effectifs<<" deriv target:"<<somme_effectifs_derivative<<endl;
+
+if(roulette_wheel){//roulette-wheel selection
+
+int somme_temp=0;
+int trouve=0;
+int iter_int=0;
+
+for(int j=0;j<nb_partition;j++){
+//inversion
+somme_temp+=histoOutlier.at(cRSM).at(j);
+//somme_temp+=effectifs[j];
+
+//cerr<<"effectifs:"<<effectifs[j]<<" somme :"<<somme_temp<<"/ somme_eff:"<<somme_effectifs<<"/eff_alea:"<<eff_alea<<"/"<<j<<endl;
+
+
+if(somme_temp>=eff_alea) {
+	trouve=1;
+	iter_int=j;
+
+//cerr<<"######################## trouve !"<<somme_temp<<"/"<<eff_alea<<"/"<<j<<endl;
+
+	break;
+}
+//iter_int++;
+}
+
+if(trouve==0){
+//	cerr<<"erreur dimension: impossible de trouver un effectif correct:somme_temp:"<<somme_temp<<" eff alea:"<<eff_alea<<endl;
+//	cin.get();
+
+//curval = ranval*(1+taillezone)*largeurborne + minmaxval[0][c] - taillezone/2*largeurborne;//on genere dans l'enveloppe pour la dimension c une valeur; ce qui n'arrive pas
+curval = boundsInterTarget.at(cRSM).at(0) +ranval*largeurborne;
+/*
+*permet de générer uniformément un outlier dans tout le domaine si l'optimisation n'est pas possible
+//curval = ranval*(1+taillezone)*largeurborne + minmaxval[0][c] - taillezone/2*largeurborne;//on genere dans l'enveloppe pour la dimension c une valeur
+ofstream fich_random("random_outlier",ios::out|ios::app);
+fich_random<<curval<<endl;
+fich_random.close();
+return NULL;
+*/
+
+//cerr<<"effectif non trouve =>valeur par defaut... dim:"<<c<<" valeur renvoyee:"<<curval<<" iter_int:"<<iter_int<<" /coupure:"<<eff_alea<<" ranval:"<<ranval<<" somme effectifs:"<<somme_effectifs<<endl;;
+
+	//trouver une autre approche de generation
+cerr<<"alea:"<<c<<";"<<vals[c]<<endl;
+//return NULL;
+
+
+}
+else{//generation d'une valeur dans inter
+
+//if(iter_int>0){//ça ne devrait pas poser pb
+ranval = ((double)Utils::randInt(100000))/100000.0;//fraction de 1
+//double diff=inter[iter_int+1]-inter[iter_int];
+double diff=boundsInterTarget.at(cRSM).at(iter_int+1)-boundsInterTarget.at(cRSM).at(iter_int);
+
+vals[c]=boundsInterTarget.at(cRSM).at(iter_int)+ranval*diff;//inter[iter_int+1])/2;//a changer pr un alea
+//vals[c]=inter[iter_int]+ranval*diff;//inter[iter_int+1])/2;//a changer pr un alea
+//cerr<<"dim:"<<c<<" valeur renvoyee:"<<vals[c]<<" iter_int:"<<iter_int<<" /coupure:"<<eff_alea<<" ranval:"<<ranval<<" somme effectifs:"<<somme_effectifs<<endl;;
+
+
+}
+
+
+}
+
+}
+
+}
+}
+else{
+	cerr<<"palcecarac at beginning not yet implemented"<<endl;
+}
+
+		vals[placeCarac] = OUTLIER;//0:outlier;1:target
+
+    inst = new Instance(id,&vals);
+
+   return inst;
+}
+
+
+/*
+ u_int id = base->size();
+    for (int i=0; i< nbOutlier; i++) {
+        Instance * curinst = genereInstance((u_int)(id+i),base->getNbAttributes(),minmaxval,taillezone,base->getClassInd());
+
+@param id:taile de la base
+u_int id:taille de la base +i (nouvel id pour chaque outlier)
+u_int nbCarac:dimension du set d'apprentissage
+double ** minmaxval:min max de chacune des dimensions (enveloppe du set des targets)
+double taillezone:alpha-1 avec alpha multiplicateur du domaine des targets
+u_int placeCarac: placement à la fin du vecteur
+
+@sortie:
+une instance outlier
+
+*/
+Instance * OutlierGenerator::genereInstance(u_int id, u_int nbCarac, double ** minmaxval, double taillezone, u_int placeCarac) {
+//Instance * OutlierGenerator::genereInstanceBoule(u_int id, u_int nbCarac, double ** minmaxval, double taillezone, u_int placeCarac) {
+    vector<double> vals(nbCarac+1);
+    double largeurborne=0;
+    double curval=0;
+    double ranval=0;
+
+Instance * inst=NULL;
+
+//cerr<<"genere instance"<<endl;
+bool opti=optimize_gen;//true;
+
+if(opti){
+
+//cerr<<"genere instance 1"<<endl;
+inst=optimizeGeneration(placeCarac,id,nbCarac,taillezone,minmaxval);
+//cerr<<"genere instance 2"<<endl;
+
+}
+else{//uniform generation
+
+
+//cerr<<"genere instance 3"<<endl;
+
+    if (placeCarac !=0) {
+        for (int c=0;c<nbCarac;c++) {
+//            cout <<"debug inst "<<c<<"\n";
+            largeurborne = minmaxval[1][c] - minmaxval[0][c];
+
+//        cerr<<"min reçu ("<<c<<"):"<<minmaxval[0][c]<<endl;// = (double)base->getInstance(0)->at(c);
+//        cerr<<"max reçu ("<<c<<"):"<<minmaxval[1][c]<<endl;// = (double)base->getInstance(0)->at(c);
+//cerr<<"larhgeur calc:"<<largeurborne<<endl;
+
+//int nb0=0;
+//for(int j=0;j<nbData;j++){
+//
+//	if(data[j].at(c))
+//}
+
+            ranval = ((double)Utils::randInt(100000))/100000.0;//fraction de 1
+
+
+//cout <<"debug inst 1:"<<c<<":"<<ranval<<"\n";
+	//curval = ranval*(largeurborne+2*taillezone*largeurborne) + minmaxval[0][c] - taillezone*largeurborne;//on genere dans
+curval = ranval*(1+taillezone)*largeurborne + minmaxval[0][c] - taillezone/2*largeurborne;//on genere dans l'enveloppe pour la dimension c une valeur
+//cout <<"debug inst 1:"<<curval<<"\n";
+vals[c] = curval;
+//            cout <<"debug inst 2:"<<c<<"\n";
+        }
+    }
+    else {
+        for (int c=1;c<nbCarac+1;c++) {
+            largeurborne = minmaxval[1][c] - minmaxval[0][c];
+            ranval = ((double)Utils::randInt(100000))/100000.0;
+            //curval = ranval*(largeurborne+2*taillezone*largeurborne) + minmaxval[0][c] - taillezone*largeurborne;
+            curval = ranval*(1+taillezone)*largeurborne + minmaxval[0][c] - taillezone/2*largeurborne;//on genere dans l'enveloppe pour la dimension c une valeur
+            vals[c] = curval;
+        }
+    }
+
+//cerr<<"genere instance 4"<<endl;
+
+//cout <<"debug inst 3"<<"\n";
+
+vals[placeCarac] = OUTLIER;//0:outlier;1:target
+//    for (int i=0;i<nbCarac+1;i++) {
+//        cout << vals[i] << " ";
+//    }
+//    cout <<"debug inst "<<"\n";
+    inst = new Instance(id,&vals);
+//vals.get_allocator().deallocate(&vals,sizeof(vals));
+    //return (new Instance(id,&vals));
+
+    //if(assert(!(&vals==0))) vals.clear();
+}
+
+    return inst;
+
+
+}
+
+void OutlierGenerator::genereArffOneClass(DataHandler * base, int indClassTarget, unsigned long nbOutlier, string nomFicApp, string nomFicTest, double taillezone, u_int pourcentApp) {
+/*
+    ofstream fichierApp;
+    ofstream fichierTest;
+    char temp[30];
+    string nomRel;
+    u_int nbCarac;
+
+    fichierApp.open(nomFicApp.c_str());
+    fichierTest.open(nomFicTest.c_str());
+
+    nomRel = base->getFileName();
+    nbCarac = base->getNbAttributes();
+
+    if(!fichierApp || !fichierTest) {
+        cout << "erreur d ouverture fichier";
+    }
+
+    if(pourcentApp <0 || pourcentApp >100) {
+        cout << "erreur mauvais pourcentage pout la proportion de target a l apprentissage\n";
+        return;
+    }
+
+    if(indClassTarget < 0 || indClassTarget >= base->getNbClass()) {
+        cout << "erreur indice de la clase target incoherent\n";
+        return;
+    }
+
+    fichierApp << "% Fichier ARFF généré pour l'apprentissage\n";
+    fichierApp << "% classe target considerée : "<<indClassTarget<<"\n";
+    fichierApp << "% pourcentage de target pris pour l'apprentissage : "<<pourcentApp<<"\n";
+    fichierApp << "% nombre d'outliers générés : "<<nbOutlier<<"\n\n";
+    fichierApp << "@relation "<<nomRel<<"\n";
+    for (int c=0;c<nbCarac;c++){
+        fichierApp << "@attribute "<< base->getAttribute(c)->getName() <<" REAL\n";
+    }
+    fichierApp << "@attribute class 	{Target, Outlier}\n";
+    fichierApp << "@data\n";
+
+
+    fichierTest << "% Fichier ARFF généré pour le test\n";
+    fichierTest << "% classe target considerée : "<<indClassTarget<<"\n";
+    fichierTest << "% pourcentage de target pris pour l'apprentissage : "<<pourcentApp<<"\n";
+    fichierTest << "% nombre d'outliers générés : "<<nbOutlier<<"\n\n";
+    fichierTest << "@relation "<<nomRel<<"\n";
+    for (int c=0;c<nbCarac;c++){
+        fichierTest << "@attribute "<< base->getAttribute(c)->getName() <<" REAL\n";
+    }
+    fichierTest << "@attribute class 	{Target, Outlier}\n";
+    fichierTest << "@data\n";
+
+    DataHandler *ret = base;
+    //cout << base->size()<<"\n";
+    int randval;
+    float minmaxval[nbCarac][2];
+    for (int c=0;c<nbCarac;c++){
+        minmaxval[c][0] = (double)base->getInstance(0)->at(c);
+        minmaxval[c][1] = (double)base->getInstance(0)->at(c);
+    }
+
+    for (int i = 0; i<base->size();i++) {
+        if (base->getClass(base->getInstance(i)) == indClassTarget) {
+            //cout << "target detecte : "<<base->getInstance(i)->toString()<<"\n";
+            randval = Utils::randInt(100);
+            if (randval <= 66) {
+                for (int c=0; c<nbCarac; c++) {
+                    fichierApp << (double)base->getInstance(i)->at(c) <<",";
+                }
+                fichierApp <<"Target\n";
+            }
+            else {
+                for (int c=0; c<nbCarac; c++) {
+                    fichierTest << (double)base->getInstance(i)->at(c) <<",";
+                }
+                fichierTest <<"Target\n";
+            }
+        }
+        else {
+            //cout << "outlier detecte : "<<base->getInstance(i)->toString()<<"\n";
+            for (int c=0; c<nbCarac; c++) {
+                    fichierTest << (double)base->getInstance(i)->at(c) <<",";
+            }
+            fichierTest <<"Outlier\n";
+        }
+
+        for (int c =0;c<nbCarac;c++) {
+            if( (double)base->getInstance(i)->at(c) < minmaxval[c][0] ) {
+                minmaxval[c][0] = (double)base->getInstance(i)->at(c);
+            }
+            if( (double)base->getInstance(i)->at(c) > minmaxval[c][1] ) {
+                minmaxval[c][1] = (double)base->getInstance(i)->at(c);
+            }
+        }
+
+    }
+    float outval[4];
+    float largeurborne;
+    float ranval;
+    float curval;
+    for (int o=0;o<nbOutlier;o++) {
+        for (int c=0;c<nbCarac;c++) {
+
+            largeurborne = minmaxval[c][1] - minmaxval[c][0];
+            ranval = (float)(Utils::randInt(100)/100.0);
+            curval = ranval*(largeurborne+2*taillezone*largeurborne) + minmaxval[c][0] - taillezone*largeurborne;
+
+            fichierApp << curval << ",";
+        }
+        fichierApp << "Outlier\n";
+    }
+
+    fichierApp.close();
+    fichierTest.close();
+
+*/
+
+}

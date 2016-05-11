@@ -1,0 +1,22 @@
+@relation iris_setosa
+@attribute 1 REAL
+@attribute 2 REAL
+@attribute 3 REAL
+@attribute 4 REAL
+@attribute class {outlier,target}
+@data
+4.9,3.1,1.5,0.1,target
+4.3,3,1.1,0.1,target
+5,3.4,1.6,0.4,target
+4.6,3.6,1,0.2,target
+4.8,3.4,1.6,0.2,target
+5.7,2.5,5,2,outlier
+6.3,2.5,5,1.9,outlier
+7.2,3.6,6.1,2.5,outlier
+6.1,2.9,4.7,1.4,outlier
+6.7,3.1,5.6,2.4,outlier
+6.7,3,5.2,2.3,outlier
+6.8,2.8,4.8,1.4,outlier
+6.5,3,5.5,1.8,outlier
+6.1,2.6,5.6,1.4,outlier
+5.5,2.6,4.4,1.2,outlier

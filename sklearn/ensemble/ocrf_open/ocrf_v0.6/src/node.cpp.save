@@ -1,0 +1,148 @@
+
+#include "../include/node.h"
+
+// Root constructor
+Node::Node(DTree * dt,DataHandler * set, int ii)
+{
+	id = ii;
+	tree = dt;//new DTree(dt);
+	parent = NULL;
+	splitRule = NULL;
+	lvl = 0;
+	subset = new DataHandler(*set);
+	type = ROOT;
+}
+
+// Internal Node constructor
+Node::Node(DTree * dt, DataHandler * set, int ii, Node * par, u_int level)
+{
+	id = ii;
+	tree = dt;
+	parent = par;
+	splitRule = NULL;
+	lvl = level;
+	subset = new DataHandler(*set);
+	type = NODE;
+}
+
+// Leaf constructor
+Node::Node(DTree * dt, DataHandler * set, int ii, Node * par, u_int level, int predict)
+{
+	id = ii;
+	tree = dt;
+	parent = par;
+	splitRule = NULL;
+	lvl = level;
+	subset = new DataHandler(*set);
+	type = LEAF;
+	prediction = predict;
+}
+
+Node::~Node()
+{
+	if(type != ROOT && type != ROOTLEAF) delete subset;
+	delete splitRule;
+    	if(type != LEAF && type != ROOTLEAF)
+    		for(vector<Node*>::iterator it=children.begin();it<children.end();it++) delete (*it);
+}
+
+void	Node::makeLeaf(int predic)
+{
+	if(type == LEAF) return;
+
+	type = LEAF;
+		if(id==0) type=ROOTLEAF;
+	prediction = predic;
+	if(!children.empty()) for(vector<Node*>::iterator it=children.begin();it<children.end();it++) delete (*it);
+}
+
+void	Node::rootToLeaf(int predic)
+{
+	if(type != ROOT) return;
+
+	type = ROOTLEAF;
+	prediction = predic;
+	if(!children.empty()) for(vector<Node*>::iterator it=children.begin();it<children.end();it++) delete (*it);
+}
+
+
+void    	Node::addChild(Node * node){ children.push_back(node); }
+
+void    	Node::removeChild(Node * node)
+{
+	if(type != LEAF && type != ROOTLEAF)
+    	for(vector<Node*>::iterator it=children.begin();it<children.end();it++)
+        	if((*it) == node) children.erase(it);
+}
+
+DataHandler * 	Node::getDataSet(){ return subset; }
+
+u_int     	Node::getSize(){ return subset->size(); }
+
+u_int     	Node::getId(){ return id; }
+
+u_int     	Node::getLvl(){ return lvl; }
+
+u_int     	Node::getNbChildren(){ return children.size(); }
+
+Node *  	Node::getChild(u_int i){ if(type == LEAF || type == ROOTLEAF) return NULL; return children[i]; }
+
+Node *  	Node::getParent(){ if(type == ROOT || type == ROOTLEAF) return NULL; return parent; }
+
+DTree * 	Node::getTree(){ return tree; }
+
+Rule * 		Node::getSplitRule(){ return splitRule; }
+
+u_int		Node::getPrediction(){ assert(type == LEAF || type == ROOTLEAF); return prediction; }
+
+void 		Node::setRule(Rule * rule){ if(type != LEAF && type != ROOTLEAF) splitRule = rule; }
+
+bool    	Node::is_leaf(){ if(type == LEAF || type == ROOTLEAF) return true; return false; }
+
+bool 		Node::is_parent(Node * n)
+{
+	if(type == LEAF || type == ROOTLEAF) return false;
+	for(vector<Node*>::iterator it=children.begin();it<children.end();it++)
+		if((*it) == n) return true;
+	return false;
+}
+
+u_int		Node::predict(Instance * inst)
+{
+	if(type == LEAF || type == ROOTLEAF) return prediction;
+	double v = inst->at(splitRule->getAttId());
+	Node * child = getChild(splitRule->evaluate(v));
+	return child->predict(inst);
+}
+
+
+string 		Node::toString()
+{
+	string out;
+	if(type == LEAF) out += "[LEAF] ";
+	if(type == ROOT || type == ROOTLEAF) out += "[ROOT] ";
+	if(type == NODE) out += "[NODE] ";
+
+	out += Utils::to_string((int) id) ;
+	out += " : ";
+	if(splitRule != NULL)
+		out += splitRule->toString();
+	else
+	{
+		out += "class ";
+		out += Utils::to_string((int) prediction);
+	}
+
+	if(!children.empty())
+	{
+		out += "\n";
+		for(vector<Node*>::iterator it=children.begin();it<children.end();it++)
+		{
+			for(u_int i=0;i<=lvl;i++)
+				out += "\t";
+			out += "|_ ";
+			out += (*it)->toString();
+		}
+	}
+	return out;
+}
