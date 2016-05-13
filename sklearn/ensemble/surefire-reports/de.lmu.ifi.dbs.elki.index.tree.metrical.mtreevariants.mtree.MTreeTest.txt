@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: de.lmu.ifi.dbs.elki.index.tree.metrical.mtreevariants.mtree.MTreeTest
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.024 sec - in de.lmu.ifi.dbs.elki.index.tree.metrical.mtreevariants.mtree.MTreeTest

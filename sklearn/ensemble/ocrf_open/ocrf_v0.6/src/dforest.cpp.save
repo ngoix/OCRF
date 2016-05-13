@@ -1,0 +1,904 @@
+
+#include "../include/dforest.h"
+
+/* *************************************************************
+ * Constructor
+ * param :
+ * 		set : pointer to the training set
+ */
+DForest::DForest(DataHandler * set)
+{
+
+	cerr<<"creation dforest "<<endl;
+	//trainSet = new DataHandler(*set);
+	trainSet = set;
+
+//	cerr<<"getminmax ..."<<endl;
+minmax=trainSet->computeMinMax();
+//cerr<<"getminmax ok !"<<endl;
+	cerr<<"creation dforest ok"<<endl;
+
+}
+
+
+//DForest::DForest(DataHandler * set,bool rsm_bool){
+//	trainSet = set;
+//	rsm=rsm_bool;
+//}
+
+/* *************************************************************
+ * Constructor
+ * param :
+ * 		filename: string path to a .forest file that contains the forest to be loaded.
+ */
+DForest::DForest(string filename)
+{
+	ifstream f(filename.c_str(), ios_base::in);
+	if(f.is_open())
+	{
+		string line;
+		getline(f,line,'\n');
+		/*DataHandler * handler*/trainSet = Arff::load(line.c_str());
+		//trainSet = new DataHandler(handler->getDataSet(),handler->getClassInd(),false);
+
+		//getline(f,line,'\n');
+		//vector<string> tokens;
+		//Utils::tokenize(line, tokens, " ");
+		//cout << line << endl;
+
+		//for(u_int i=0;i<tokens.size();i++)
+		//	trainSet->addInstance(handler->getInstance((int) Utils::from_string(tokens[i])));
+		//delete handler;
+
+		getline(f,line,'\n');
+		int nbTrees = Utils::from_string(line);
+		for(int i=0;i<nbTrees;i++)
+		{
+			getline(f,line,'\n');
+//			F_DTree * f_dtree = new F_DTree(line);
+			forest.push_back(new F_DTree(line));
+		}
+	}
+}
+
+/* *************************************************************
+ * Destructor
+ */
+DForest::~DForest()
+{
+
+//cout<<"debug dforest 1"<<endl;
+
+//cerr<<"destruction dforest "<<endl;
+
+//	for(u_int i=0;i<forest.size();i++)
+//		delete forest[i];
+delete[] minmax[0];
+delete[] minmax[1];
+delete[] minmax;
+
+//forest.erase(forest.begin(),forest.end());
+//delete trainSet;
+//cerr<<"destruction dforest ok"<<endl;
+//int nb1=sizeof(forest)/sizeof(forest[0]);
+//cerr<<"DForest taille :"<<nb1<<endl;//int taille=0;
+
+
+
+//	for(u_int i=0;i<forest.size();i++){
+////
+////cerr<<"destruction dforest:"<<i<<endl;
+////
+//////		delete forest[i];
+////
+////		cerr<<"destruction dforest ok:"<<i<<endl;
+//forest.erase(forest.begin()+i);
+//	}
+
+
+//cerr<<"destruction dforest 1"<<endl;
+//forest.clear();
+
+
+//delete trainSet;
+
+//delete minmax;
+	//delete [] forest;
+//delete[] forest;
+//forest.clear();
+
+
+
+for(vector<F_DTree *>::iterator it=forest.begin();it<forest.end();it++) {
+//
+//	cerr<<"debug ici"<<endl;
+	delete *it;//*it;
+//
+}
+forest.clear();
+//cout<<"debug dforest 2"<<endl;
+
+//delete trainSet;//trainset rattache a autre chose...
+
+
+//cerr<<"destruction dforest 2"<<endl;
+//int nb=sizeof(forest)/sizeof(forest[0]);
+//cerr<<"DForest deleted :"<<nb<<endl;//int taille=0;
+//for(int i=0;i<nb;i++){
+//	taille+=sizeof(forest[i])/sizeof(forest[i][0]);
+//}
+
+
+
+
+}
+
+
+
+
+
+//double ** DForest::getMinMaxVal(){
+//
+////cerr<<"init minmax 1"<<endl;
+//	u_int nbCarac = trainSet->getNbAttributes();
+//
+////cerr<<"init minmax 2"<<endl;
+//
+//	    double **minmaxval = new double*[2];
+//
+//    minmaxval[0] = new double [nbCarac];//min max pour chacune des dimensions
+//    minmaxval[1] = new double [nbCarac];
+//
+////cerr<<"init minmax 3"<<endl;
+////cerr << "1";
+//
+//    for (int c=0;c<nbCarac;c++){
+//        minmaxval[0][c] = (double)trainSet->getInstance(0)->at(c);
+//        minmaxval[1][c] = (double)trainSet->getInstance(0)->at(c);
+//    }
+//
+////cerr<<"init minmax 4"<<endl;
+////cerr << "2";
+//
+////remplissage minmax
+//    for (int i=0;i<trainSet->size();i++) {
+//
+////    	cerr<<"init minmax 41"<<endl;
+//
+//    	Instance* inst=new Instance(*trainSet->getInstance(i));
+//
+////    	cerr<<"init minmax 42"<<endl;
+//        for (int c =0;c<nbCarac;c++) {
+//
+////        	cerr<<"init minmax 43:"<<c<<endl;
+//            if( (double)inst->at(c) < minmaxval[0][c] ) {
+//                minmaxval[0][c] = (double)inst->at(c);
+//            }
+//            if( (double)inst->at(c) > minmaxval[1][c] ) {
+//                minmaxval[1][c] = (double)inst->at(c);
+//            }
+//        }
+////        cerr<<"init minmax 44:"<<i<<endl;
+//        delete inst;
+////        cerr<<"init minmax 45:"<<i<<endl;
+//    }
+//
+////    cerr<<"init minmax 5"<<endl;
+//
+//	return minmaxval;
+//}
+
+
+/* *************************************************************
+ * return a pointer to the training set
+ */
+DataHandler *	DForest::getDataHandler(){ return trainSet; }
+
+/* *************************************************************
+ * return the number of trees in the forest
+ */
+u_int		DForest::getNbTrees(){ return forest.size(); }
+
+/* *************************************************************
+ * return a trees of the forest
+ */
+F_DTree *	DForest::getTree(u_int i){ return forest[i]; }
+
+/* *************************************************************
+ * add a decision tree to the forest
+ * param :
+ * 		tree : the Decision Tree to be added
+ */
+void 		DForest::addTree(F_DTree * tree){ forest.push_back(tree); }
+
+
+/* *************************************************************
+ * Remove a decision tree from the forest
+ * param :
+ * 		ind : an index to the tree to remove.
+ */
+void		DForest::removeTree(u_int ind)
+{
+	//...
+}
+
+
+/* *************************************************************
+ * Computes the margin function according to the given test dataset
+ * param :
+ *		inst : a pointer to the instance on which the margin function is computed
+ */
+double		DForest::margin(Instance * inst)
+{
+	int truClass = trainSet->getClass(inst);
+	double A = 0.0, B = 0.0;
+
+	vector<double> tabRes;
+	for(u_int i=0;i<trainSet->getNbClass();i++)
+		tabRes.push_back(0.0);
+
+	for(u_int i=0;i<forest.size();i++)
+	{
+		//cerr<<"predict tree "<<i<<":";
+		u_int res = forest[i]->predict(inst);
+		tabRes[res]++;
+		//cerr<<"classe:"<<res<<endl;
+		//cin.get();
+
+	}
+
+	u_int * ind = Utils::sort(tabRes);
+	int max1 = ind[trainSet->getNbClass()-1];
+	int max2 = ind[trainSet->getNbClass()-2];
+
+	A = tabRes[truClass];
+	if(max1 == truClass) B = tabRes[max2];
+	else B = tabRes[max1];
+
+	A /= forest.size();
+	B /= forest.size();
+
+	delete[] ind;
+	tabRes.clear();
+
+	return (A-B);
+}
+
+
+
+
+/* *************************************************************
+ * Computes the strength of the forest according to the given test dataset.
+ * param :
+ *		testset : the test set to be used for computing the strength
+ */
+double		DForest::strength(DataHandler * testset)
+{
+	double mgs = 0.0;
+	for(int k=0;k<(int)testset->size();k++)
+	{
+		Instance * inst = testset->getInstance(k);
+		mgs += margin(inst);
+	}
+	mgs /= testset->size();
+	return mgs;
+}
+
+/* *************************************************************
+ * Computes out-of-bag estimates of the strength of the forest.
+ */
+double 		DForest::strength()
+{
+	double str = 0.0;
+	for(u_int k=0;k<trainSet->size();k++)
+	{
+		Instance * inst = trainSet->getInstance(k);
+		int truClass = trainSet->getClass(inst);
+		double A = 0.0, B = 0.0;
+		int nbTr = 0;
+		vector<double> tabRes;
+		for(u_int i=0;i<trainSet->getNbClass();i++)
+			tabRes.push_back(0.0);
+
+		for(u_int i=0;i<forest.size();i++)
+		{
+			vector<u_int> bag = forest[i]->getBag();
+			if(find(bag.begin(),bag.end(),inst->getId()) == bag.end())
+			{
+				nbTr++;
+				u_int predictClass = forest[i]->predict(inst);
+				tabRes[predictClass]++;
+			}
+		}
+		u_int * ind = Utils::sort(tabRes);
+		int max1 = ind[trainSet->getNbClass()-1];
+		int max2 = ind[trainSet->getNbClass()-2];
+
+		A = tabRes[truClass];
+		if(max1 == truClass) B = tabRes[max2];
+		else B = tabRes[max1];
+
+		A /= nbTr;
+		B /= nbTr;
+
+		delete ind;
+
+		str += (A-B);
+	}
+
+	str /= trainSet->size();
+	return str;
+}
+
+
+
+double		DForest::correlation(DataHandler * testset)
+{
+//	double corr = 0.0;
+double rmg_plus=0;
+double mean_rmg_plus=0;
+double rmg_uncorrect_max=0;
+vector<double> rmg_theta_1;
+vector<double> rmg_theta_2;
+double sigma_theta_1=0;
+double sigma_theta_2=0;
+double sigma=0;
+double rho_final=0;
+
+double s_mean_1=0;
+double s_mean_2=0;
+
+double s2_theta_1=0;
+double s2_theta_2=0;
+//vector<vector<double> > rmg_total(testset->size(),vector<double>(testset->size(),-1));//-1:not defined =>carefull as rmg==-1 means complete uncorrect classif; choose instead -2
+int nb=(int)testset->size();
+int nbTree=forest.size();
+for(int t1=0;t1<nbTree;t1++){
+for(int t2=t1+1;t2<nbTree;t2++){
+//calcul de la marge brute
+for(int j=0;j<nb;j++){
+
+Instance* inst=testset->getInstance(j);
+int trueclass=inst->getClass();
+
+int pred1=forest.at(t1)->predict(inst);
+int pred2=forest.at(t2)->predict(inst);
+
+double rmg_val=0;
+if(trueclass==pred1) rmg_val=1;
+else rmg_val=-1;
+rmg_theta_1.push_back(rmg_val);
+s_mean_1+=rmg_val/nb;
+s2_theta_1+=rmg_val*rmg_val/nb;
+
+rmg_val=0;
+if(trueclass==pred2) rmg_val=1;
+else rmg_val=-1;
+rmg_theta_2.push_back(rmg_val);
+s_mean_2+=rmg_val/nb;
+s2_theta_2+=rmg_val*rmg_val/nb;
+
+
+}
+//calcul de la correlation
+sigma_theta_1=sqrt(s2_theta_1-s_mean_1*s_mean_1);
+sigma_theta_2=sqrt(s2_theta_2-s_mean_2*s_mean_2);
+
+cerr<<
+
+for(int j=0;j<nb;j++){
+	sigma+=(rmg_theta_1.at(j)-s_mean_1)*(rmg_theta_2.at(j)-s_mean_2);
+}
+
+if(sigma_theta_1*sigma_theta_2==0) return -2;//error
+
+double rho=sigma/(sigma_theta_1*sigma_theta_2);
+rho_final+=2*rho/(nbTree*nbTree-nbTree);
+
+}
+cerr<<"corr tree:"<<t1<<"/"<<nbTree-1<<endl;
+}
+
+return rho_final;
+//cerr<<"...feature not available"<<endl;
+//return -1;
+
+}
+
+double		DForest::correlation()
+{
+
+    cout<<"Attention aucune valeur retournée !!!dforest"<<endl;
+return -1;
+}
+
+
+/* *************************************************************
+ * Computes the Out-Of-Bag Estimates
+ */
+Result *	DForest::getOOBestimates()
+{
+	Result * res = new Result(trainSet,stats.timeTrain);
+	for(u_int k=0;k<trainSet->size();k++)
+	{
+		Instance * inst = trainSet->getInstance(k);
+		u_int trueClass = trainSet->getClass(inst);
+		int cpt = 0;
+
+		u_int * tabRes = new u_int[trainSet->getNbClass()];
+		for(u_int i=0;i<trainSet->getNbClass();i++) tabRes[i] = 0;
+		for(u_int i=0;i<forest.size();i++)
+		{
+			vector<u_int> bag = forest[i]->getBag();
+			if(find(bag.begin(),bag.end(),inst->getId()) == bag.end())
+			{
+				cpt++;
+				u_int predictClass = forest[i]->predict(inst);
+				tabRes[predictClass]++;
+			}
+		}
+		u_int max = 0;
+		for(u_int i=1;i<trainSet->getNbClass();i++)
+			if(tabRes[max]<tabRes[i]) max = i;
+
+
+		res->maj_confMat(trueClass, max);
+	}
+	return res;
+}
+
+Result *	DForest::getOOBOCestimates()
+{
+	Result * res = new Result(trainSet,stats.timeTrain);
+	for(u_int k=0;k<trainSet->size();k++)
+	{
+		Instance * inst = trainSet->getInstance(k);
+		u_int trueClass = trainSet->getClass(inst);
+		int cpt = 0;
+
+		u_int * tabRes = new u_int[2];
+		//for(u_int i=0;i<trainSet->getNbClass();i++) tabRes[i] = 0;
+		for(u_int i=0;i<forest.size();i++)
+		{
+			vector<u_int> bag = forest[i]->getBag();
+			//cerr<<"size bag:"<<bag.size()<<endl;cin.get();
+			//cerr<<"search oob:"<<find(bag.begin(),bag.end(),inst->getId())<<endl;
+			if(find(bag.begin(),bag.end(),inst->getId()) == bag.end())
+			{
+				cpt++;
+				u_int predictClass = forest[i]->predict(inst);
+				tabRes[predictClass]++;
+
+//				cerr<<":id:"<<inst->getId()<<":tree:"<<i<<"trueclass:"<<trueClass<<":pred:"<<predictClass<<endl;
+			}
+		}
+		u_int max = 0;
+		for(u_int i=1;i<2;i++)
+			if(tabRes[max]<tabRes[i]) max = i;
+
+//make
+//cerr<<"classif:"<<trueClass<<"\t"<<max<<endl;
+		res->maj_confMat(trueClass, max);
+	}
+	return res;
+}
+
+
+/* *************************************************************
+ * Give the Decision Forest prediction for a given instance
+ * param :
+ * 		inst : the instance that we want to predict the class
+ */
+u_int		DForest::predict(Instance * inst)
+{
+
+//	cerr<<"entree predict debug 1"<<endl;
+	u_int * tabRes = new u_int[trainSet->getNbClass()];
+//	cerr<<"entree predict debug 2"<<endl;
+	for(u_int i=0;i<trainSet->getNbClass();i++)
+		tabRes[i] = 0;
+
+//cerr<<"entree predict debug 3"<<endl;
+	for(u_int i=0;i<forest.size();i++)
+	{
+		u_int res = forest[i]->predict(inst);
+		tabRes[res]++;
+	}
+
+	u_int max = 0;
+	for(u_int i=1;i<trainSet->getNbClass();i++)
+		if(tabRes[max]<tabRes[i]) max = i;
+
+	delete tabRes;
+	return max;
+}
+
+u_int		DForest::predictOC(Instance * inst, u_int ** listesubspace, bool rsmOk,int nbRSM,string nom_fich){
+
+//cout<<"debug predict oc: 1"<<endl;
+int nb=trainSet->getNbClass();
+	u_int * tabRes = new u_int[nb];
+
+//cout<<"debug predict oc: 2"<<endl;
+
+	vector<double> vals(nbRSM+1);
+	vector<int> vals_att(nbRSM+1);
+
+	int compt;
+
+	rsm_predict=rsmOk;
+
+//cout<<"debug predict oc: 2"<<endl;
+
+//	if(nbRSM!=(int)trainSet->getNbAttributes()) rsm_predict=true;
+
+//cout<<"debug predict oc: 3"<<endl;
+//cout<<"debug predict oc: 3 rsm_predict:"<<rsm_predict<<" nbRSM:"<<nbRSM<<" nbAttr:"<<trainSet->getNbAttributes()<<endl;
+
+	for(int i=0;i<(int)trainSet->getNbClass();i++) tabRes[i] = 0;
+
+//cout<<"debug predict oc: 4"<<endl;
+//cout<<"debug predict oc: 4"<<endl;
+
+//cout<<"debug predict oc: 6"<<endl;
+//cout<<"debug predict oc: 7"<<endl;
+
+	for(int i=0;i<(int)forest.size();i++){
+
+//cout<<"debug predict oc: 7:"<<i<<endl;
+//cout<<"debug predict oc: 8:"<<i<<endl;
+
+		Instance * curinst;
+
+    if(!rsm_predict){
+
+//cout<<"debug predict oc: 5"<<endl;
+//cout<<"debug predict oc: 5"<<endl;
+
+	    curinst = new Instance(inst->getId(),inst->getVect());
+//	    cout<<"debug predict oc: 6"<<endl;
+}
+else{//onrecopie les attributs des dimensions du rsm
+
+	    ///mettre ici la liste des sous-esapces dans fdtree; couteux dans la boucle appelante a predictOC cependant
+forest[i]->setListSubspace(listesubspace[i]);
+
+int nbAttTrainSet=(int)trainSet->getNbAttributes();
+
+	    compt = 0;
+	    for (int f = 0;f<nbAttTrainSet;f++) {
+
+//cout<<"debug predict oc: 8:"<<f<<endl;
+
+	       if (Utils::contient(listesubspace[i],f,nbRSM)) {
+	           vals[compt] = inst->at(f);
+
+	           vals_att[compt]=f;
+
+	           compt++;
+
+
+//cout<<"debug predict oc: 81:"<<f<<endl;
+	       }
+
+
+	    }
+
+	    vals[nbRSM] = inst->getClass();
+	    curinst = new Instance(inst->getId(),&vals);
+
+//cout<<"debug predict oc: 9:"<<i<<endl;
+	    //cout<<"debug predict oc: 9:"<<i<<endl;
+
+//	    cerr<<"###################### arbre["<<i<<"]"<<endl;
+		forest[i]->setListDim(vals_att);
+		forest[i]->setListSubspace(listesubspace[i]);
+//	    cerr<<"###################### arbre["<<i<<"]"<<endl;
+
+}
+//{else{//on recopie le vecteur
+//vals=inst.getVectSimple();
+//}
+
+
+//cout<<"debug predict oc: 10:"<<i<<endl;
+//cout<<"debug predict oc: 10 taille:"<<sizeof(forest)/sizeof(forest[0])<<endl;
+
+
+
+//cerr<<"valeurs envoyees:"<<endl;
+//for(int k=0;k<vals_att.size();k++){
+//	cerr<<k<<":"<<vals_att[k]<<endl;
+//}
+
+
+// cerr<<"decision foret["<<i<<"] pour "<<inst->getId()<<" ...."<<endl;
+
+//cin.get();
+
+		u_int res = forest[i]->predict(curinst);
+
+//cout<<"debug predict oc: 10 bis:"<<i<<endl;
+delete curinst;
+
+//cout<<"debug predict oc: 11:"<<i<<endl;
+//cout<<"debug predict oc: 11:"<<i<<endl;
+		tabRes[res]++;
+
+	}
+
+/*fonction de journalisation du vote de la foret pour chaque instance; a commenter pour des raisons de coûts prohibitifs
+*/
+ofstream resultatsDecision(nom_fich.c_str(),ios::out|ios::app);
+resultatsDecision<<"\n"<<inst->getId()<<"\t"<<inst->getClass()<<"\t";
+for(int j=0;j<nb-1;j++){
+	resultatsDecision<<tabRes[j]<<"\t";
+}
+resultatsDecision<<tabRes[nb-1];
+resultatsDecision.close();
+
+
+
+//cerr<<"Id instance:"<<inst->getId()<<"/(0):"<<tabRes[0]<<"|(1):"<<tabRes[1]<<endl;
+//cout<<"debug predict oc:12"<<endl;
+
+	u_int max = 0;
+	for(u_int i=1;i<trainSet->getNbClass();i++)
+		if(tabRes[max]<tabRes[i]) max = i;
+
+//cout<<"debug predict oc:13"<<endl;
+
+vals.clear();
+vals_att.clear();
+//cout<<"debug predict oc:14"<<endl;
+
+//ofstream fich_res("log_res.txt",ios::out|ios::app);
+//fich_res<<tabRes[0]<<"\t"<<tabRes[1]<<"\t"<<inst->getClass()<<endl;
+//fich_res.close();
+	//for(u_int i=1;i<trainSet->getNbClass();i++) delete tabRes[i];
+delete[] tabRes;
+//cout<<"debug predict oc:15"<<endl;
+
+	return max;
+}
+
+/* *************************************************************
+ * launch the test procedure for a given test set
+ * param :
+ * 		testSet : the test set to be used for the test procedure.
+ */
+Result *		DForest::test(DataHandler * testSet)
+{
+	Result * res = new Result(testSet,stats.timeTrain);
+
+	for(v_inst_it it=testSet->begin();it!=testSet->end();it++)
+	{
+	    cout << "test pour : "<<(*it)->toString()<<"\n";
+		u_int trueClass = testSet->getClass(*it);
+		u_int predictClass = predict(*it);
+		cout << "resultat : "<<predictClass<< " pour : "<<trueClass<<"\n";
+		res->maj_confMat(trueClass, predictClass);
+	}
+
+	return res;
+}
+
+Result *		DForest::testOC(DataHandler * testSet, u_int ** listesubspace, bool rsmOk,int nbRSM,string nom_fich)
+{
+
+//cerr<<"dforest testOC"<<endl;
+
+cerr<<testSet->toString()<<endl;
+
+	Result * res = new Result(testSet,stats.timeTrain);
+
+//cerr<<res->toString()<<endl;
+
+
+//	cerr<<"dforest testOC 1"<<endl;
+	int i=0;
+	for(v_inst_it it=testSet->begin();it!=testSet->end();it++)
+	{
+
+//		cerr<<"dforest testOC 2:"<<i<<endl;
+		u_int trueClass = testSet->getClass(*it);
+//		cerr<<"dforest testOC 21:"<<i<<endl;
+		//cout<<"ici rsm list sub"<<endl;
+		u_int predictClass = predictOC(*it,listesubspace,rsmOk,nbRSM,nom_fich);
+//		cerr<<"dforest testOC 22:"<<i<<endl;
+		res->maj_confMat(trueClass, predictClass);
+//		cerr<<"dforest testOC 3:"<<i<<endl;
+//
+		i++;
+	}
+
+
+//	cerr<<"dforest testOC 4"<<endl;
+
+	return res;
+}
+
+
+int DForest::saveFile(string dest){
+
+int nb=forest.size();
+
+
+for(int i=0;i<nb;i++){
+
+/*backup
+*nodes
+*rule
+*prediction
+
+*/
+//fileForest<<forest[i]->
+ cerr<<"debug 1:"<<i<<endl;
+stringstream out;
+out << i;
+
+string dest_tree=dest+"/tree_"+out.str()+".txt";
+
+Node * start_node=forest[i]->getRootNode();
+
+cerr<<"debug 2:"<<i<<endl;
+
+writeFileForest(dest_tree,start_node);//starting node
+
+cerr<<"debug 3:"<<i<<endl;
+}
+
+cerr<<"debug 4"<<endl;
+
+	return 0;
+}
+
+int DForest::writeFileForest(string dest_tree,Node * starting_node){
+
+ofstream fileForest(dest_tree.c_str(),ios::out|ios::app);
+
+cerr<<"debug write/1"<<endl;
+
+fileForest<<"#parent\t"<<starting_node->getId()<<"\t#taille\t"<<starting_node->getSize()<<"\t";
+
+cerr<<"debug write/2"<<endl;
+
+Rule * rule_split=starting_node->getSplitRule();
+
+cerr<<"debug write/3"<<endl;
+
+fileForest<<"#att\t"<<rule_split->getAttId()<<"\t#split\t"<<rule_split->getSupSplit()<<"\t";
+
+cerr<<"debug write/4"<<endl;
+
+if(!starting_node->is_leaf()){
+
+cerr<<"debug write/5"<<endl;
+
+fileForest<<"#pere\t#left\t"<<starting_node->getChild(0)->getId()<<"\t";
+fileForest<<"#right\t"<<starting_node->getChild(1)->getId()<<"\n";
+
+fileForest.close();
+
+cerr<<"debug write/6"<<endl;
+
+for(int j=0;j<starting_node->getNbChildren();j++){
+		Node * child = starting_node->getChild(j);
+	writeFileForest(dest_tree,child);//starting node
+}
+
+cerr<<"debug write/7"<<endl;
+
+}
+else{
+/*
+*prediction
+*/
+fileForest<<"#leaf\t"<<starting_node->getPrediction()<<"\n";
+
+
+cerr<<"debug write/8"<<endl;
+
+}
+
+
+cerr<<"debug write/9"<<endl;
+
+fileForest.close();
+
+	return 0;
+}
+
+double		DForest::stat_getTimeTrain()
+{
+	return stats.timeTrain;
+}
+
+double		DForest::stat_getMeanDTTimeTrain()
+{
+	return stats.meanDTTimeTrain;
+}
+
+char    	DForest::stat_getLoadingBar(u_int n){ return stats.loadingBar[n%4]; }
+
+void		DForest::stat_setTimeTrain(double time)
+{
+	stats.timeTrain = time;
+}
+
+void		DForest::stat_setMeanDTTimeTrain(double time)
+{
+	stats.meanDTTimeTrain = time;
+}
+
+void		DForest::save(string filename)
+{
+
+	ofstream file(filename.c_str());
+	if(file.is_open())
+	{
+
+printf("Debug Trainset...\n");
+
+		if(trainSet->getFileName().empty())
+		{
+			string file = filename;
+			file += "_data.arff";
+
+printf("Debug Arff::save...\n");
+
+			Arff::save(file.c_str(),trainSet);
+printf("Debug Arff::save...OK\n");
+		}
+
+printf("Debug Trainset...OK\n");
+
+		file << trainSet->getFileName() << endl;
+
+		for(u_int i=0;i<trainSet->size();i++)
+		{
+			file << trainSet->getInstance(i)->getId();
+			file << " ";
+		}
+		file << endl;
+
+		file << Utils::to_string((int) forest.size());
+		file << endl;
+		for(u_int i=0;i<forest.size();i++)
+		{
+			string fileTreeName = filename;
+			fileTreeName.erase(fileTreeName.end()-6,fileTreeName.end());
+			fileTreeName += Utils::to_string((int) i);
+			fileTreeName += ".tree";
+			forest[i]->save(fileTreeName,i);
+			file << fileTreeName << "\n";
+			file.flush();
+		}
+	}
+	file.close();
+}
+
+string 		DForest::statsToString()
+{
+	string out = "";
+/////////////////////////////////////////////
+	return out;
+}
+
+string 			DForest::toString()
+{
+	string res = "";
+	res += "Nombre d'arbres : ";
+	res += Utils::to_string((int) forest.size());
+
+	return res;
+}
+
+double DForest::getMeanNode() {
+	int nbArbre = forest.size();
+	unsigned long int totalnode=0;
+	for (int i = 0; i<nbArbre; i++) {
+		totalnode += forest[i]->getNbNode();
+	}
+	return ((double)totalnode/(double)nbArbre);
+}

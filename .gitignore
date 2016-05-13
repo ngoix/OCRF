@@ -7,9 +7,13 @@
 *.swp
 *.swo
 .DS_Store
+*.arff
+
 build
 sklearn/datasets/__config__.py
 sklearn/**/*.html
+sklearn/**/*.css
+sklearn/**/*.png
 
 dist/
 MANIFEST

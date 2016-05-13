@@ -1,0 +1,37 @@
+#ifndef OCFOREST_H_
+#define OCFOREST_H_
+
+#include "../include/rndtree.h"
+#include "../include/bagging.h"
+#include "../include/rfinduc.h"
+#include "../include/outliergenerator.h"
+
+class OCForest : public RFInduc
+{
+	private :
+	
+		int 			k;	//number of features randomly selected in RFS procedure
+		int			r;	//size of the bootstrap sample (in pourcentage of the original training set size)
+		int nbRSM;
+
+        OutlierGenerator * generateur;
+		RndTree * 		rndtreeInduc;
+		u_int **        listsubspace;
+		bool            rsm;
+		u_int           nbOutlier;
+		double          tailleZ;
+
+	public :
+	
+					OCForest(int lTree, int nbFeat, int rBagg, int nbOutliers, double taillezone, int nbSubspace, bool bag, bool randsm);
+					~OCForest();
+
+		DForest * 		growForest(DataHandler * set);
+		void            affichelisteSS();
+        u_int **        getlistesubspace();
+		void			setNbFeatParam(int k);
+};
+
+
+#endif /*OCFOREST_H_*/
+

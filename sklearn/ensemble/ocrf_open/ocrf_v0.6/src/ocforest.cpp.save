@@ -1,0 +1,584 @@
+
+#include "../include/ocforest.h"
+
+
+/*
+OCForest * OCinducfinal = new OCForest(nbArbreOpti,nbRFS,nbBagging,nbOutlierOpti,taillezone,nbRSM,bagging,rsm);
+@param
+int lTree:nb d'arbres dans la foret
+int nbfeat:K_RFS nb d'attributs pour le critère de partitionnement
+int rBagg:pourcentage pour effectif de l'echantillon bootstrap (defaut:100)
+int nbO:nb d'outlier à generer ?
+double taillezone:alpha-1:taux pour le multiplicateur de domaine
+int nbsubsp:K_RSM dimension du sous-espace lors d'une randomisation par Random Subspace [HoRSM98]
+bool bag:utilisation de la randomisation par bagging
+bool randsm:utilisation de la randomisation par Random Subspace Method
+*/
+OCForest::OCForest(int lTree, int nbfeat, int rBagg, int nbO, double taillezone, int nbsubsp, bool amontGenTemp, bool bag, bool randsm,bool rejet_nodes_temp,bool optimize_gen_temp,string dbName,const vector<vector<int> >& histoOutlierTemp, const vector<vector<double> >& boundsInterTargetTemp, bool log_trees_temp)
+:RFInduc(lTree,false),k(nbfeat),r(rBagg){
+
+	generateur = new OutlierGenerator(amontGenTemp,bag,randsm,rBagg,nbsubsp,nbO,taillezone,optimize_gen_temp);
+
+//	rndtreeInduc = new RndTree(k,false);
+	amontGen=amontGenTemp;
+	rsm = randsm;//indique si on fait du Random Subspace
+	bagging=bag;//indique si on fait du bagging
+	nbOutlier = nbO;
+	tailleZ = taillezone;
+	nbRSM = nbsubsp;
+	Ltree=lTree;
+	K_RFS=nbfeat;
+
+log_trees=log_trees_temp;
+rejet_nodes=rejet_nodes_temp;
+optimize_gen=optimize_gen_temp;
+nom_base=dbName;
+
+
+histoOutlier=histoOutlierTemp;
+boundsInterTarget=boundsInterTargetTemp;
+
+nbNodesTotal=0;
+nbLevelsTotal=0;
+nbLeavesTotal=0;
+nbLeavesTargetTotal=0;
+nbLeavesOutlierTotal=0;
+
+varNodesTotal=0;
+varLeavesTotal=0;
+varLeavesTargetTotal=0;
+varLeavesOutlierTotal=0;
+varLevelsTotal=0;
+listsubspace=NULL;
+
+//cerr<<"cons OCForest"<<endl;
+
+	if (rsm) {
+
+//cerr<<"cons OCForest lis:"<<lTree<<endl;
+        listsubspace = new u_int*[Ltree];
+//cerr<<"cons OCForest li 1"<<endl;
+//        for (int i = 0;i<Ltree;i++) {
+////        	cerr<<"cons OCForest lis 2 "<<i<<endl;
+//            listsubspace[i] = new u_int[nbsubsp];//deja defini dan socforest =*tabAtt
+//
+////            cerr<<"cons OCForest lis 21 "<<i<<endl;
+//        }
+
+	}
+	else{
+
+
+	}
+
+}
+
+OCForest::~OCForest()
+{
+
+//cout<<"destruction oc 1"<<endl;
+    	if (rsm) {
+
+//    	    cout<<"destruction debug 2"<<endl;
+
+//int nb= sizeof( listsubspace ) / sizeof( listsubspace[0] );
+
+//cerr<<"taille list:"<<nb<<"/foret:"<<Ltree<<endl;
+        for (int i =0;i<Ltree;i++) {//incomprehensible pour au lieu de Ltree
+
+//            cerr<<"destruction debug 3:"<<i<<"/"<<Ltree<<endl;
+//            free(listsubspace[i]);
+            delete [] listsubspace[i];
+//            cout<<"destruction debug 4:"<<i<<endl;
+        }
+
+//        cout<<"destruction debug 5"<<endl;
+        //delete[] listsubspace[Ltree-1];
+        //delete[] listsubspace[Ltree-1];
+        delete[] listsubspace;
+        listsubspace=NULL;
+//        cout<<"destruction debug 6"<<endl;
+	}
+	else{
+//		bool truc=(listsubspace==NULL);
+//		cerr<<"NULL:"<<truc<<endl;
+
+		//delete [] listsubspace;//non assigné donc delete simple ou delete &
+	}
+
+//	cout<<"destruction debug 7"<<endl;
+//cerr<<" debug oc 1"<<endl;
+//delete(trainSet);
+//    printf("destructeur ocforest\n");
+    delete generateur;
+    generateur=NULL;
+//    cerr<<" debug oc 2"<<endl;
+//    cout<<"destruction debug 8"<<endl;
+//    delete rndtreeInduc;
+    //cerr<<"OCForest deleted !"<<endl;
+    if(amontGen){
+delete handltempAmont;
+    }
+//delete this;
+//cerr<<"destruction oc 2"<<endl;
+//delete trainSet;
+
+//histoOutlier.erase(histoOutlier.begin(), histoOutlier.end());
+//boundsInterTarget.erase(boundsInterTarget.begin(), boundsInterTarget.end());
+
+histoOutlier.clear();
+boundsInterTarget.clear();
+
+}
+
+
+
+//template<typename T, int size> int GetArrLength(T(&)[size]){return size;}
+
+
+
+DForest * OCForest::growForest(DataHandler * set){
+cerr << "lancement de l'apprentissage de la foret... \n";
+
+	double _time = ((double) clock());
+	_time = _time / CLOCKS_PER_SEC;
+	double averageTime = 0.0;
+	//unsigned long int nbNodestot=0;
+    double  meanNodesTotal=0;
+	double 	mean2NodesTotal=0;
+
+	double 	meanLeavesTotal=0;
+	double 	mean2LeavesTotal=0;
+
+	double 	meanLeavesTargetTotal=0;
+	double 	mean2LeavesTargetTotal=0;
+
+	double 	meanLeavesOutlierTotal=0;
+	double 	mean2LeavesOutlierTotal=0;
+
+	double 	meanLevelsTotal=0;
+	double 	mean2LevelsTotal=0;
+
+//cerr<<"debug ocforest 1"<<endl;
+	trainSet = set;//new DataHandler(*set);
+	for(int ins=0;ins<trainSet->size();ins++) {
+		Instance* inst=trainSet->getInstance(ins);
+		inst->setOriginalId(inst->getId());
+
+		//cerr<<"original id:"<<inst->getOriginalId()<<endl;cin.get();
+	}
+//	u_int ** tabAtt = new u_int*[1];
+
+//cerr<<"debug ocforest 2:"<<set->size()<<endl;
+//cin.get();
+//cout << "apprentissage des arbres ... \n";
+
+//Instance * OutlierGenerator::genereInstanceBoule(u_int id, u_int nbCarac, double ** minmaxval, double taillezone, u_int placeCarac)
+//    double **minmaxval = new double*[2];
+//
+//    minmaxval[0] = new double [1];//min max pour chacune des dimensions
+//    minmaxval[1] = new double [1];
+//
+//for(int i=0;i<nbOutlier;i++){
+//generateur->genereInstanceBoule((u_int)0,set->getNbAttributes(),minmaxval,0.0,(u_int)0);
+//cout<<"gen boule:"<<(float)i/(nbOutlier-1)*100<<" %"<<endl;
+//}
+
+//DataHandler* handltemp=NULL;//modification chesner 03/02/11
+
+//cerr<<"debug ocforest 3"<<endl;
+if(amontGen){//methode de reference
+//cerr<<"oc forest meth:reference"<<endl;cin.get();
+
+DataHandler* dataPostBag = new DataHandler(set->getDataSet(),set->getClassInd(), false);//not fully handled ?
+//cerr<<"debug rsm ocb 5"<<endl;
+        u_int size = set->size();
+//cerr<<"debug ocforest 4"<<endl;
+        for(int i=0;i<size;i++){
+//            Instance * inst = new Instance(*set->getInstance(i));
+            Instance * inst = set->getInstance(i);
+            dataPostBag->addInstance(inst);
+            //delete inst;//TODO
+        }
+//cerr<<"debug ocforest 5"<<endl;
+//	handltemp = new DataHandler(*generateur->genereOutlier(dataPostBag));//modif
+	handltempAmont = generateur->genereOutlier(dataPostBag,histoOutlier,boundsInterTarget);//modif//emplacement memoire deja reserve
+//cerr<<"debug ocforest 6"<<endl;
+	delete dataPostBag;
+
+}
+
+//cerr<<"debug ocforest 6 bis:"<<endl;
+
+	DForest * res = new DForest(trainSet);
+//cerr<<"debug ocforest 6 res ok:"<<endl;
+
+
+
+float t_test_0_final=clock();//time
+time_t start_final,end_final;
+double dif_final;
+time (&start_final);
+
+
+
+///optimize gen iwth iutlier histogram generation (in initial learning set)
+
+
+///end optimize_gen
+
+
+bool study_node=false;
+if(set->getNbAttributes()<=3) study_node=true;
+
+	for(int i=0;i<L;i++){
+
+time_t start,end;
+double dif;
+time (&start);
+
+float t_test_0=clock();//time
+
+	u_int ** tabAtt = new u_int*[1];
+
+//cerr << "("<<(int)((float)i/(L)*100)<<" % = "<<i<<"/"<<L-1<<")";
+
+//cout << "generation boostrap" << i<< "\n";
+//cerr<<"debug ocforest 7"<<endl;
+
+//DataHandler* handltemp_bis=NULL;//new DataHandler(*handltemp);//nouvel emplacement memoire
+DataHandler* handltemp=NULL;//=new DataHandler(generateur->generateOCB(trainSet,tabAtt));
+//cerr<<"debug ocforest 5:"<<i<<endl;
+//cout<<"debug oc forest rsm 1"<<endl;
+        if(!amontGen){//on est en rsm
+//cerr<<"oc forest meth:bag rsm"<<endl;cin.get();
+//cerr<<"debug ocforest 6:"<<i<<endl;
+        //handltemp = new DataHandler(*generateur->generateOCB(trainSet,tabAtt));//handltemp a gerer
+        //handltemp_bis= generateur->generateOCB(trainSet,tabAtt);//handltemp a gerer
+        //cerr<<"oc forest debug 00"<<endl;
+
+//cerr<<"debug ocforest gen trainset:"<<trainSet->size()<<endl;
+//cerr<<"size histo:"<<histoOutlier.at(0).size()<<"#"<<boundsInterTarget.size()<<endl;
+//cerr<<"fin size histo"<<endl;
+        //handltemp = new DataHandler(*generateur->generateOCB(trainSet,tabAtt,histoOutlier,boundsInterTarget));//handltemp a gerer
+        handltemp = generateur->generateOCB(trainSet,tabAtt,histoOutlier,boundsInterTarget);//handltemp a gerer
+        //cerr<<"oc forest debug 1"<<endl;
+
+        }
+        else{
+//cerr<<"oc forest meth:reference"<<endl;cin.get();
+handltemp=generateur->bagg(handltempAmont);//new DataHandler(*handltempAmont);
+        //handltemp_bis =new DataHandler(*handltemp);
+//        	handltemp_bis =handltemp;
+//handltemp=handltempAmont;
+
+        }
+
+//cout<<"oc forest debug  2"<<endl;
+//cout << "ajout de la liste des subspace\n";
+        if (rsm) {
+
+//cerr<<"oc forest meth:rsm activated"<<endl;cin.get();
+
+//        	cout<<"debug rsm 3"<<endl;
+            listsubspace[i] = (*tabAtt);
+//            cout<<"debug rsm 4"<<endl;
+		}
+		// Launch the induction of the current Decision Tree
+//cout<<"oc forest debug  3"<<endl;
+//cout << "apprentissage arbre" << i<< "\n";
+//handltemp->afficheBase();
+//system("pause");
+
+//		DTree * tree = new DTree(*rndtreeInduc->growTree(handltemp_bis));
+
+
+//permet de stocker la base d'apprentissage de chacun des arbres de la forêt
+if(log_trees){
+stringstream ss;
+string dbNameTemp=nom_base;
+//string dir_out="./resultats/res/"+dbNameTemp+"_outlier";
+string dir_out=(string)DATA_RESULTS_ROOT+"/"+dbNameTemp+"_outlier";
+string ssName;ss << i;ssName = dir_out+"/data_outlier_"+ss.str()+".txt";ss.str("");
+mkdir(dir_out.c_str(),01777);
+ofstream file_dataOutlier(ssName.c_str(),ios::out|ios::app);
+
+//cout<<"debug logtrees 51"<<endl;
+int nb=handltemp->size();
+//cout<<"debug logtrees 52:"<<nb<<endl;
+for(int j=0;j<nb;j++){
+//Instance * curinst=new Instance(*handltemp->getInstance(j));
+//cout<<"debug logtrees 53:"<<j<<"/"<<nb-1<<":arbre:"<<i<<endl;
+Instance * curinst=handltemp->getInstance(j);
+//cout<<"debug logtrees 54:"<<j<<endl;
+//cerr<<curinst->toString()<<endl;
+vector<double> temp=curinst->getVectSimple();
+//cout<<"debug logtrees 541:"<<j<<endl;
+//cout<<"debug rsm 54"<<endl;
+int no=0;
+file_dataOutlier<<curinst->getId()<<",";
+for(no=0;no<temp.size()-2;no++){
+	file_dataOutlier<<temp.at(no)<<",";
+}
+//cout<<"debug logtrees 542:"<<j<<endl;
+file_dataOutlier<<temp.at(no)<<","<<curinst->getClass()<<endl;
+//cout<<"debug logtrees 543:"<<j<<endl;
+//cerr<<"write tree"<<endl;
+//delete curinst;
+temp.clear();
+}
+//cout<<"debug logtrees out 53"<<endl;
+//cout<<"debug rsm 55"<<endl;
+file_dataOutlier.close();
+}
+//fin stockage des donnes d'apprentissage de chaque arbre
+
+//cout<<"debug rsm 6"<<endl;
+//cout<<"oc forest debug 4"<<endl;
+
+
+//for(int j=0;j<handltemp->size();j++){
+//	Instance * inst=handltemp->getInstance(j);
+//cerr<<"original ocforest:"<<inst->getOriginalId()<<":"<<inst->getId()<<endl;cin.get();
+//
+//}
+
+
+
+RndTree* rndtreeInduc = new RndTree(K_RFS,false);
+DTree * tree = rndtreeInduc->growTree(handltemp);
+
+//delete handltemp;
+/*
+cout<<"debug rsm 5 bis"<<endl;
+u_int** minmaxTemp=res->getMinMax();
+
+int nbD=sizeof(minmaxTemp[0])/sizeof(minmaxTemp[0][0]);
+cerr<<"sous espaces trouves pour arbre["<<i<<"] #dim:"<<nbD<<endl;
+
+for(int j=0;j<nbD;j++){
+	cerr<<"min:"<<minmaxTemp[0][j]<<" max:"<<minmaxTemp[1][j]<<endl;
+}
+
+cerr<<"fin minmax ..."<<endl;
+*/
+
+tree->setConstraintRoot(rejet_nodes,res->getMinMax());
+//handltemp_bis=NULL;
+
+//cout<<"debug rsm 7"<<endl;
+		//cout<<"debug ocforest  rsm 6"<<endl;
+//cout << "recuperation des stats\n";
+		averageTime += tree->stat_getTimeTrain();
+
+//cerr << "creation du F_DTree:"<<i<<"\n";
+		F_DTree * ftree = new F_DTree(tree);
+
+if(rsm){
+
+
+//int nbD=GetArrLength(listsubspace[i]);//sizeof(listsubspace[i])/sizeof(listsubspace[0][0]);
+//cerr<<"sous espaces trouves pour arbre["<<i<<"] #dim:"<<nbRSM<<endl;
+//
+//for(int j=0;j<nbRSM;j++){
+//	cerr<<listsubspace[i][j]<<endl;
+//}
+
+
+//cout<<"debug rsm 8"<<endl;
+ftree->setListSubspace(listsubspace[i]);
+
+//cout<<"debug rsm 9"<<endl;
+
+
+
+//cerr<<"fin ss ocforest"<<endl;
+}
+
+
+		nbNodesTotal += ftree->getNbNode();
+		nbLeavesTotal += ftree->getNbLeaves();
+		nbLeavesTargetTotal +=  ftree->getNbLeavesTarget();
+		nbLeavesOutlierTotal += ftree->getNbLeavesOutlier();
+		nbLevelsTotal += ftree->getNbLevels();
+
+
+//		cerr<<"\n nbNode "<<i<<":"<<ftree->getNbNode();
+//		cerr<<"\n getNbLeaves "<<i<<":"<< ftree->getNbLeaves();
+//		cerr<<"\n getNbLeavesTarget "<<i<<":"<< ftree->getNbLeavesTarget();
+//		cerr<<"\n getNbLeavesOutlier "<<i<<":"<< ftree->getNbLeavesOutlier();
+//		cerr<<"\n getNbLevels "<<i<<":"<< ftree->getNbLevels();
+//stats
+		meanNodesTotal += ftree->getNbNode()/Ltree;
+		mean2NodesTotal += pow(ftree->getNbNode(),2)/Ltree;
+
+		meanLeavesTotal += ftree->getNbLeaves()/Ltree;
+		mean2LeavesTotal += pow(ftree->getNbLeaves(),2)/Ltree;
+
+		meanLeavesTargetTotal += ftree->getNbLeavesTarget()/Ltree;
+		mean2LeavesTargetTotal +=  pow(ftree->getNbLeavesTarget(),2)/Ltree;
+
+		meanLeavesOutlierTotal += ftree->getNbLeavesOutlier()/Ltree;
+		mean2LeavesOutlierTotal +=pow(ftree->getNbLeavesOutlier(),2)/Ltree;
+
+		meanLevelsTotal +=ftree->getNbLevels()/Ltree;
+		mean2LevelsTotal += pow(ftree->getNbLevels(),2)/Ltree;
+
+
+
+if(study_node){
+//permet de stocker dans un fichier texte la liste et la caractéristique de chacun des noeuds de l'arbre permettant une représentation graphique (en 2D ou 3D) du partitionnement final
+int truc=Utils::randInt(1000000);
+stringstream ss1;
+string nom=
+ss1<<"nodes_study/log/"<<truc<<"_log_nodes_"<<i<<".txt";
+//string truc="res/log_nodes_"+i+".txt";
+ofstream log_nodes_backup("nodes_study/log/log_backup.txt",ios::out|ios::app);log_nodes_backup<<ss1.str()<<endl;log_nodes_backup.close();
+tree->computeStructure(tree->getRoot(),ss1.str());
+}
+
+
+
+        res->addTree(ftree);
+
+//        cout<<"debug rsm 71"<<endl;
+//cout << "delete de l'arbre\n";
+
+//cerr<<"debug delete handltemp bis 1"<<endl;
+        delete tree;
+        delete rndtreeInduc;
+
+
+
+//if(!amontGen){
+//	delete[] tabAtt[0];
+//}
+
+//if(rsm) delete[] tabAtt[0];
+delete[] tabAtt;
+
+//cerr<<"debug delete handltemp bis 2"<<endl;
+
+//handltemp_bis=NULL;
+//if(!amontGen){
+delete handltemp;
+//}
+//cerr<<"debug delete handltemp bis 3"<<endl;
+
+//cerr << "creation du F_DTree ok:"<<i<<"\n";
+		//nbNodestot += ftree->getNbNode();
+
+
+
+
+//		cout<<"debug rsm 7:"<<i<<endl;
+//cout << "ajout de l arbre\n";
+
+        //delete ftree;//TODO
+
+//       cout<<"debug rsm 72:"<<i<<endl;
+//cout << "delete du handltemp\n";
+
+        //cout<<"debug rsm 73"<<endl;
+//cout << "fin arbre "<<i<<"\n";
+//Sleep(1000);
+
+//ofstream time_tree("resultats/res/time_tree.txt",ios::out|ios::app);
+
+time (&end);
+dif = difftime (end,start);
+
+
+float t_test_1=clock();//time
+float time_test=(t_test_1-t_test_0)/(CLOCKS_PER_SEC);
+
+
+//time_tree<<"tree("<<i<<")\t"<<dif<<"\tclock\t"<<time_test<<endl;
+//time_tree.close();
+
+//cin.get();
+	}
+
+//string sFoldRes="./resultats/res/"+db;
+//string truc=sFoldRes+"/time_tree.txt";
+//string truc1=sFoldRes+"/time.txt";
+
+//ofstream time_tree("resultats/res/time_tree.txt",ios::out|ios::app);
+
+time (&end_final);
+dif_final = difftime (end_final,start_final);
+
+float t_test_1_final=clock();//time
+float time_test_final=(t_test_1_final-t_test_0_final)/(CLOCKS_PER_SEC);
+
+//time_tree<<"final\t"<<dif_final<<"\tclock\t"<<time_test_final<<endl;
+//time_tree.close();
+
+
+
+
+//if(!amontGen){
+//delete[] tabAtt[0];
+//}
+
+//int nb = sizeof(tabAtt)/sizeof(tabAtt[0]);
+
+//cerr<<"taille tabAtt:"<<nb<<endl;
+//for(int l=0;l<nb;l++) delete[] tabAtt[l];
+//delete[] tabAtt;
+//delete[] listsubspace;
+//if(!amontGen){//rsm
+//handltemp=NULL;
+//}
+
+
+//cout << "fin debug 1"<<"\n";
+
+		varNodesTotal =         sqrt(mean2NodesTotal-pow(meanNodesTotal,2));
+		varLeavesTotal  =       sqrt(mean2LeavesTotal-pow(meanLeavesTotal,2));
+		varLeavesTargetTotal  = sqrt(mean2LeavesTargetTotal-pow(meanLeavesTargetTotal,2));
+		varLeavesOutlierTotal  =sqrt(mean2LeavesOutlierTotal-pow(meanLeavesOutlierTotal,2));
+		varLevelsTotal  =       sqrt(mean2LevelsTotal-pow(meanLevelsTotal,2));
+
+//cout << "fin debug 2"<<"\n";
+
+ //delete handltemp;
+
+//cout << "fin debug 3"<<"\n";
+
+
+
+//cout << "fin debug 4"<<"\n";
+//	nbNodesTotal=nbNodestot;
+//cerr << "\n";
+//	cout << "nbNodes moyen : " << (double)nbNodestot/(double)L << "\n";
+	// Update forest statistics
+	averageTime = averageTime/L;
+
+			//cout<<"debug rsm 8"<<endl;
+
+	_time = (((double) clock())/CLOCKS_PER_SEC) - _time;
+	res->stat_setTimeTrain(_time);
+	res->stat_setMeanDTTimeTrain(averageTime);
+
+//		cout<<"debug rsm 9"<<endl;
+
+	string tmp = Utils::to_string(_time);
+	tmp += " secondes";
+	if(disp) Utils::print(tmp);
+	return res;
+
+}
+
+u_int ** OCForest::getlistesubspace() {return listsubspace;}
+
+void OCForest::affichelisteSS() {
+    for (int i=0;i<L;i++) {
+        cout << "liste sous espace pour arbre "<<i<<" : ";
+        for (int j=0;j<nbRSM;j++) {
+            cout <<listsubspace[i][j]<<" ";
+        }
+        cout << "\n";
+    }
+}
+

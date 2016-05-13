@@ -186,12 +186,31 @@ def generate_cython():
 
 
 def setup_package():
+
+    ensemble_dir = 'sklearn/ensemble/'
+
     metadata = dict(name=DISTNAME,
                     maintainer=MAINTAINER,
                     maintainer_email=MAINTAINER_EMAIL,
                     description=DESCRIPTION,
                     license=LICENSE,
                     url=URL,
+                    data_files=[
+                        ('.skdata/ocrf',
+                            [ensemble_dir + 'ocrf_open/ocrf_v0.6']),
+                        ('.skdata/elki',
+                            [ensemble_dir + 'elki-0.7.2-SNAPSHOT-javadoc.jar',
+                             ensemble_dir + 'elki-0.7.2-SNAPSHOT-sources.jar',
+                             ensemble_dir + 'elki-0.7.2-SNAPSHOT.jar',
+                             # ensemble_dir + 'maven-archiver',
+                             # ensemble_dir + 'maven-status',
+                             # ensemble_dir + 'classes',
+                             # ensemble_dir + 'apidocs',
+                             # ensemble_dir + 'dependency',
+                             # ensemble_dir + 'generated-sources',
+                             # ensemble_dir + 'generated-test-sources',
+                             # ensemble_dir + 'javadoc-bundle-options'
+                             ])],
                     version=VERSION,
                     download_url=DOWNLOAD_URL,
                     long_description=LONG_DESCRIPTION,
@@ -289,7 +308,6 @@ def setup_package():
                         print(pyx_file)
                         if not os.path.exists(os.path.join(dirpath, pyx_file)):
                             os.unlink(os.path.join(dirpath, filename))
-
     setup(**metadata)
 
 
