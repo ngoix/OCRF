@@ -250,7 +250,7 @@ class BaseBagging(with_metaclass(ABCMeta, BaseEnsemble)):
         """
         return self._fit(X, y, self.max_samples, sample_weight=sample_weight)
 
-    def _fit(self, X, y, max_samples, max_depth=None, sample_weight=None):
+    def _fit(self, X, y, max_samples, max_depth=None, max_features=None, sample_weight=None):
         """Build a Bagging ensemble of estimators from the training
            set (X, y).
 
@@ -296,6 +296,9 @@ class BaseBagging(with_metaclass(ABCMeta, BaseEnsemble)):
         if max_depth is not None:
             self.base_estimator_.max_depth = max_depth
 
+        if max_features is not None:
+            # self.base_estimator_.max_features = max_features
+            self.max_features = max_features  # pas bien!
         # if max_samples is float:
         if not isinstance(max_samples, (numbers.Integral, np.integer)):
             max_samples = int(max_samples * X.shape[0])
@@ -303,13 +306,14 @@ class BaseBagging(with_metaclass(ABCMeta, BaseEnsemble)):
         if not (0 < max_samples <= X.shape[0]):
             raise ValueError("max_samples must be in (0, n_samples]")
 
-        if isinstance(self.max_features, (numbers.Integral, np.integer)):
-            max_features = self.max_features
-        else:  # float
-            max_features = int(self.max_features * self.n_features_)
+        if max_features is None:
+            if isinstance(self.max_features, (numbers.Integral, np.integer)):
+                max_features = self.max_features
+            else:  # float
+                max_features = int(self.max_features * self.n_features_)
 
-        if not (0 < max_features <= self.n_features_):
-            raise ValueError("max_features must be in (0, n_features]")
+            if not (0 < max_features <= self.n_features_):
+                raise ValueError("max_features must be in (0, n_features]")
 
         if not self.bootstrap and self.oob_score:
             raise ValueError("Out of bag estimation only available"

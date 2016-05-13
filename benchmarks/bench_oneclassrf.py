@@ -7,10 +7,9 @@ A test of OneClassRF on classical anomaly detection datasets.
 
 """
 print(__doc__)
-
+import pdb
 from time import time
 import numpy as np
-
 # import matplotlib.pyplot as plt
 # for the cluster to save the fig:
 import matplotlib
@@ -20,6 +19,7 @@ from matplotlib import pyplot as plt
 from sklearn.ensemble import OneClassRF
 from sklearn.metrics import roc_curve, precision_recall_curve, auc
 from sklearn.datasets import one_class_data
+from sklearn.preprocessing import scale
 from sklearn import grid_search  # let it for cv
 from scipy.interpolate import interp1d
 
@@ -27,7 +27,7 @@ from sklearn.utils import shuffle as sh
 
 np.random.seed(1)
 
-nb_exp = 10
+nb_exp = 5
 
 # TODO: find good default parameters for every datasets
 # TODO: make an average of ROC curves over 20 experiments
@@ -95,10 +95,11 @@ for dat in datasets:
         # #               'max_samples': [.01, .05, .1, .2, .3, 'auto'],
         # #               'max_features': [2, 5, 8, 10, 15],
         # #               'n_estimators': [5, 10, 20, 50]}
-        # parameters = {'max_depth':  ['auto', 5, 10, 20],
-        #               'max_samples': [.01, .05, .1, 'auto'],
-        #               'max_features': [min(10, n_features), 3],
-        #               'n_estimators': [20, 50]}
+        # parameters = {'max_depth':  ['auto'],
+        #               'max_samples': [.05, .1, 'auto'],
+        #               'max_features': [max(int(0.5 * n_features),3), max(int(0.2 * n_features),3)],
+        #               'max_features2': [min(10, n_features), min(5, n_features), 3],
+        #               'n_estimators': [50, 100]}
         # model = OneClassRF()
         # clf = grid_search.GridSearchCV(model, parameters, refit=False, cv=2)
         # clf.fit(X_train, y_train)
@@ -117,13 +118,134 @@ for dat in datasets:
     #           'max_depth': 5} -> AUC 1.000  (segm error when large max_depth)
     ###################
 
+        # essayer avec max_features = max(int(0.2 * n_features), 3)
         # comment the following line if CV is performed above
-        model = OneClassRF(max_depth='auto', max_samples=.1, max_features=3,
+
+        # test3 en faisant la vraie moyenne:
+        # model = OneClassRF(max_depth='auto', max_samples=.1,
+        #                    max_features=min(max(int(0.2 * n_features), 3),15),
+        #                    max_features2=1.,
+        #                    n_estimators=100)
+        # test4 (scores scaled):
+        # model = OneClassRF(max_depth='auto',
+        #                    max_samples=max(int(0.1 * n_samples_train), 100),
+        #                    max_features=max(int(0.2 * n_features), 3),
+        #                    max_features2=1.,
+        #                    n_estimators=100)
+        # test5 sans volume (scores scaled):
+        # model = OneClassRF(max_depth='auto',
+        #                    max_samples=max(int(0.1 * n_samples_train), 100),
+        #                    max_features=max(int(0.2 * n_features), 3),
+        #                    max_features2=1.,
+        #                    n_estimators=100)
+        # test6 score volume->1/depth (scores scaled): (reessayer en variant la profondeur) (pas de chgmt sans scale)
+        # model = OneClassRF(max_depth=4,
+        #                    max_samples=max(int(0.1 * n_samples_train), 100),
+        #                    max_features=max(int(0.2 * n_features), 3),
+        #                    max_features2=1.,
+        #                    n_estimators=100)
+        # # test7 juste la depth:
+        # model = OneClassRF(max_depth='auto',
+        #                    max_samples=max(int(0.1 * n_samples_train), 100),
+        #                    max_features=max(int(0.2 * n_features), 3),
+        #                    max_features2=1.,
+        #                    n_estimators=100)
+        # # test8 volume-> 1/2^depth: (un peu nul)
+        # model = OneClassRF(max_depth='auto',
+        #                    max_samples=max(int(0.1 * n_samples_train), 100),
+        #                    max_features=max(int(0.2 * n_features), 3),
+        #                    max_features2=1.,
+        #                    n_estimators=100)
+        # # test9 idem mais en ajoutant _average_path_length: (nul)
+        # model = OneClassRF(max_depth='auto',
+        #                    max_samples=max(int(0.1 * n_samples_train), 100),
+        #                    max_features=max(int(0.2 * n_features), 3),
+        #                    max_features2=1.,
+        #                    n_estimators=100)
+        # # test10 idem avec normalization (un peu nul) (effacé)
+        # model = OneClassRF(max_depth='auto',
+        #                    max_samples=max(int(0.1 * n_samples_train), 100),
+        #                    max_features=max(int(0.2 * n_features), 3),
+        #                    max_features2=1.,
+        #                    n_estimators=100)
+        # # test10 idem mais sans moyenner chaque arbre: (un peu nul)
+        # model = OneClassRF(max_depth='auto',
+        #                    max_samples=max(int(0.1 * n_samples_train), 100),
+        #                    max_features=max(int(0.2 * n_features), 3),
+        #                    max_features2=1.,
+        #                    n_estimators=100)
+        # # test11 idem (sans moyenner chaque arbre) avec 2^ (score intelligent): (idem, un peu nul)
+        # model = OneClassRF(max_depth='auto',
+        #                    max_samples=max(int(0.1 * n_samples_train), 100),
+        #                    max_features=max(int(0.2 * n_features), 3),
+        #                    max_features2=1.,
+        #                    n_estimators=100)
+        # test14 (seulmt depth comme iforest)
+        # model = OneClassRF(max_depth='auto',
+        #                    max_samples=max(int(0.1 * n_samples_train), 100),
+        #                    max_features=max(int(0.5 * n_features), 3),
+        #                    max_features2=1.,
+        #                    n_estimators=100)
+        # # test15 (seulmt depth comme iforest)
+        # model = OneClassRF(max_depth='auto',
+        #                    max_samples=max(int(0.1 * n_samples_train), 100),
+        #                    max_features=max(int(0.5 * n_features), 3),
+        #                    max_features2=min(max(int(0.5 * n_features), 3), 5),
+        #                    n_estimators=100)
+        # # test16 (seulmt depth comme iforest) (stylé) sans + _average
+        # model = OneClassRF(max_depth='auto',
+        #                    max_samples=max(int(0.1 * n_samples_train), 100),
+        #                    max_features=min(max(int(0.5 * n_features), 5), n_features),
+        #                    max_features2=1.,#min(max(int(0.5 * n_features), 3), 5),
+        #                    n_estimators=100)
+        # # test17 (seulmt depth comme iforest) (stylé)
+        # model = OneClassRF(max_depth='auto',
+        #                    max_samples=max(int(0.1 * n_samples_train), 100),
+        #                    max_features=min(max(int(0.5 * n_features), 5), n_features),
+        #                    max_features2=min(max(int(0.5 * n_features), 3), 5),
+        #                    n_estimators=100)
+        # test18 (seulmt depth comme iforest) avec random (et non best) (un peu moins stylé)
+        # model = OneClassRF(max_depth='auto',
+        #                    max_samples=max(int(0.1 * n_samples_train), 100),
+        #                    max_features=min(max(int(0.5 * n_features), 5), n_features),
+        #                    max_features2=min(max(int(0.5 * n_features), 3), 5),
+        #                    n_estimators=100)
+        # # test19 idem avec best avec + _average
+        # model = OneClassRF(max_depth='auto',
+        #                    max_samples=max(int(0.1 * n_samples_train), 100),
+        #                    max_features_tree=min(max(int(0.5 * n_features), 5), n_features),
+        #                    max_features_node=1.,#min(max(int(0.5 * n_features), 3), 5),
+        #                    n_estimators=100)
+        # # test20 idem avec max_features2='auto' (un tout petit peu moins bien)
+        # model = OneClassRF(max_depth='auto',
+        #                    max_samples=max(int(0.1 * n_samples_train), 100),
+        #                    max_features_tree=min(max(int(0.5 * n_features), 5), n_features),
+        #                    max_features_node='auto',#min(max(int(0.5 * n_features), 3), 5),
+        #                    n_estimators=100)
+        # # test19unsupervised idem test19 but unsupervised
+        # model = OneClassRF(max_depth='auto',
+        #                    max_samples=max(int(0.1 * n_samples_train), 100),
+        #                    max_features_tree=min(max(int(0.5 * n_features), 5), n_features),
+        #                    max_features_node=min(max(int(0.5 * n_features), 3), 5),
+        #                    n_estimators=100)
+        # # test19_1 idem test19 but max_features_node=1.
+        # model = OneClassRF(max_depth='auto',
+        #                    max_samples=max(int(0.1 * n_samples_train), 100),
+        #                    max_features_tree=min(max(int(0.5 * n_features), 5), n_features),
+        #                    max_features_node=1., #min(max(int(0.5 * n_features), 3), 5),
+        #                    n_estimators=100)
+        # test19_1_auto idem test19_1
+        model = OneClassRF(max_depth='auto',
+                           max_samples='auto', #max(int(0.1 * n_samples_train), 100),
+                           max_features_tree='auto', #min(max(int(0.5 * n_features), 5), n_features),
+                           max_features_node=1., #min(max(int(0.5 * n_features), 3), 5),
                            n_estimators=100)
 
-        # # training only on normal data: (not supported in cv)
-        # X_train = X_train[y_train == 0]
-        # y_train = y_train[y_train == 0]
+        # apres: comparer avec max_features_node=1.
+
+        # training only on normal data: (not supported in cv)
+        X_train = X_train[y_train == 0]
+        y_train = y_train[y_train == 0]
 
         tstart = time()
         model.fit(X_train)
@@ -131,6 +253,8 @@ for dat in datasets:
         tstart = time()
 
         scoring = model.predict(X_test)  # the lower, the more normal
+        # pdb.set_trace()
+        scoring = scale(scoring)
         predict_time += time() - tstart
         fpr_, tpr_ = roc_curve(y_test, scoring)[:2]
         f = interp1d(fpr_, tpr_)
@@ -190,4 +314,4 @@ for dat in datasets:
     plt.title('Precision-Recall curve', fontsize=25)
     plt.legend(loc="lower right", prop={'size': 15})
 
-plt.savefig('results_ocrf/bench_oneclassrf_roc_pr_unsupervised_factorized')
+plt.savefig('bench_oneclassrf_roc_pr_supervised_factorized_test19_1')
