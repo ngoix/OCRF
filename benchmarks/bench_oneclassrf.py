@@ -24,6 +24,7 @@ from sklearn import grid_search  # let it for cv
 from scipy.interpolate import interp1d
 
 from sklearn.utils import shuffle as sh
+from sklearn.utils import TimeoutError, max_time, timeout
 
 np.random.seed(1)
 
@@ -70,44 +71,50 @@ for dat in datasets:
     fit_time = 0
     predict_time = 0
 
-    for ne in range(nb_exp):
-        print 'exp num:', ne
-        X, y = sh(X, y)
+    try:
+        for ne in range(nb_exp):
+            print 'exp num:', ne
+            X, y = sh(X, y)
 
-        X_train = X[:n_samples_train, :]
-        X_test = X[n_samples_train:, :]
-        y_train = y[:n_samples_train]
-        y_test = y[n_samples_train:]
+            X_train = X[:n_samples_train, :]
+            X_test = X[n_samples_train:, :]
+            y_train = y[:n_samples_train]
+            y_test = y[n_samples_train:]
 
-        print('OneClassRF processing...')
-        model = OneClassRF()
+            print('OneClassRF processing...')
+            model = OneClassRF()
 
-        # training only on normal data: (not supported in cv)
-        X_train = X_train[y_train == 0]
-        y_train = y_train[y_train == 0]
+            # training only on normal data: (not supported in cv)
+            X_train = X_train[y_train == 0]
+            y_train = y_train[y_train == 0]
 
-        tstart = time()
-        model.fit(X_train)
-        fit_time += time() - tstart
-        tstart = time()
+            tstart = time()
+            model.fit(X_train)
+            fit_time += time() - tstart
+            tstart = time()
 
-        scoring = model.predict(X_test)  # the lower, the more normal
-        # scoring = scale(scoring)
-        predict_time += time() - tstart
-        fpr_, tpr_ = roc_curve(y_test, scoring)[:2]
-        f = interp1d(fpr_, tpr_)
-        tpr += f(x_axis)
-        tpr[0] = 0.
+            scoring = model.predict(X_test)  # the lower, the more normal
+            # scoring = scale(scoring)
+            predict_time += time() - tstart
+            fpr_, tpr_ = roc_curve(y_test, scoring)[:2]
+            f = interp1d(fpr_, tpr_)
+            tpr += f(x_axis)
+            tpr[0] = 0.
 
-        precision_, recall_ = precision_recall_curve(y_test, scoring)[:2]
+            if predict_time + fit_time > max_time:
+                raise TimeoutError
 
-        # cluster: old version of scipy -> interpol1d needs sorted x_input
-        arg_sorted = recall_.argsort()
-        recall_ = recall_[arg_sorted]
-        precision_ = precision_[arg_sorted]
+            precision_, recall_ = precision_recall_curve(y_test, scoring)[:2]
 
-        f = interp1d(recall_, precision_)
-        precision += f(x_axis)
+            # cluster: old version of scipy -> interpol1d needs sorted x_input
+            arg_sorted = recall_.argsort()
+            recall_ = recall_[arg_sorted]
+            precision_ = precision_[arg_sorted]
+
+            f = interp1d(recall_, precision_)
+            precision += f(x_axis)
+    except TimeoutError:
+        continue
 
     tpr /= float(nb_exp)
     fit_time /= float(nb_exp)
