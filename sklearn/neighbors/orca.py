@@ -1,5 +1,5 @@
 
-from ..utils import check_array
+from ..utils import check_array, timeout, max_time
 
 import subprocess as sub
 import pandas as pd
@@ -28,6 +28,7 @@ class Orca():
     def __init__(self):
         print "initialization (nothing)"
 
+    @timeout(max_time)
     def fit_predict(self, Xtrain, Xtest):
         Xtrain = check_array(Xtrain)
         print "Xtrain checked"
@@ -108,7 +109,7 @@ class Orca():
         # ================
         # nbOutlier computed
         nbOutlier = int(Xtest.shape[0] / 8.) # maybe ./8 as in paper "ilation forest"
-        nbOutlierOption = str(nbOutlier) 
+        nbOutlierOption = str(nbOutlier)
         # nb of nearest neighbors considered by orca
         nbNN = str(5)
         # ======================

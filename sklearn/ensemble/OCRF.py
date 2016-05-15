@@ -8,6 +8,7 @@ import numpy as np
 from subprocess import call
 
 from .arff import dumps
+from ..utils import timeout, max_time
 
 # ./ocrf_open/ocrf_v0.6/RELEASE/ocrf
 
@@ -17,6 +18,7 @@ def _p(e):
         return 'outlier'
     else:
         return 'target'
+
 
 def to_fucking_arff(X, y, filename):
     y_s = np.array([_p(e) for e in y])
@@ -32,6 +34,7 @@ def to_fucking_arff(X, y, filename):
     f = open(filename, 'w')
     print >> f, dumps(arff_struct)
 
+
 class OCRF:
 
     def __init__(self, krsm=-1, krfs=-1, nbTree=100,
@@ -46,6 +49,7 @@ class OCRF:
         self.alpha = alpha
         self.beta = beta
 
+    @timeout(max_time)
     def fit_predict(self, X_train, y_train, X_test, y_test):
         install_dir = os.path.dirname(os.path.abspath(
             inspect.getfile(inspect.currentframe())))  # script directory

@@ -22,6 +22,7 @@ from sklearn.metrics import roc_curve, precision_recall_curve, auc
 from sklearn.datasets import one_class_data
 from sklearn.utils import shuffle as sh
 from scipy.interpolate import interp1d
+from sklearn.utils import TimeoutError
 
 np.random.seed(1)
 
@@ -67,51 +68,54 @@ for dat in datasets:
     precision = np.zeros(n_axis)
     fit_predict_time = 0
 
-    for ne in range(nb_exp):
-        print 'exp num:', ne
-        X, y = sh(X, y)
-        # indices = np.arange(X.shape[0])
-        # np.random.shuffle(indices)  # shuffle the dataset
-        # X = X[indices]
-        # y = y[indices]
+    try:
+        for ne in range(nb_exp):
+            print 'exp num:', ne
+            X, y = sh(X, y)
+            # indices = np.arange(X.shape[0])
+            # np.random.shuffle(indices)  # shuffle the dataset
+            # X = X[indices]
+            # y = y[indices]
 
-        X_train = X[:n_samples_train, :]
-        X_test = X[n_samples_train:(n_samples_train + n_samples_test), :]
-        y_train = y[:n_samples_train]
-        y_test = y[n_samples_train:(n_samples_train + n_samples_test)]
+            X_train = X[:n_samples_train, :]
+            X_test = X[n_samples_train:(n_samples_train + n_samples_test), :]
+            y_train = y[:n_samples_train]
+            y_test = y[n_samples_train:(n_samples_train + n_samples_test)]
 
-        # training only on normal data:
-        X_train = X_train[y_train == 0]
-        y_train = y_train[y_train == 0]
+            # training only on normal data:
+            X_train = X_train[y_train == 0]
+            y_train = y_train[y_train == 0]
 
-        print('Orca processing...')
-        model = Orca()
-        tstart = time()
-        # fit_time += time() - tstart
-        # tstart = time()
-        # if ne==7:
+            print('Orca processing...')
+            model = Orca()
+            tstart = time()
+            # fit_time += time() - tstart
+            # tstart = time()
+            # if ne==7:
 
-        # the lower,the more normal:
-        scoring = model.fit_predict(X_train, X_test)
-        # else:
-        #     scoring = np.zeros(X_test.shape[0])
+            # the lower,the more normal:
+            scoring = model.fit_predict(X_train, X_test)
+            # else:
+            #     scoring = np.zeros(X_test.shape[0])
 
-        fit_predict_time += time() - tstart
-        fpr_, tpr_, thresholds_ = roc_curve(y_test, scoring)
+            fit_predict_time += time() - tstart
+            fpr_, tpr_, thresholds_ = roc_curve(y_test, scoring)
 
-        f = interp1d(fpr_, tpr_)
-        tpr += f(x_axis)
-        tpr[0] = 0.
+            f = interp1d(fpr_, tpr_)
+            tpr += f(x_axis)
+            tpr[0] = 0.
 
-        precision_, recall_ = precision_recall_curve(y_test, scoring)[:2]
+            precision_, recall_ = precision_recall_curve(y_test, scoring)[:2]
 
-        # cluster: old version of scipy -> interpol1d needs sorted x_input
-        arg_sorted = recall_.argsort()
-        recall_ = recall_[arg_sorted]
-        precision_ = precision_[arg_sorted]
+            # cluster: old version of scipy -> interpol1d needs sorted x_input
+            arg_sorted = recall_.argsort()
+            recall_ = recall_[arg_sorted]
+            precision_ = precision_[arg_sorted]
 
-        f = interp1d(recall_, precision_)
-        precision += f(x_axis)
+            f = interp1d(recall_, precision_)
+            precision += f(x_axis)
+    except TimeoutError:
+        continue
 
     tpr /= float(nb_exp)
     fit_predict_time /= float(nb_exp)
