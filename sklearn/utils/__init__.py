@@ -7,6 +7,7 @@ import numpy as np
 from scipy.sparse import issparse
 import warnings
 
+from .timeout import timeout, max_time, TimeoutError
 from .murmurhash import murmurhash3_32
 from .validation import (as_float_array,
                          assert_all_finite,
@@ -32,7 +33,7 @@ __all__ = ["murmurhash3_32", "as_float_array",
            "compute_class_weight", "compute_sample_weight",
            "column_or_1d", "safe_indexing",
            "check_consistent_length", "check_X_y", 'indexable',
-           "check_symmetric"]
+           "check_symmetric", "timeout", "max_time", "TimeoutError"]
 
 
 def safe_mask(X, mask):

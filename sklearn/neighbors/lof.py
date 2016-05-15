@@ -16,6 +16,8 @@ from ..exceptions import NotFittedError
 from ..utils.validation import check_is_fitted
 from ..utils import check_array
 from ..utils import _get_n_jobs
+from ..utils import timeout, max_time
+
 
 __all__ = ["LocalOutlierFactor"]
 
@@ -112,6 +114,7 @@ class LocalOutlierFactor(NeighborsBase, KNeighborsMixin, UnsupervisedMixin):
 
         self.contamination = contamination
 
+    @timeout(max_time)
     def fit(self, X, y=None):
         """Fit the model using X as training data
 
@@ -139,6 +142,7 @@ class LocalOutlierFactor(NeighborsBase, KNeighborsMixin, UnsupervisedMixin):
         # X_sub_samples = neighbors of neighbors of X ?
         return self
 
+    @timeout(max_time)
     def predict(self, X=None):
         """Predict Local Outlier Factor of X.
 
@@ -173,6 +177,7 @@ class LocalOutlierFactor(NeighborsBase, KNeighborsMixin, UnsupervisedMixin):
 
         return is_inlier
 
+    @timeout(max_time)
     def decision_function(self, X=None):
         """Opposite of the Local Outlier Factor of X (as bigger is better).
 

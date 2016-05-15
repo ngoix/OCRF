@@ -13,7 +13,7 @@ from scipy.sparse import issparse
 from ..externals import six
 from ..externals.joblib import Parallel, delayed
 from ..tree import ExtraTreeRegressor
-from ..utils import check_random_state, check_array
+from ..utils import check_random_state, check_array, timeout, max_time
 
 from .bagging import BaseBagging
 from .forest import _parallel_helper
@@ -126,6 +126,7 @@ class IsolationForest(BaseBagging):
     def _set_oob_score(self, X, y):
         raise NotImplementedError("OOB score not supported by iforest")
 
+    @timeout(max_time)
     def fit(self, X, y=None, sample_weight=None):
         """Fit estimator.
 
@@ -184,6 +185,7 @@ class IsolationForest(BaseBagging):
                                           sample_weight=sample_weight)
         return self
 
+    @timeout(max_time)
     def predict(self, X):
         """Predict anomaly score of X with the IsolationForest algorithm.
 
@@ -230,6 +232,7 @@ class IsolationForest(BaseBagging):
 
         return scores
 
+    @timeout(max_time)
     def decision_function(self, X):
         """Average of the decision functions of the base classifiers.
 
@@ -258,7 +261,7 @@ def _average_path_length(n_samples_leaf):
     n_samples_leaf : array-like of shape (n_samples, n_estimators), or int.
         The number of training samples in each test sample leaf, for
         each estimators.
-    
+
     Returns
     -------
     average_path_length : array, same shape as n_samples_leaf

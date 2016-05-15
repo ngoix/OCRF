@@ -9,6 +9,7 @@ from ..feature_selection.from_model import _LearntSelectorMixin
 from ..utils import check_X_y
 from ..utils.validation import _num_samples
 from ..utils.multiclass import check_classification_targets
+from ..utils import timeout, max_time
 
 
 class LinearSVC(BaseEstimator, LinearClassifierMixin,
@@ -1001,6 +1002,7 @@ class OneClassSVM(BaseLibSVM):
             shrinking, False, cache_size, None, verbose, max_iter,
             random_state)
 
+    @timeout(max_time)
     def fit(self, X, y=None, sample_weight=None, **params):
         """
         Detects the soft boundary of the set of samples X.
@@ -1029,6 +1031,7 @@ class OneClassSVM(BaseLibSVM):
                                      **params)
         return self
 
+    @timeout(max_time)
     def decision_function(self, X):
         """Distance of the samples X to the separating hyperplane.
 
