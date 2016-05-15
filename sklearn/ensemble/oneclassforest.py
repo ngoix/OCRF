@@ -23,22 +23,6 @@ class OneClassRF(BaseBagging):
 
     Return the anomaly score of each sample using the OneClassRF algorithm
 
-    The OneClassRF 'isolates' observations by randomly selecting a feature
-    and then randomly selecting a split value between the maximum and minimum
-    values of the selected feature.
-
-    Since recursive partitioning can be represented by a tree structure, the
-    number of splittings required to isolate a sample is equivalent to the path
-    length from the root node to the terminating node.
-
-    This path length, averaged over a forest of such random trees, is a
-    measure of abnormality and our decision function.
-
-    Random partitioning produces noticeably shorter paths for anomalies.
-    Hence, when a forest of random trees collectively produce shorter path
-    lengths for particular samples, they are highly likely to be anomalies.
-
-
     Parameters
     ----------
     n_estimators : int, optional (default=100)
@@ -49,11 +33,11 @@ class OneClassRF(BaseBagging):
             - If int, then draw `max_samples` samples.
             - If float, then draw `max_samples * X.shape[0]` samples.
             - If "auto", then `max_samples=
-                                        max(int(0.1 * n_samples_train), 100)`.
+                                        max(int(0.2 * n_samples_train), 100)`.
         If max_samples is larger than the number of samples provided,
         all samples will be used for all trees (no sampling).
 
-    max_features_tree : int or float, optional (default=1.0)
+    max_features_tree : int or float, optional (default='auto')
         The number of features to draw from X to train each base estimator.
         - If "auto", then `max_features_node=
                                min(max(int(0.5 * n_features), 5), n_features)`.
@@ -190,7 +174,7 @@ class OneClassRF(BaseBagging):
         # ensure that max_sample is in [1, n_samples]:
         if isinstance(self.max_samples, six.string_types):
             if self.max_samples == 'auto':
-                max_samples = max(int(0.1 * n_samples), 100)
+                max_samples = max(int(0.2 * n_samples), 100)
             else:
                 raise ValueError('max_samples (%s) is not supported.'
                                  'Valid choices are: "auto", int or'
@@ -241,7 +225,7 @@ class OneClassRF(BaseBagging):
             if self.max_features_tree == 'auto':
                 max_features = min(max(int(0.5 * n_features), 5), n_features)
             elif self.max_features_tree == 'sqrt':
-                max_features = int(np.sqrt(n_features))
+                max_features = min(max(int(np.sqrt(n_features)), 5), n_features)
             else:
                 raise ValueError('max_features_tree (%s) is not supported. '
                                  'Valid choices are: "auto", int or '
