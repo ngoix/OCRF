@@ -31,4 +31,4 @@ def timeout(seconds=10, error_message=os.strerror(errno.ETIME)):
 
     return decorator
 
-max_time = 2
+max_time = 1800
