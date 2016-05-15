@@ -22,6 +22,7 @@ from sklearn.metrics import roc_curve, precision_recall_curve, auc
 from sklearn.datasets import one_class_data
 from sklearn.utils import shuffle as sh
 from scipy.interpolate import interp1d
+from sklearn.utils import TimeoutError
 
 np.random.seed(1)
 
@@ -113,7 +114,7 @@ for dat in datasets:
 
             f = interp1d(recall_, precision_)
             precision += f(x_axis)
-    except:
+    except TimeoutError:
         continue
 
     tpr /= float(nb_exp)
