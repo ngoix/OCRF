@@ -5,6 +5,8 @@ import pyper as pr
 
 from pandas import DataFrame
 
+from ..utils import timeout, max_time
+
 
 class RF:
 
@@ -12,6 +14,7 @@ class RF:
         self.ntree = ntree
         self.nforests = nforests
 
+    @timeout(max_time)
     def fit_predict(self, X_train, y_train, X_test, y_test):
 
         X = np.vstack((X_train, X_test))

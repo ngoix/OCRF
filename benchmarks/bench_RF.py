@@ -26,8 +26,8 @@ from scipy.interpolate import interp1d
 np.random.seed(1)
 
 nb_exp = 10
-OCRF_max_train = 1000000
-OCRF_max_test = 1000000
+OCRF_max_train = 1000
+OCRF_max_test = 1000
 
 # XXXXXXX Launch without pythonpath (with python) on MASTER (after built)
 
@@ -47,7 +47,7 @@ OCRF_max_test = 1000000
 # # new datasets:
 # datasets = ['ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
 #             'pendigits', 'pima', 'wilt', 'adult']
-datasets = ['ionosphere']
+datasets = ['adult']
 
 plt.figure(figsize=(25, 17))
 
