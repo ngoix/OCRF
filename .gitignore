@@ -65,3 +65,4 @@ cythonize.dat
 
 !*/src/*.c
 !*/src/*.cpp
+!sklearn/ensemble/ocrf_open/ocrf_v0.6/src/*
