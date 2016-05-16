@@ -21,11 +21,6 @@ nb_exp = 10
 elki_max_train = 1000000
 elki_max_test = 1000000
 
-# XXXXXXX Launch without pythonpath (with python) on MASTER (after built)
-
-# TODO: CV for OCSVM!
-
-
 # # datasets available:
 # datasets = ['http', 'smtp', 'SA', 'SF', 'shuttle', 'forestcover',
 #             'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
@@ -49,7 +44,8 @@ for dat in datasets:
 
     n_samples, n_features = np.shape(X)
     n_samples_train = n_samples // 2
-    # OCSVM training on max ocsvm_max_train data:
+
+    # training on max ocsvm_max_train data:
     n_samples_train = min(n_samples // 2, elki_max_train)
     n_samples_test = min(n_samples - n_samples_train, elki_max_test)
 
@@ -62,10 +58,6 @@ for dat in datasets:
     for ne in range(nb_exp):
         print 'exp num:', ne
         X, y = sh(X, y)
-        # indices = np.arange(X.shape[0])
-        # np.random.shuffle(indices)  # shuffle the dataset
-        # X = X[indices]
-        # y = y[indices]
 
         X_train = X[:n_samples_train, :]
         X_test = X[n_samples_train:(n_samples_train + n_samples_test), :]
@@ -82,8 +74,6 @@ for dat in datasets:
 
         # the lower,the more normal:
         scoring = model.fit_predict(X_train, y_train, X_test, y_test)
-        # else:
-        #     scoring = np.zeros(X_test.shape[0])
 
         fit_predict_time += time() - tstart
         fpr_, tpr_, thresholds_ = roc_curve(y_test, scoring)
@@ -132,5 +122,4 @@ for dat in datasets:
     plt.title('Precision-Recall curve', fontsize=25)
     plt.legend(loc="lower right", prop={'size': 15})
 
-plt.show()
-# plt.savefig('results_ocrf/bench_evoutse_roc_pr_supervised_factorized')
+plt.savefig('results_ocrf/bench_evoutse_roc_pr_supervised_factorized')

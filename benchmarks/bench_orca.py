@@ -7,7 +7,6 @@ A test of Orca on classical anomaly detection datasets.
 
 """
 print(__doc__)
-import pdb
 from time import time
 import numpy as np
 
@@ -29,11 +28,6 @@ np.random.seed(1)
 nb_exp = 10
 orca_max_train = 1000000
 orca_max_test = 1000000
-
-# XXXXXXX Launch without pythonpath (with python) on MASTER (after built)
-
-# TODO: CV for OCSVM!
-
 
 # # datasets available:
 # datasets = ['http', 'smtp', 'SA', 'SF', 'shuttle', 'forestcover',
@@ -58,7 +52,7 @@ for dat in datasets:
 
     n_samples, n_features = np.shape(X)
     n_samples_train = n_samples // 2
-    # OCSVM training on max ocsvm_max_train data:
+    # training on max ocsvm_max_train data:
     n_samples_train = min(n_samples // 2, orca_max_train)
     n_samples_test = min(n_samples - n_samples_train, orca_max_test)
 
@@ -72,10 +66,6 @@ for dat in datasets:
         for ne in range(nb_exp):
             print 'exp num:', ne
             X, y = sh(X, y)
-            # indices = np.arange(X.shape[0])
-            # np.random.shuffle(indices)  # shuffle the dataset
-            # X = X[indices]
-            # y = y[indices]
 
             X_train = X[:n_samples_train, :]
             X_test = X[n_samples_train:(n_samples_train + n_samples_test), :]
@@ -89,14 +79,9 @@ for dat in datasets:
             print('Orca processing...')
             model = Orca()
             tstart = time()
-            # fit_time += time() - tstart
-            # tstart = time()
-            # if ne==7:
 
             # the lower,the more normal:
             scoring = model.fit_predict(X_train, X_test)
-            # else:
-            #     scoring = np.zeros(X_test.shape[0])
 
             fit_predict_time += time() - tstart
             fpr_, tpr_, thresholds_ = roc_curve(y_test, scoring)
