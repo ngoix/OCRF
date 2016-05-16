@@ -9,7 +9,7 @@ from scipy.sparse import issparse
 
 from ..externals import six
 from ..tree import ExtraTreeClassifier
-from ..utils import check_array
+from ..utils import check_array, timeout, max_time, TimeoutError
 
 from .bagging import BaseBagging
 
@@ -139,6 +139,7 @@ class OneClassRF(BaseBagging):
     def _set_oob_score(self, X, y):
         raise NotImplementedError("OOB score not supported by iforest")
 
+    @timeout(max_time)
     def fit(self, X, y=None, sample_weight=None):
         """Fit estimator.
 
@@ -244,6 +245,7 @@ class OneClassRF(BaseBagging):
                                      sample_weight=sample_weight)
         return self
 
+    @timeout(max_time)
     def predict(self, X):
         """Predict anomaly score of X with the OneClassRF algorithm.
 
@@ -325,6 +327,7 @@ class OneClassRF(BaseBagging):
         scores_av[out_index] = scores_av.max()
         return scores_av
 
+    @timeout(max_time)
     def decision_function(self, X):
         """Average of the decision functions of the base classifiers.
 
