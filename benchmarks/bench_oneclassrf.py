@@ -24,7 +24,7 @@ from sklearn import grid_search  # let it for cv
 from scipy.interpolate import interp1d
 
 from sklearn.utils import shuffle as sh
-from sklearn.utils import TimeoutError, max_time, timeout
+from sklearn.utils import TimeoutError, max_time
 
 np.random.seed(1)
 
@@ -144,4 +144,4 @@ for dat in datasets:
     plt.title('Precision-Recall curve', fontsize=25)
     plt.legend(loc="lower right", prop={'size': 15})
 
-plt.savefig('bench_oneclassrf_roc_pr_supervised_factorized_sqrt')
+plt.savefig('results_ocrf/bench_oneclassrf_roc_pr_supervised_factorized')
