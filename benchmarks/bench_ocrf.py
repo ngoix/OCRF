@@ -40,14 +40,17 @@ OCRF_max_test = 1000000
 #             'pendigits', 'pima', 'wilt','internet_ads', 'adult']
 
 # # continuous datasets:
-# datasets = ['http', 'smtp', 'shuttle', 'forestcover',
-#             'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
-#             'pendigits', 'pima', 'wilt', 'adult']
+datasets = [#'http', 
+            #'smtp', 
+            'shuttle', 
+            #'forestcover',
+            'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
+            'pendigits', 'pima', 'wilt', 'adult']
 
 # # new datasets:
 # datasets = ['ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
 #             'pendigits', 'pima', 'wilt', 'adult']
-datasets = ['ionosphere']
+#datasets = ['ionosphere']
 
 plt.figure(figsize=(25, 17))
 
@@ -68,6 +71,7 @@ for dat in datasets:
     fit_predict_time = 0
 
     for ne in range(nb_exp):
+	print dat
         print 'exp num:', ne
         X, y = sh(X, y)
         # indices = np.arange(X.shape[0])
@@ -143,5 +147,4 @@ for dat in datasets:
     plt.title('Precision-Recall curve', fontsize=25)
     plt.legend(loc="lower right", prop={'size': 15})
 
-plt.show()
-# plt.savefig('results_ocrf/bench_ocrf_roc_pr_supervised_factorized')
+plt.savefig('bench_ocrf_roc_pr_supervised_factorized_no_http_forestc_smtp')

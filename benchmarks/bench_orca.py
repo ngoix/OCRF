@@ -39,15 +39,15 @@ orca_max_test = 1000000
 #             'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
 #             'pendigits', 'pima', 'wilt','internet_ads', 'adult']
 
-# # continuous datasets:
-# datasets = ['http', 'smtp', 'shuttle', 'forestcover',
-#             'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
-#             'pendigits', 'pima', 'wilt', 'adult']
+# continuous datasets:
+datasets = ['http', 'smtp', 'shuttle', 'forestcover',
+            'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
+            'pendigits', 'pima', 'wilt', 'adult']
 
 # # new datasets:
 # datasets = ['ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
 #             'pendigits', 'pima', 'wilt', 'adult']
-datasets = ['wilt']
+# datasets = ['wilt']
 
 plt.figure(figsize=(25, 17))
 
@@ -81,7 +81,7 @@ for dat in datasets:
         y_test = y[n_samples_train:(n_samples_train + n_samples_test)]
 
         # training only on normal data:
-        X_train = X_train[y_train == 0]
+	X_train = X_train[y_train == 0]
         y_train = y_train[y_train == 0]
 
         print('Orca processing...')

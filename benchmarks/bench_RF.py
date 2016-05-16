@@ -1,9 +1,9 @@
 """
 ==========================================
-OCRF benchmark
+RF benchmark
 ==========================================
 
-A test of OCRF on classical anomaly detection datasets.
+A test of RF on classical anomaly detection datasets.
 
 """
 print(__doc__)
@@ -26,8 +26,8 @@ from scipy.interpolate import interp1d
 np.random.seed(1)
 
 nb_exp = 10
-OCRF_max_train = 1000000
-OCRF_max_test = 1000000
+OCRF_max_train = 100000
+OCRF_max_test = 100000
 
 # XXXXXXX Launch without pythonpath (with python) on MASTER (after built)
 
@@ -39,15 +39,15 @@ OCRF_max_test = 1000000
 #             'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
 #             'pendigits', 'pima', 'wilt','internet_ads', 'adult']
 
-# # continuous datasets:
-# datasets = ['http', 'smtp', 'shuttle', 'forestcover',
-#             'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
-#             'pendigits', 'pima', 'wilt', 'adult']
+ # continuous datasets:
+datasets = ['http', 'smtp', 'shuttle', 'forestcover',
+             'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
+             'pendigits', 'pima', 'wilt', 'adult']
 
 # # new datasets:
 # datasets = ['ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
 #             'pendigits', 'pima', 'wilt', 'adult']
-datasets = ['ionosphere']
+#datasets = ['ionosphere']
 
 plt.figure(figsize=(25, 17))
 
@@ -143,5 +143,5 @@ for dat in datasets:
     plt.title('Precision-Recall curve', fontsize=25)
     plt.legend(loc="lower right", prop={'size': 15})
 
-plt.show()
-# plt.savefig('results_ocrf/bench_rf_roc_pr_supervised_factorized')
+#plt.show()
+plt.savefig('bench_rf_roc_pr_supervised_factorized')

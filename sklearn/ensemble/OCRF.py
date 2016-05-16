@@ -55,8 +55,9 @@ class OCRF:
         to_fucking_arff(X_test, y_test, 'tmp_data/test_set.arff')
         call(["mkdir", "results"])
 
-        call([install_dir + "/ocrf_open/ocrf_v0.6/ocrf",
+	call([install_dir + "/ocrf",
         # call([install_dir + "/../../.skdata/ocrf/ocrf",
+	# call([install_dir + "/ocrf_open/ocrf_v0.6/ocrf",
               "-path_learning", "tmp_data/learning_set.arff",
               "-path_test", "tmp_data/test_set.arff",
               "-dimension", str(X_train.shape[1]),
