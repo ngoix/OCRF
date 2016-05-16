@@ -83,7 +83,7 @@ class LSAnomaly(base.BaseEstimator):
            [  5.15255628e-103,   1.00000000e+000],
            [  1.00000000e+000,   0.00000000e+000]])
     """
-    def __init__(self, n_kernels_max=500, kernel_pos=None, sigma=None,
+    def __init__(self, n_kernels_max=2000, kernel_pos=None, sigma=None,
                  rho=None, gamma=None):
         self.n_kernels_max = n_kernels_max
         self.kernel_pos = kernel_pos

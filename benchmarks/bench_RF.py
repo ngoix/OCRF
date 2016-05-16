@@ -42,7 +42,7 @@ OCRF_max_test = 1000000
 # # new datasets:
 # datasets = ['ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
 #             'pendigits', 'pima', 'wilt', 'adult']
-datasets = ['adult,wilt']
+datasets = ['adult', 'wilt']
 
 plt.figure(figsize=(25, 17))
 

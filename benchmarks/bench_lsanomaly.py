@@ -39,15 +39,15 @@ nb_exp = 10
 #             'pendigits', 'pima', 'wilt', 'internet_ads', 'adult']
 
 # continuous datasets:
-# datasets = ['http', 'smtp', 'shuttle', 'forestcover',
-#             'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
-#             'pendigits', 'pima', 'wilt', 'adult']
+datasets = ['http', 'smtp', 'shuttle', 'forestcover',
+            'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
+            'pendigits', 'pima', 'wilt', 'adult']
 # new: ['ionosphere', 'spambase', 'annthyroid', 'arrhythmia', 'pendigits',
 #       'pima', 'wilt', 'adult']
 
 # datasets = ['ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
 #             'pendigits', 'pima', 'wilt', 'adult']
-datasets = ['ionosphere']
+# datasets = ['ionosphere']
 plt.figure(figsize=(25, 17))
 
 for dat in datasets:
