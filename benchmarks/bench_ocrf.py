@@ -35,15 +35,15 @@ OCRF_max_test = 1000000
 #             'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
 #             'pendigits', 'pima', 'wilt','internet_ads', 'adult']
 
-# # continuous datasets:
-# datasets = ['http', 'smtp', 'shuttle', 'forestcover',
-#             'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
-#             'pendigits', 'pima', 'wilt', 'adult']
+# continuous datasets:
+datasets = ['http', 'smtp', 'shuttle', 'forestcover',
+            'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
+            'pendigits', 'pima', 'wilt', 'adult']
 
 # # new datasets:
 # datasets = ['ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
 #             'pendigits', 'pima', 'wilt', 'adult']
-datasets = ['ionosphere', 'wilt']
+# datasets = ['ionosphere']
 
 plt.figure(figsize=(25, 17))
 
