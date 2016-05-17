@@ -20,7 +20,7 @@ def _p(e):
         return 'target'
 
 
-def to_fucking_arff(X, y, filename):
+def to_arff(X, y, filename):
     y_s = np.array([_p(e) for e in y])
     data = np.hstack((X, y_s.reshape((y.shape[0], 1))))
     attr = [(u'' + str(i), u'REAL') for i in xrange(X.shape[1])]
@@ -55,8 +55,8 @@ class OCRF:
             inspect.getfile(inspect.currentframe())))  # script directory
 
         call(["mkdir", "tmp_data"])
-        to_fucking_arff(X_train, y_train, 'tmp_data/learning_set.arff')
-        to_fucking_arff(X_test, y_test, 'tmp_data/test_set.arff')
+        to_arff(X_train, y_train, 'tmp_data/learning_set.arff')
+        to_arff(X_test, y_test, 'tmp_data/test_set.arff')
         call(["mkdir", "results"])
 
         call([install_dir + "/ocrf_open/ocrf_v0.6/ocrf",

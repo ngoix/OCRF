@@ -7,7 +7,7 @@ A test of LSAnomaly on classical anomaly detection datasets.
 
 """
 print(__doc__)
-import pdb
+
 from time import time
 import numpy as np
 # import matplotlib.pyplot as plt
@@ -19,8 +19,7 @@ from matplotlib import pyplot as plt
 from sklearn.lsanomaly import LSAnomaly
 from sklearn.metrics import roc_curve, precision_recall_curve, auc
 from sklearn.datasets import one_class_data
-from sklearn.preprocessing import scale
-from sklearn import grid_search  # let it for cv
+
 from scipy.interpolate import interp1d
 
 from sklearn.utils import shuffle as sh
@@ -84,9 +83,9 @@ for dat in datasets:
             print('LSAnomaly processing...')
             model = LSAnomaly()
 
-            # training only on normal data: (not supported in cv)
-            X_train = X_train[y_train == 0]
-            y_train = y_train[y_train == 0]
+            # # training only on normal data: (not supported in cv)
+            # X_train = X_train[y_train == 0]
+            # y_train = y_train[y_train == 0]
 
             tstart = time()
             model.fit(X_train)
@@ -145,4 +144,4 @@ for dat in datasets:
     plt.title('Precision-Recall curve', fontsize=25)
     plt.legend(loc="lower right", prop={'size': 15})
 
-plt.savefig('results_lsanomaly/bench_LSAnomaly_roc_pr_supervised_factorized')
+plt.savefig('results_ocrf/bench_LSAnomaly_roc_pr_unsupervised_factorized')

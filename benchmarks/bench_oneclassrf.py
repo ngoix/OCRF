@@ -84,9 +84,9 @@ for dat in datasets:
             print('OneClassRF processing...')
             model = OneClassRF()
 
-            # training only on normal data: (not supported in cv)
-            X_train = X_train[y_train == 0]
-            y_train = y_train[y_train == 0]
+            # # training only on normal data: (not supported in cv)
+            # X_train = X_train[y_train == 0]
+            # y_train = y_train[y_train == 0]
 
             tstart = time()
             model.fit(X_train)
@@ -144,4 +144,4 @@ for dat in datasets:
     plt.title('Precision-Recall curve', fontsize=25)
     plt.legend(loc="lower right", prop={'size': 15})
 
-plt.savefig('results_ocrf/bench_oneclassrf_roc_pr_supervised_factorized')
+plt.savefig('results_ocrf/bench_oneclassrf_roc_pr_unsupervised_factorized')
