@@ -31,8 +31,6 @@ nb_exp = 10
 
 # XXXXXXX Launch without pythonpath (with python) on MASTER (after built)
 
-# TODO: CV for OCSVM!
-
 
 # # datasets available:
 # datasets = ['http', 'smtp', 'SA', 'SF', 'shuttle', 'forestcover',
@@ -81,9 +79,9 @@ for dat in datasets:
             y_train = y[:n_samples_train]
             y_test = y[n_samples_train:]
 
-            # # training only on normal data:
-            # X_train = X_train[y_train == 0]
-            # y_train = y_train[y_train == 0]
+            # training only on normal data:
+            X_train = X_train[y_train == 0]
+            y_train = y_train[y_train == 0]
 
             print('IsolationForest processing...')
             model = IsolationForest()
@@ -144,4 +142,4 @@ for dat in datasets:
     plt.title('Precision-Recall curve', fontsize=25)
     plt.legend(loc="lower right", prop={'size': 15})
 
-plt.savefig('results_ocrf/bench_iforest_roc_pr_unsupervised_factorized')
+plt.savefig('results_ocrf/bench_iforest_roc_pr_supervised_factorized')

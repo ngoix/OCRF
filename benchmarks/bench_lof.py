@@ -29,8 +29,6 @@ np.random.seed(1)
 
 nb_exp = 10
 
-# TODO: CV for OCSVM!
-
 
 # # datasets available:
 # datasets = ['http', 'smtp', 'SA', 'SF', 'shuttle', 'forestcover',
