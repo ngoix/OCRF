@@ -1,4 +1,4 @@
-# Install script for directory: /Users/Romain/Downloads/ocrf_open/ocrf_v0.6
+# Install script for directory: /home/nicolas/Bureau/OCRF/sklearn/ensemble/ocrf_open/ocrf_v0.6
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -27,13 +27,18 @@ if(NOT CMAKE_INSTALL_COMPONENT)
   endif()
 endif()
 
+# Install shared libraries without execute permission?
+if(NOT DEFINED CMAKE_INSTALL_SO_NO_EXE)
+  set(CMAKE_INSTALL_SO_NO_EXE "1")
+endif()
+
 if(CMAKE_INSTALL_COMPONENT)
   set(CMAKE_INSTALL_MANIFEST "install_manifest_${CMAKE_INSTALL_COMPONENT}.txt")
 else()
   set(CMAKE_INSTALL_MANIFEST "install_manifest.txt")
 endif()
 
-string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
-       "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/Users/Romain/Downloads/ocrf_open/ocrf_v0.6/${CMAKE_INSTALL_MANIFEST}"
-     "${CMAKE_INSTALL_MANIFEST_CONTENT}")
+file(WRITE "/home/nicolas/Bureau/OCRF/sklearn/ensemble/ocrf_open/ocrf_v0.6/${CMAKE_INSTALL_MANIFEST}" "")
+foreach(file ${CMAKE_INSTALL_MANIFEST_FILES})
+  file(APPEND "/home/nicolas/Bureau/OCRF/sklearn/ensemble/ocrf_open/ocrf_v0.6/${CMAKE_INSTALL_MANIFEST}" "${file}\n")
+endforeach()
