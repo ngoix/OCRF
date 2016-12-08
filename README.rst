@@ -23,6 +23,43 @@
 .. |PyPi| image:: https://badge.fury.io/py/scikit-learn.svg
 .. _PyPi: https://badge.fury.io/py/scikit-learn
 
+One Class Splitting Criteria for Random Forests
+============
+This repository provide the code corresponding to the article `One Class Splitting Criteria for Random Forests <https://arxiv.org/pdf/1611.01971v3.pdf>`_). 
+
+The implementation is based on a fork of scikit-learn. To have a working version of both scikit-learn and OCRF scikit-learn one can use conda to create a virtual environmenet specific to OCRF while keeping the original version of scikit-learn clean.
+
+First install conda `Conda <https://docs.continuum.io/anaconda/install>`_ and update it::
+  
+  conda update conda
+  conda update --all
+  
+Then create a virtual environement for OCRF, activate it and install OCRF and its dependencies on the new virtual environment::
+
+  conda create -n OCRF_env python=2.7 anaconda
+  source activate OCRF_env
+  conda install -n OCRF_env numpy scipy cython matplotlib
+
+  git clone https://github.com/ngoix/OCRF
+
+  cd OCRF
+  pip install --upgrade pip
+  pip install pyper
+  python setup.py install
+  cd ..
+
+Now OCRF is install. To check it run the script benchmark_oneclassrf.py::
+
+  python benchmark_oneclassrf.py
+  
+To quit the environment and revert to the original scikit-learn use::
+
+  source deactivate
+  
+To return to the OCRF environment use::
+  
+  source activate OCRF_env
+
 scikit-learn
 ============
 
