@@ -25,16 +25,40 @@
 
 One Class Splitting Criteria for Random Forests
 ============
-This repository provide the code corresponding to the article `One Class Splitting Criteria for Random Forests <https://arxiv.org/pdf/1611.01971v3.pdf>`_). 
+This repository provide the code corresponding to the article `One Class Splitting Criteria for Random Forests <https://arxiv.org/pdf/1611.01971v3.pdf>`_. 
 
-The implementation is based on a fork of scikit-learn. To have a working version of both scikit-learn and OCRF scikit-learn one can use conda to create a virtual environmenet specific to OCRF while keeping the original version of scikit-learn clean.
+The implementation is based on a fork of scikit-learn. To have a working version of both scikit-learn and OCRF scikit-learn one can use conda to create a virtual environment specific to OCRF while keeping the original version of scikit-learn clean.
+
+Abstract
+=======
+
+Random Forests (RFs) are strong machine learning tools for classification and regression.
+However, they remain supervised algorithms, and no extension of RFs to the one-class setting has
+been proposed, except for techniques based on second-class sampling. This work fills this gap
+by proposing a natural methodology to extend standard splitting criteria to the one-class setting,
+structurally generalizing RFs to one-class classification.  An extensive benchmark of seven
+state-of-the-art anomaly detection algorithms is also presented. This empirically demonstrates
+the relevance of our approach.
+
+Install
+=======
+
+This package uses distutils, which is the default way of installing
+python modules. To install in your home directory, use::
+
+  python setup.py build_ext --inplace
+
+and run your personal code inside the folder OCRF. To use OCRF outside of the OCRF folder change the environment variable PYTHONPATH or create a virtual environment with Conda.
+
+Install with Conda
+=======
 
 First install conda `Conda <https://docs.continuum.io/anaconda/install>`_ and update it::
   
   conda update conda
   conda update --all
   
-Then create a virtual environement for OCRF, activate it and install OCRF and its dependencies on the new virtual environment::
+Then create a virtual environment for OCRF, activate it and install OCRF and its dependencies on the new virtual environment::
 
   conda create -n OCRF_env python=2.7 anaconda
   source activate OCRF_env
@@ -48,7 +72,7 @@ Then create a virtual environement for OCRF, activate it and install OCRF and it
   python setup.py install
   cd ..
 
-Now OCRF is install. To check it run the script benchmark_oneclassrf.py::
+Now OCRF is installed. To check it run the script benchmark_oneclassrf.py::
 
   python benchmark_oneclassrf.py
   
@@ -63,7 +87,7 @@ To return to the OCRF environment use::
 scikit-learn
 ============
 
-scikit-learn is a Python module for machine learning built on top of
+`scikit-learn <http://scikit-learn.org/>`_ is a Python module for machine learning built on top of
 SciPy and distributed under the 3-Clause BSD license.
 
 The project was started in 2007 by David Cournapeau as a Google Summer
@@ -73,105 +97,3 @@ the AUTHORS.rst file for a complete list of contributors.
 It is currently maintained by a team of volunteers.
 
 **Note** `scikit-learn` was previously referred to as `scikits.learn`.
-
-
-Important links
-===============
-
-- Official source code repo: https://github.com/scikit-learn/scikit-learn
-- HTML documentation (stable release): http://scikit-learn.org
-- HTML documentation (development version): http://scikit-learn.org/dev/
-- Download releases: http://sourceforge.net/projects/scikit-learn/files/
-- Issue tracker: https://github.com/scikit-learn/scikit-learn/issues
-- Mailing list: https://lists.sourceforge.net/lists/listinfo/scikit-learn-general
-- IRC channel: ``#scikit-learn`` at ``irc.freenode.net``
-
-Dependencies
-============
-
-scikit-learn is tested to work under Python 2.6, Python 2.7, and Python 3.4.
-(using the same codebase thanks to an embedded copy of
-`six <http://pythonhosted.org/six/>`_). It should also work with Python 3.3.
-
-The required dependencies to build the software are NumPy >= 1.6.1,
-SciPy >= 0.9 and a working C/C++ compiler. For the development version,
-you will also require Cython >=0.23.
-
-For running the examples Matplotlib >= 1.1.1 is required and for running the
-tests you need nose >= 1.1.2.
-
-This configuration matches the Ubuntu Precise 12.04 LTS release from April
-2012.
-
-scikit-learn also uses CBLAS, the C interface to the Basic Linear Algebra
-Subprograms library. scikit-learn comes with a reference implementation, but
-the system CBLAS will be detected by the build system and used if present.
-CBLAS exists in many implementations; see `Linear algebra libraries
-<http://scikit-learn.org/stable/modules/computational_performance.html#linear-algebra-libraries>`_
-for known issues.
-
-
-Install
-=======
-
-This package uses distutils, which is the default way of installing
-python modules. To install in your home directory, use::
-
-  python setup.py install --user
-
-To install for all users on Unix/Linux::
-
-  python setup.py build
-  sudo python setup.py install
-
-For more detailed installation instructions,
-see the web page http://scikit-learn.org/stable/install.html
-
-Development
-===========
-
-Code
-----
-
-GIT
-~~~
-
-You can check the latest sources with the command::
-
-    git clone https://github.com/scikit-learn/scikit-learn.git
-
-or if you have write privileges::
-
-    git clone git@github.com:scikit-learn/scikit-learn.git
-
-
-Contributing
-~~~~~~~~~~~~
-
-Quick tutorial on how to go about setting up your environment to
-contribute to scikit-learn: https://github.com/scikit-learn/scikit-learn/blob/master/CONTRIBUTING.md
-
-Before opening a Pull Request, have a look at the
-full Contributing page to make sure your code complies
-with our guidelines: http://scikit-learn.org/stable/developers/index.html
-
-
-Testing
--------
-
-After installation, you can launch the test suite from outside the
-source directory (you will need to have the ``nose`` package installed)::
-
-   $ nosetests -v sklearn
-
-Under Windows, it is recommended to use the following command (adjust the path
-to the ``python.exe`` program) as using the ``nosetests.exe`` program can badly
-interact with tests that use ``multiprocessing``::
-
-   C:\Python34\python.exe -c "import nose; nose.main()" -v sklearn
-
-See the web page http://scikit-learn.org/stable/install.html#testing
-for more information.
-
-    Random number generation can be controlled during testing by setting
-    the ``SKLEARN_SEED`` environment variable.
