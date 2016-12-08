@@ -25,9 +25,7 @@
 
 One Class Splitting Criteria for Random Forests
 ============
-This repository provide the code corresponding to the article `One Class Splitting Criteria for Random Forests <https://arxiv.org/pdf/1611.01971v3.pdf>`_. 
-
-The implementation is based on a fork of scikit-learn. To have a working version of both scikit-learn and OCRF scikit-learn one can use conda to create a virtual environment specific to OCRF while keeping the original version of scikit-learn clean.
+This repository provide the code corresponding to the article `One Class Splitting Criteria for Random Forests <https://arxiv.org/pdf/1611.01971v3.pdf>`_, and other anomaly detection algorithms. 
 
 Abstract
 =======
@@ -42,6 +40,8 @@ the relevance of our approach.
 
 Install
 =======
+
+The implementation is based on a fork of scikit-learn. To have a working version of both scikit-learn and OCRF scikit-learn one can use conda to create a virtual environment specific to OCRF while keeping the original version of scikit-learn clean.
 
 This package uses distutils, which is the default way of installing
 python modules. To install in your home directory, use::
