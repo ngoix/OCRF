@@ -74,7 +74,7 @@ Then create a virtual environment for OCRF, activate it and install OCRF and its
 
 Now OCRF is installed. To check it run the script benchmark_oneclassrf.py::
 
-  python benchmark_oneclassrf.py
+  python benchmarks/benchmark_oneclassrf.py
   
 To quit the environment and revert to the original scikit-learn use::
 

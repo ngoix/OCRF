@@ -38,16 +38,17 @@ nb_exp = 10
 #             'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
 #             'pendigits', 'pima', 'wilt', 'internet_ads', 'adult']
 
-# continuous datasets:
-datasets = ['http', 'smtp', 'shuttle', 'forestcover',
-            'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
-            'pendigits', 'pima', 'wilt', 'adult']
+# # continuous datasets (prefered for OneClassRF):
+# datasets = ['http', 'smtp', 'shuttle', 'forestcover',
+#             'ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
+#             'pendigits', 'pima', 'wilt', 'adult']
+
 # new: ['ionosphere', 'spambase', 'annthyroid', 'arrhythmia', 'pendigits',
 #       'pima', 'wilt', 'adult']
 
-# datasets = ['ionosphere', 'spambase', 'annthyroid', 'arrhythmia',
-#             'pendigits', 'pima', 'wilt', 'adult']
-# datasets = ['wilt']
+# test with a single dataset:
+datasets = ['wilt']
+
 plt.figure(figsize=(25, 17))
 
 for dat in datasets:
