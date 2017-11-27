@@ -19,4 +19,4 @@ ctypedef np.intp_t ITYPE_t
 
 cdef class IntFloatDict:
     cdef cpp_map[ITYPE_t, DTYPE_t] my_map
-cdef _to_arrays(self, ITYPE_t [:] keys, DTYPE_t [:] values)
+    cdef _to_arrays(self, ITYPE_t [:] keys, DTYPE_t [:] values)
