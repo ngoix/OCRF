@@ -9,12 +9,9 @@ from libcpp.map cimport map as cpp_map
 
 # Import the C-level symbols of numpy
 cimport numpy as np
-import numpy as np
 
-DTYPE = np.float64
 ctypedef np.float64_t DTYPE_t
 
-ITYPE = np.intp
 ctypedef np.intp_t ITYPE_t
 
 ###############################################################################
@@ -22,4 +19,4 @@ ctypedef np.intp_t ITYPE_t
 
 cdef class IntFloatDict:
     cdef cpp_map[ITYPE_t, DTYPE_t] my_map
-    cdef _to_arrays(self, ITYPE_t [:] keys, DTYPE_t [:] values)
+cdef _to_arrays(self, ITYPE_t [:] keys, DTYPE_t [:] values)
